@@ -1,0 +1,44 @@
+<!--
+(c) RtBrick, Inc - All rights reserved, 2015 - 2018
+-->
+<ui-view-header>
+	<ui-title>Users</ui-title>
+	<ui-subtitle>Overview of all existing users</ui-subtitle>
+</ui-view-header>
+<ui-form>
+	<ui-filter name="filter">
+		<ui-label>Filter</ui-label>
+		<ui-note>Filter users by name or user ID</ui-note>
+	</ui-filter>
+</ui-form>
+<!--  {{#users.length}} -->
+<table class="list">
+	<thead>
+		<tr>
+			<th class="text">UserId</th>
+			<th class="text">Surname</th>
+			<th class="text">Given name</th>
+			<th class="text">Email</th>
+		</tr>
+	</thead>
+	<tbody>
+		<!-- {{#users}} -->
+		<tr>
+			<td class="text" ><a href="/ui/views/admin/im/user.html?user={{uuid}}" title="Show user details">{{user_id}}</a></td>
+			<td class="text" >{{given_name}}{{^given_name}}-{{/given_name}}</td>
+			<td class="text" >{{surname}}{{^surname}}-{{/surname}}</td>
+			<td class="text" >{{#email}}<a href="mailto:{{.}}" title="Send an email">{{.}}</a>{{/email}}{{^email}}-{{/email}}</td>
+		</tr>
+		<!-- {{/users}} -->
+	</tbody>
+</table>
+<!--  {{/users.length}} -->
+<!-- {{^users}} -->
+<ui-blankslate>
+	<ui-title>No users found</ui-title>
+	<ui-note>No matching users found. Do you want to <a href="add-user.html">add a new user?</a></ui-note>
+</ui-blankslate>
+<!-- {{/users}} -->
+<ui-actions>
+	<ui-button href="add-user.html" primary rolesAllowed="Administrator">Add user</ui-button>
+</ui-actions>

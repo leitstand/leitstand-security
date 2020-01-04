@@ -1,0 +1,75 @@
+<!--
+(c) RtBrick, Inc - All rights reserved, 2015 - 2017
+-->
+<ui-view-header>
+	<ui-title>Add new user</ui-title>
+	<ui-subtitle>Add a new user to the user repository</ui-subtitle>
+</ui-view-header>
+<ui-form>
+	<ui-group>
+		<ui-input name="user_id" bind="user.user_id">
+			<ui-label>User ID</ui-label>
+			<ui-note>The user account login ID</ui-note>
+		</ui-input>
+		<ui-input name="email" bind="user.email">
+			<ui-label>Email</ui-label>
+			<ui-note>The user's primary email address</ui-note>
+		</ui-input>
+		<ui-input name="given_name" bind="user.given_name">
+			<ui-label>Given Name</ui-label>
+			<ui-note>The user's first name</ui-note>
+		</ui-input>
+		<ui-input name="surname" bind="user.surname">
+			<ui-label>Surname</ui-label>
+			<ui-note>The user's family name</ui-note>
+		</ui-input>
+	</ui-group>
+	<ui-group>
+		<ui-label>Password</ui-label>
+		<ui-password name="password" bind="user.password">
+			<ui-label>Password</ui-label>
+			<ui-note>The user's initial password.</ui-note>
+		</ui-password>	
+		<ui-password name="confirmed_password" bind="user.confirmed_password">
+			<ui-label>Confirm Password</ui-label>
+			<ui-note>Type password again to detect accidential typos.</ui-note>
+		</ui-password>	
+	</ui-group>
+	<ui-group>
+		<ui-label>Session Settings</ui-label>
+		<ui-note>Override the default session timeout for this user. 
+				 The default session timeout defaults to one hour and can be set by the <code>jwt.ttl</code> environment variable.</ui-note>
+		<div class="row">
+			<div class="column one-third">
+				<ui-input name="access_token_ttl" bind="user.access_token_ttl">
+					<ui-label>Access Token Expiration Period</ui-label>		
+					<ui-note>Idle user session expiration period</ui-note>
+				</ui-input>
+			</div>
+			<div class="column">
+				<ui-select name="access_token_ttl_unit" bind="user.access_token_ttl_unit">
+					<ui-label>Unit</ui-label>
+					<ui-note>Expiration period temporal unit</ui-note>
+					<ui-option value=""></ui-option>
+					<ui-option value="MINUTES">Minutes</ui-option>
+					<ui-option value="HOURS">Hours</ui-option>
+					<ui-option value="DAYS">Days</ui-option>
+				</ui-select>
+			</div>
+		</div>
+	</ui-group>
+	<ui-group>
+		<ui-label>Roles</ui-label>
+		<ui-note>Select the roles of the user.</ui-note>
+		<!--  {{#roles}} -->
+		<ui-checkbox name="role" bind="user.roles" value="{{name}}">
+			<ui-label>{{name}}</ui-label>
+			<ui-note>{{description}}</ui-note>
+		</ui-checkbox>
+		<!--  {{/roles}} -->
+	</ui-group>
+	<ui-actions>
+		<ui-button name="add-user" primary>Add user</ui-button>
+		<ui-button href="users.html">Cancel</ui-button>
+	</ui-actions>
+</ui-form>

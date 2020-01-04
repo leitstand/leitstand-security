@@ -1,0 +1,81 @@
+<!--
+(c) RtBrick, Inc - All rights reserved, 2015 - 2017
+-->
+<ui-view-header>
+	<ui-title>Access Key Validator</ui-title>
+	<ui-subtitle>Validate an encoded acceess key</ui-subtitle>
+</ui-view-header>
+<!--  {{^encoded}} -->
+<ui-form rolesAllowed="Administrator">
+	<ui-group>
+		<ui-label>Encoded Access Key</ui-label>
+		<ui-textarea name="accesskey">
+			<ui-label>Access Key</ui-label>
+			<ui-note>Enter the access key to be validated.</ui-note>
+		</ui-textarea>
+	</ui-group>
+	<ui-actions>
+		<ui-button name="validate" primary title="Validate access key">Validate</ui-button>
+	</ui-actions>
+</ui-form>
+<!--  {{/encoded}} -->
+<!--  {{#accesskey}} -->
+<ui-details>
+		<ui-property>
+			<ui-label>Access Key ID</ui-label>
+			<ui-value><a href="accesskey.html?key={{key_id}}"
+				title="View accesskey details">{{key_id}}</a></ui-value>
+		</ui-property>
+		<ui-property>
+			<ui-label>Access Key Name</ui-label>
+			<ui-value>{{key_name}}</ui-value>
+		</ui-property>
+		<ui-property>
+			<ui-label>Date Created</ui-label>
+			<ui-value><ui-date readonly>{{date_created}}</ui-date></ui-value>
+		</ui-property>
+		<ui-property>
+			<ui-label>Paths</ui-label>
+			<ui-value>
+				<!-- {{#paths.length}} -->
+				<ul>
+					<!-- {{#paths}} -->
+					<li>{{.}}</li>
+					<!-- {{/paths}} -->
+				</ul> 
+				<!-- {{/paths.length}} --> 
+				<!-- {{^paths}} --> 
+					<strong>No path constraints.</strong> 
+				<!-- {{/paths}} -->
+			</ui-value>
+		</ui-property>
+		<ui-property>
+			<ui-label>Methods</ui-label>
+			<ui-value>
+				<!-- {{#methods.length}} -->
+				<ul>
+					<!-- {{#methods}} -->
+					<li>{{.}}</li>
+					<!-- {{/methods}} -->
+				</ul> 
+				<!-- {{/methods.length}} --> 
+				<!-- {{^methods}} --> 
+				<strong>No method constraints.</strong> 
+				<!-- {{/methods}} -->
+			</ui-value>
+		</ui-property>
+</ui-details>
+<!-- {{/accesskey}} -->
+<!-- {{#encoded.length}} --> 
+<!-- {{^accesskey}} -->
+<ui-blankslate>
+	<ui-title>Invalid Access Key</ui-title>
+	<ui-note>The access key is unknown. It was either issued for a different envirnment or has been revoked in the meanwhile.</ui-note>
+</ui-blankslate>
+<!-- {{/accesskey}}  -->
+<ui-form>
+	<ui-actions>
+		<ui-button href="validator.html" primary title="Validate another access key">Done</ui-button>
+	</ui-actions>	
+<ui-form>
+<!-- {{/encoded.length}}  -->

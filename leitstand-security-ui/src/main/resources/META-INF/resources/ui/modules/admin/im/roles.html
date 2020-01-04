@@ -1,0 +1,26 @@
+<!--
+(c) RtBrick, Inc - All rights reserved, 2015 - 2018
+-->
+<ui-view-header>
+  <ui-title>Roles</ui-title>
+  <ui-subtitle>Overview of all existing roles</ui-subtitle>
+</ui-view-header>
+<table class="list">
+	<thead>
+	<tr>
+		<th class="text">Role</th>
+		<th class="text">Description</th>
+	</tr>
+	</thead>
+	<tbody>
+		<!-- {{#roles}} -->
+		<tr>
+			<td class="text" >{{name}}</td>
+			<td class="text" >{{description}}</td>
+		</tr>
+		<!-- {{/roles}} -->
+		<!-- {{^roles}} -->
+		<tr><td colspan="6">No roles available.</td></tr>
+		<!-- {{/roles}} -->
+	</tbody>
+</table>

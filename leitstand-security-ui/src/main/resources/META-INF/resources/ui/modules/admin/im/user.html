@@ -1,0 +1,60 @@
+<!--
+(c) RtBrick, Inc - All rights reserved, 2015 - 2017
+-->
+<ui-view-header>
+	<ui-breadcrumbs>
+		<ui-breadcrumb href="users.html">Users</ui-breadcrumb>
+		<ui-breadcrumb>User {{user.user_id}}</ui-breadcrumb>
+	</ui-breadcrumbs>
+	<ui-title>User Settings</ui-title>
+	<ui-subtitle>Manage settings for user {{user.user_id}}.</ui-subtitle>
+</ui-view-header>
+<ui-form rolesAllowed="Administrator">
+	<ui-group>
+		<ui-label>User Settings</ui-label>
+		<ui-input name="user_id" bind="user.user_id">
+			<ui-label>User ID</ui-label>
+			<ui-note>The user account login ID</ui-note>
+		</ui-input>
+		<ui-input name="email" bind="user.email">
+			<ui-label>Email</ui-label>
+			<ui-note>The user's primary email address.</ui-note>
+		</ui-input>
+		<ui-input name="given_name" bind="user.given_name">
+			<ui-label>Given Name</ui-label>
+			<ui-note>The user's given name.</ui-note>
+		</ui-input>
+		<ui-input name="surname" bind="user.surname">
+			<ui-label>Surname</ui-label>
+			<ui-note>The user's family name.</ui-note>
+		</ui-input>
+	</ui-group>
+	<ui-group>
+		<ui-label>Session Settings</ui-label>
+		<ui-note>Override the default session timeout for this user. 
+				 The default session timeout is one hour and can be adjusted through the <code>jwt.ttl</code> environment variable.</ui-note>
+		<ui-input name="access_token_ttl" bind="user.access_token_ttl">
+			<ui-label>Access Token Expiration Period</ui-label>
+			<ui-note>Idle user session expiration period.</ui-note>
+		</ui-input>	
+		<ui-select name="access_token_ttl_unit" bind="user.access_token_ttl_unit" options="ttl_units">
+			<ui-label>Unit</ui-label>
+			<ui-note>Expiration period temporal unit.</ui-note>
+		</ui-select>	 
+	</ui-group>
+	<ui-group>
+		<ui-label>Roles</ui-label>
+		<ui-note>Select the user's roles. A user without any role has read-only access.</ui-note>
+		<!--  {{#roles}} -->
+		<ui-checkbox name="role" bind="user.roles" value="{{name}}">
+			<ui-label>{{name}}</ui-label>
+			<ui-note>{{description}}</ui-note>
+		</ui-checkbox>
+		<!-- {{/roles}} -->
+	</ui-group>
+	<ui-actions>
+		<ui-button name="save-settings" primary>Save settings</ui-button>
+		<ui-button href="confirm-remove.html?user={{user.uuid}}" danger>Remove user</ui-button>
+		<ui-button href="passwd.html?user={{user.uuid}}">Reset password</ui-button>
+	</ui-actions>
+</ui-form>

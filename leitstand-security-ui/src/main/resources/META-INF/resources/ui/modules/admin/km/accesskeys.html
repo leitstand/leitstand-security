@@ -1,0 +1,49 @@
+<!--
+(c) RtBrick, Inc - All rights reserved, 2015 - 2018
+-->
+<ui-view-header>
+	<ui-title>Access Keys</ui-title>
+	<ui-subtitle>Listing of all existing access keys.</ui-subtitle>
+</ui-view-header>
+<ui-form>
+	<ui-filter name="filter">
+		<ui-label>Filter</ui-label>
+		<ui-note>Filter access keys by name</ui-note>
+	</ui-filter>
+</ui-form>
+<!-- {{#keys.length}} -->
+<ui-group>
+	<ui-label>Access Keys</ui-label>
+	<ui-note>List of all issued and valid access keys. 
+					An access key can be revoked in order to be invalidated. 
+					Access keys are immutable. The modification of an access key requires to issue a new access key.</ui-note>
+	<table id="items" class="list">
+		<thead>
+		<tr>
+			<th class="text">Name</th>
+			<th class="text">Date Created</th>
+			<th class="text">Description</th>
+		</tr>
+		</thead>
+		<tbody>
+			<!-- {{#keys}} -->
+			<tr>
+				<td class="text top" ><a href="/ui/views/admin/km/accesskey.html?key={{key_id}}" title="Show user details">{{key_name}}</a></td>
+				<td class="text top" ><ui-date readonly>{{date_created}}</ui-date></td>
+				<td class="text medium" >{{description}}</td>
+			</tr>
+			<!-- {{/keys}} -->
+		</tbody>
+	</table>
+</ui-group>
+<!-- {{/keys.length}} -->
+<!-- {{^keys}} -->
+<ui-blankslate>
+	<ui-title>No access keys found</ui-title>
+	<ui-note>No matching access key found. <a href="new-accesskey.html">Add a new access key</a>.</ui-note>
+</ui-blankslate>
+<!-- {{/keys}} -->
+<ui-actions>
+	<ui-button href="new-accesskey.html" primary rolesAllowed="Administrator">Add access key</a>
+</ui-actions>
+

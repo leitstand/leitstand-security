@@ -1,0 +1,84 @@
+<!--
+(c) RtBrick, Inc - All rights reserved, 2015 - 2017
+-->
+<ui-view-header>
+	<ui-breadcrumbs>
+	  <ui-breadcrumb href="accesskeys.html">Access keys</ui-breadcrumb>
+	  <ui-breacrumb>{{key_name}}</ui-breacrumb>
+	</ui-breadcrumbs>
+	<ui-title>Access Key</ui-title>
+	<ui-subtitle>Manage settings of access key {{key_name}}</ui-subtitle>
+</ui-view-header>
+<ui-form rolesAllowed="Administrator">
+	<ui-group>
+		<ui-label>General Settings</ui-label>
+		<ui-input name="key_name">
+			<ui-label>Key Name</ui-label>
+			<ui-note>A unique key name that also forms the user login ID for all requestes authenticated by this key</ui-note>
+		</ui-input>
+		<ui-textarea name="description">
+			<ui-label>Description</ui-label>
+			<ui-note>A brief description of this access key, which ideally explains why this access key was issued.</ui-note>
+		</ui-textarea>
+	</ui-group>
+	<ui-group>
+		<ui-label>Methods</ui-label>
+		<ui-note>Restrict access to certain HTTP methods. 
+				 Access is granted for all HTTP methods by default, 
+				 if not HTTP method restriction was selected when the access key has been issued.</ui-note>
+		<ui-checkbox name="method" value="GET" disabled readonly>
+			<ui-label>HTTP GET</ui-label>
+			<ui-note>Access key allows to read existing resources</ui-note>
+		</ui-checkbox>
+		<ui-checkbox name="method" value="PUT" disabled readonly>
+			<ui-label>HTTP PUT</ui-label>
+			<ui-note>Access key allows to store resources</ui-note>
+		</ui-checkbox>
+		<ui-checkbox name="method" value="POST" disabled readonly>
+			<ui-label>HTTP POST</ui-label>
+			<ui-note>Access key allows to invoke operations on existing resources</ui-note>
+		</ui-checkbox>
+		<ui-checkbox name="method" value="DELETE" disabled readonly>
+			<ui-label>HTTP DELTE</ui-label>
+			<ui-note>Access key allows to remove existing resources</ui-note>
+		</ui-checkbox>
+	</ui-group>
+	<ui-group>
+		<ui-label>Paths</ui-label>
+		<ui-note>Restrict access to certain resource types.
+				 Access is granted for all resource types by default, 
+				 if no resource restriction was selected when the access key has been issued.  </ui-note>	
+		<ui-checkbox name="path" value="/api/v1/images/.*" disabled readonly>
+			<ui-label>Images</ui-label>
+			<ui-note>Access key allows to access image resources located under <code>/api/v1/images</code>
+		</ui-checkbox>
+		<ui-checkbox name="path" value="/api/v1/pods/.*" disabled readonly>
+			<ui-label>Pods</ui-label>
+			<ui-note>Access key allows to access pod resources located under <code>/api/v1/pods</code>
+		</ui-checkbox>
+		<ui-checkbox name="path" value="/api/v1/elements/.*" disabled readonly>
+			<ui-label>Elements</ui-label>
+			<ui-note>Access key allows to access element resources located under <code>/api/v1/elements</code>
+		</ui-checkbox>
+		<ui-checkbox name="path" value="/api/v1/jobs/.*" disabled readonly>
+			<ui-label>Jobs</ui-label>
+			<ui-note>Access key allows to access job resources located under <code>/api/v1/jobs</code>
+		</ui-checkbox>
+		<ui-checkbox name="path" value="/api/v1/metrics/.*" disabled readonly>
+			<ui-label>Metrics</ui-label>
+			<ui-note>Access key allows to access metric resources located under <code>/api/v1/metrics</code>
+		</ui-checkbox>
+		<ui-checkbox name="path" value="/api/v1/users/.*" disabled readonly>
+			<ui-label>Users</ui-label>
+			<ui-note>Access key allows to access user resources located under <code>/api/v1/users</code>
+		</ui-checkbox>
+		<ui-checkbox name="path" value="/api/v1/accesskeys/.*" disabled readonly>
+			<ui-label>Access Keys</ui-label>
+			<ui-note>Access key allows to access access key resources located under <code>/api/v1/accesskeys</code>
+		</ui-checkbox>
+	</ui-group>	
+	<ui-actions>
+		<ui-button id="save" name="save" primary title="Save access key settings">Save settings</ui-button>
+		<ui-button href="confirm-revoke.html?key={{key_id}}" danger title="Revoke access key">Revoke access key</ui-button>
+	</ui-actions>
+</ui-form>

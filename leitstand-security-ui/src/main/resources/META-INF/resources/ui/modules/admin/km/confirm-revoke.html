@@ -1,0 +1,11 @@
+<ui-confirm>
+<ui-title>Confirm revoke access key {{key_name}}</ui-title>
+<ui-message>
+<ui-note>
+Revoking an access key <strong>cannot be undone!</strong> 
+Once being revoked, the access key owner is not allowed to access RBMS any longer.
+</ui-note>
+</ui-message>
+<ui-approve name="revoke" danger rolesAllowed="Administrator">Confirm</ui-approve>
+<ui-decline href="accesskey.html?key={{key_id}}">Cancel</ui-decline>
+</ui-confirm>

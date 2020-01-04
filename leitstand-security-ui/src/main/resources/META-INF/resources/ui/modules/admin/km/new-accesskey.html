@@ -1,0 +1,104 @@
+<!--
+(c) RtBrick, Inc - All rights reserved, 2015 - 2017
+-->
+<ui-view-header>
+	<ui-breadcrumbs>
+	  <ui-breadcrumb href="accesskeys.html">Access keys</ui-breadcrumb>
+	  <ui-breacrumb>New Access Key</ui-breadcrumb>
+	</ui-breadcrumbs>
+	<ui-title>New Access Key</ui-title>
+	<ui-subtitle>Issue a new access key</ui-subtitle>
+</ui-view-header>
+<ui-form rolesAllowed="Administrator">
+	<ui-group>
+		<ui-label>General Settings</ui-label>
+		<ui-input name="key_name">
+			<ui-label>Key Name</ui-label>
+			<ui-note>A unique key name that also forms the user login ID for all requestes authenticated by this key</ui-note>
+		</ui-input>
+		<ui-textarea name="description">
+			<ui-label>Description</ui-label>
+			<ui-note>A brief description of this access key, which ideally explains why this access key was issued.</ui-note>
+		</ui-textarea>
+	</ui-group>
+	<ui-group>
+		<ui-label>Methods</ui-label>
+		<ui-note>Restrict access to certain HTTP methods. 
+				 Access is granted for all HTTP methods by default, 
+				 if not HTTP method restriction was selected when the access key has been issued.</ui-note>
+		<ui-checkbox name="method" value="GET">
+			<ui-label>HTTP GET</ui-label>
+			<ui-note>Allow access key to read existing resources</ui-note>
+		</ui-checkbox>
+		<ui-checkbox name="method" value="PUT">
+			<ui-label>HTTP PUT</ui-label>
+			<ui-note>Allow access key to store resources</ui-note>
+		</ui-checkbox>
+		<ui-checkbox name="method" value="POST">
+			<ui-label>HTTP POST</ui-label>
+			<ui-note>Allow access key to invoke operations on existing resources</ui-note>
+		</ui-checkbox>
+		<ui-checkbox name="method" value="DELETE">
+			<ui-label>HTTP DELTE</ui-label>
+			<ui-note>Allow access key to remove existing resources</ui-note>
+		</ui-checkbox>
+		<ui-actions>
+			<ui-button name="deselect-all-methods" small>Deselect all</ui-button>
+			<ui-button name="select-all-methods" small>Select all</ui-button>
+		</ui-actions>
+	</ui-group>
+		<ui-group>
+		<ui-label>Paths</ui-label>
+		<ui-note>Restrict access to certain resource types.
+				 Access is granted for all resource types by default, 
+				 if no resource restriction was selected when the access key has been issued.  </ui-note>	
+		<ui-checkbox name="path" value="/api/v1/images/.*">
+			<ui-label>Images</ui-label>
+			<ui-note>Allow access key to access image resources located under <code>/api/v1/images</code></ui-note>	
+		</ui-checkbox>
+		<ui-checkbox name="path" value="/api/v1/pods/.*">
+			<ui-label>Pods</ui-label>
+			<ui-note>Allow access key to access pod resources located under <code>/api/v1/pods</code></ui-note>	
+		</ui-checkbox>
+		<ui-checkbox name="path" value="/api/v1/elements/.*">
+			<ui-label>Elements</ui-label>
+			<ui-note>Allow access key to access element resources located under <code>/api/v1/elements</code></ui-note>	
+		</ui-checkbox>
+		<ui-checkbox name="path" value="/api/v1/jobs/.*">
+			<ui-label>Jobs</ui-label>
+			<ui-note>Allow access key to access job resources located under <code>/api/v1/jobs</code></ui-note>	
+		</ui-checkbox>
+		<ui-checkbox name="path" value="/api/v1/metrics/.*">
+			<ui-label>Metrics</ui-label>
+			<ui-note>Allow access key to access metric resources located under <code>/api/v1/metrics</code></ui-note>	
+		</ui-checkbox>
+		<ui-checkbox name="path" value="/api/v1/users/.*">
+			<ui-label>Users</ui-label>
+			<ui-note>Allow access key to access user resources located under <code>/api/v1/users</code></ui-note>	
+		</ui-checkbox>
+		<ui-checkbox name="path" value="/api/v1/accesskeys/.*">
+			<ui-label>Access Keys</ui-label>
+			<ui-note>Allow access key to access access-key resources located under <code>/api/v1/accesskeys</code></ui-note>	
+		</ui-checkbox>
+		<ui-actions>
+			<ui-button name="deselect-all-paths" small>Deselect all</ui-button>
+			<ui-button name="select-all-paths" small>Select all</ui-button>
+		</ui-actions>
+	</ui-group>	
+
+	<ui-actions id="create">
+		<ui-button name="create-accesskey" primary>Create access key</ui-button>
+		<ui-button href="accesskeys.html">Cancel</ui-button>
+	</ui-actions>
+
+	<ui-group id="token" class="mustache-template hidden">
+		<ui-label>Token</ui-label>
+		<ui-note>Please create a copy of the generated access key. 
+				 The access key token cannot be accessed again once this view has been closed.</ui-note>
+		<ui-code style="word-wrap:break-word; display:block; width:60em; margin: auto;">{{token}}</ui-code>
+		<ui-actions>
+			<ui-button href="accesskeys.html" class="primary">Close</ui-button>
+		</ui-actions>
+	</ui-group>
+
+</ui-form>

@@ -1,0 +1,62 @@
+<ui-view-header>
+	<ui-title>User Profile Settings</ui-title>
+	<ui-subtitle>Manage your user profile</ui-subtitle>
+</ui-view-header>
+<ui-form>
+	<ui-group>
+		<ui-label>General Settings</ui-label>
+		<ui-input name="user_id" bind="profile.user_id" disabled readonly>
+			<ui-label>User ID</ui-label>
+			<ui-note>User account login ID</ui-note>
+		</ui-input>
+		<ui-input name="given_name" bind="profile.given_name">
+			<ui-label>Given Name</ui-label>
+			<ui-note>Your first name</ui-note>
+		</ui-input>
+		<ui-input name="surname" bind="profile.surname">
+			<ui-label>Surname</ui-label>
+			<ui-note>Your family name</ui-note>
+		</ui-input>
+		<ui-input name="email" bind="profile.email">
+			<ui-label>Email</ui-label>
+			<ui-note>Your email address.</ui-note>
+		</ui-input>
+		<!--  {{#assigned_roles.length}} -->
+		<div style="padding-right: 30%">
+			<ui-note>Assigned roles</ui-note>
+			<table class="list">
+				<thead>
+					<tr><th class="text">Role</th><th class="text">Description</th></tr>
+				</thead>
+				<tbody>
+					<!-- {{#assigned_roles}} -->
+					<tr><td class="text">{{name}}</td><td class="text">{{description}}</td>	
+					<!-- {{/assigned_roles}} -->
+				</tbody>
+			</table>
+		</div>
+		<!--  {{/assigned_roles.length}} -->
+			
+		<ui-actions>
+			<ui-button name="save-settings" primary>Save settings</ui-button>
+		</ui-actions>	
+	</ui-group>
+	<ui-group>
+		<ui-label>Password</ui-label>
+		<ui-password name="password">
+			<ui-label>Current Password</ui-label>
+			<ui-note>Enter your current password to authenticate the password change request.</ui-note>
+		</ui-password>
+		<ui-password name="new_password">
+			<ui-label>New Password</ui-label>
+			<ui-note>Enter your new password</ui-note>
+		</ui-password>
+		<ui-password>
+			<ui-label>Confirm Password</ui-label>
+			<ui-note>Confirm the new password by entering it again in order to detect typos.</ui-note>
+		</ui-password>
+		<ui-actions>
+			<ui-button name="passwd">Change password</ui-button>
+		</ui-actions>
+	</ui-group>
+</ui-form>

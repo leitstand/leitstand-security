@@ -1,0 +1,40 @@
+<!--
+(c) RtBrick, Inc - All rights reserved, 2015 - 2018
+-->
+<ui-view-header>
+	<ui-breadcrumbs>
+		<ui-breadcrumb href="records.html">Login Audit Log</ui-breadcrumb>
+		<ui-breadcrumb>{{user_id}} login attempt at <ui-date readonly>{{login_date}}</ui-date></ui-breadcrumb>
+	</ui-breadcrumbs>
+	<ui-title>Login Audit Log Record</ui-title>
+	<ui-subtitle>Login attempt of user {{user_id}} at <ui-date readonly>{{login_date}}</ui-date></ui-subtitle>
+</ui-view-header>
+<ui-details>
+		<ui-property>
+			<ui-label>Login date</ui-label>
+			<ui-value><ui-date readonl>{{login_date}}</ui-date></ui-value>
+		</ui-property>
+		<ui-property>
+			<ui-label>User ID</ui-label>
+			<ui-value>{{user_id}}</ui-value>
+		</ui-property>
+		<ui-property>
+			<ui-label>Login state</ui-label>
+			<ui-value><span class="{{login_state}}">{{login_state}}</span></ui-value>
+		</ui-property>
+		<ui-property>
+			<ui-label>Remote IP</ui-label>
+			<ui-value>{{remote_ip}}</ui-value>
+		</ui-property>
+		<ui-property>
+			<ui-label>User agent</ui-label>
+			<ui-value>{{user_agent}}</ui-value>
+		</ui-property>
+		<ui-property>
+			<ui-label>Signature</ui-label>
+			<ui-value>
+				{{#valid}}<span class="VALID">VALID</span>{{/valid}}
+				{{^valid}}<span class="INVALID">INVALID</span>{{/valid}}
+			</ui-value>
+		</ui-property>	
+</ui-details>
