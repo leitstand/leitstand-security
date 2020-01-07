@@ -1,6 +1,6 @@
 # Leitstand User Repository
 
-The _Leistand User Repository_ allows to maintain users for a standalone Leitstand installation.
+The _Leitstand User Repository_ allows to maintain users for a standalone Leitstand installation.
 It is mainly intended for environments where an integration with an enterprise identity management is not available.
 
 ## Overview

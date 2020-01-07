@@ -1,9 +1,9 @@
 # Leitstand User Repository Database Model
 
-This document describes the tables, including their relations, forming the _Leistand User Repository Database Model_, 
+This document describes the tables, including their relations, forming the _Leitstand User Repository Database Model_, 
 which is a relational database model.
 
-The Leistand user repository tables are located in the `auth` database schema.
+The Leitstand user repository tables are located in the `auth` database schema.
 
 ## Entity Relationship Diagram
 
