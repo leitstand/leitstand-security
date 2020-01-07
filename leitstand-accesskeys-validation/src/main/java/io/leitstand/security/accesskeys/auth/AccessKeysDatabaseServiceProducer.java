@@ -17,7 +17,7 @@ import io.leitstand.commons.db.DatabaseService;
 @Dependent
 public class AccessKeysDatabaseServiceProducer {
 
-	@Resource(lookup="java:/jdbc/rbms")
+	@Resource(lookup="java:/jdbc/leitstand")
 	private DataSource ds;
 	
 	/**

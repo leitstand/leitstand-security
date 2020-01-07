@@ -18,7 +18,7 @@ import io.leitstand.commons.model.Repository;
 @Dependent
 public class LoginDatabaseServiceProducer {
 
-	@Resource(lookup="java:/jdbc/rbms")
+	@Resource(lookup="java:/jdbc/leitstand")
 	private DataSource ds;
 	
 	/**
