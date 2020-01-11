@@ -1,9 +1,8 @@
-/*
- * (c) RtBrick, Inc - All rights reserved, 2015 - 2019
- */
 package io.leitstand.security.auth;
 
-import java.security.Principal;
+import static io.leitstand.commons.model.Patterns.UUID_PATTERN;
+
+import java.util.UUID;
 
 import javax.json.bind.annotation.JsonbTypeAdapter;
 import javax.validation.constraints.NotNull;
@@ -13,67 +12,51 @@ import io.leitstand.commons.model.Scalar;
 import io.leitstand.security.auth.jsonb.UserIdAdapter;
 
 /**
- * The identifier of an authenticated user.
+ * Immutable unique user account ID in UUIDv4 format.
  */
 @JsonbTypeAdapter(UserIdAdapter.class)
-public class UserId extends Scalar<String> {
+public class UserId extends Scalar<String>{
 
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * Alias for the {@link #valueOf(Principal)} method.
-	 * <p>
-	 * Creates a <code>UserId</code> from the given principal's name.
-	 * @param principal the principal name
-	 * @return the created <code>UserId</code> or <code>null</code> if the
-	 * specified <code>Principal</code> is <code>null</code> or the principal's name is <code>null</code> or empty.
+	 * Creates a random user account ID.
+	 * @return a random user account ID.
 	 */
-	public static UserId userId(Principal principal) {
-		return valueOf(principal);
+	public static final UserId randomUserId() {
+		return valueOf(UUID.randomUUID().toString());
 	}
 	
 	/**
-	 * Alias for the {@link #valueOf(String)} method.
+	 * Alias of the {@link #valueOf(String)} factory method.
 	 * <p>
-	 * Creates a <code>UserId</code> from the specified string.
-	 * @param userId the user id.
-	 * @return the created <code>UserId</code> instance or 
-	 * <code>null</code> if the specified string is <code>null</code> or empty.
+	 * Converts the specified string to a <xcode>UserId</code>
+	 * @param userId the user account ID
+	 * @return the translated <code>UserId</code> or <code>null</code> if the specified string was <code>null</code> or an empty string
 	 */
-	public static UserId userId(String userId) {
+	public static final UserId userId(String userId) {
 		return valueOf(userId);
 	}
 	
 	/**
-	 * Creates a <code>UserId</code> from the specified string.
-	 * @param userId the user id.
-	 * @return the created <code>UserId</code> instance or 
-	 * <code>null</code> if the specified string is <code>null</code> or empty.
+	 * Converts the specified string to a <xcode>UserId</code>
+	 * @param userId the user account ID
+	 * @return the translated <code>UserId</code> or <code>null</code> if the specified string was <code>null</code> or an empty string
 	 */
-	public static UserId valueOf(String userId) {
+	public static final UserId valueOf(String userId) {
 		return fromString(userId,UserId::new);
 	}
 	
-
-	public static UserId valueOf(Principal principal) {
-		return principal != null ? valueOf(principal.getName()) : null; 
-	}
-	
 	@NotNull(message="{user_id.required}")
-	@Pattern(regexp="\\p{Graph}{2,64}", 
-			 message="{user_id.invalid}")
+	@Pattern(regexp=UUID_PATTERN, message="{user_id.invalid}")
 	private String value;
 	
-	protected UserId() {
-		// CDI
-	}
-	
 	/**
-	 * Creates a <code>UserId</code>.
-	 * @param value the user ID
+	 * Creates a <code>UserId</code>
+ 	 * @param userId the user account ID
 	 */
-	public UserId(String value){
-		this.value = value;
+	public UserId(String userId) {
+		this.value = userId;
 	}
 	
 	/**
@@ -83,15 +66,6 @@ public class UserId extends Scalar<String> {
 	public String getValue() {
 		return value;
 	}
-
-	/**
-	 * Returns the user id length in characters.
-	 * @return the suer id length in characters.
-	 */
-	public int length() {
-		return value.length();
-	}
-
-
-
+	
+	
 }

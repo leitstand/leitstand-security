@@ -23,7 +23,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import io.leitstand.security.auth.UserId;
+import io.leitstand.security.auth.UserName;
 import io.leitstand.security.auth.jwt.JsonWebTokenDecoder;
 import io.leitstand.security.auth.jwt.JsonWebTokenSignatureException;
 
@@ -103,7 +103,7 @@ public class AuthorizationCodeManagerTest {
 							AuthorizationCode.Payload.class, 
 							"JWT.AUTH.TOKEN"))
 		.thenReturn(newAuthorizationCode()
-					.withUserId(UserId.valueOf("unittest"))
+					.withUserName(UserName.valueOf("unittest"))
 					.build());
 		
 		CredentialValidationResult result = manager.validateAccessToken(request, 

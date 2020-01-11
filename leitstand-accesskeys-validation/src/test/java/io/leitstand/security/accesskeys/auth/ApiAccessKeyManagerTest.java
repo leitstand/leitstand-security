@@ -25,7 +25,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import io.leitstand.security.auth.UserId;
+import io.leitstand.security.auth.UserName;
 import io.leitstand.security.auth.accesskey.ApiAccessKey;
 import io.leitstand.security.auth.accesskey.ApiAccessKeyDecoder;
 import io.leitstand.security.auth.http.Authorization;
@@ -99,7 +99,7 @@ public class ApiAccessKeyManagerTest {
 		HttpServletRequest request = mock(HttpServletRequest.class);
 		when(request.getHeader(HTTP_AUTHORIZATION_HEADER)).thenReturn("Bearer ACCESSKEY");
 		ApiAccessKey token = mock(ApiAccessKey.class);
-		when(token.getUserId()).thenReturn(UserId.valueOf("unittest"));
+		when(token.getUserName()).thenReturn(UserName.valueOf("unittest"));
 		when(keyDecoder.decode("ACCESSKEY")).thenReturn(token);
 		when(authenticator.isAllowed(request, token)).thenReturn(FALSE);
 		
@@ -115,7 +115,7 @@ public class ApiAccessKeyManagerTest {
 		when(request.getHeader(HTTP_AUTHORIZATION_HEADER)).thenReturn("Bearer ACCESSKEY");
 
 		ApiAccessKey token = mock(ApiAccessKey.class);
-		when(token.getUserId()).thenReturn(UserId.valueOf("unittest"));
+		when(token.getUserName()).thenReturn(UserName.valueOf("unittest"));
 		when(keyDecoder.decode("ACCESSKEY")).thenReturn(token);
 		when(authenticator.isAllowed(request, token)).thenReturn(TRUE);
 		

@@ -97,7 +97,7 @@ public class AccessKeyAuthenticator {
 		if(key.isTemporary() ){
 			if(key.isOlderThan(60, SECONDS)) {
 				LOG.info(() -> format("Access attempt with an expired key %s (%s).", 
-									  	key.getUserId(), 
+									  	key.getUserName(), 
 									  	key.getId()));
 				return true;
 			}
@@ -123,7 +123,7 @@ public class AccessKeyAuthenticator {
 				// Key is revoked as no database record exists.
 				state.revoked();
 				LOG.warning(() -> format("Access attempt with revoked key %s (%s).", 
-									 	 key.getUserId(), 
+									 	 key.getUserName(), 
 									 	 key.getId()));
 				return true;
 			}

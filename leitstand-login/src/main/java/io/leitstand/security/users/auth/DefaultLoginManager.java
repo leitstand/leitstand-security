@@ -3,6 +3,7 @@
  */
 package io.leitstand.security.users.auth;
 
+import static io.leitstand.security.auth.UserName.userName;
 import static io.leitstand.security.login.log.service.UserLoginState.FAILED;
 import static io.leitstand.security.login.log.service.UserLoginState.PASSED;
 import static java.lang.String.format;
@@ -25,7 +26,7 @@ import javax.security.enterprise.identitystore.IdentityStore;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import io.leitstand.security.auth.UserId;
+import io.leitstand.security.auth.UserName;
 import io.leitstand.security.auth.user.LoginManager;
 import io.leitstand.security.login.log.service.UserLoginAuditLogService;
 
@@ -48,9 +49,9 @@ public class DefaultLoginManager implements LoginManager{
 	 */
 	static UsernamePasswordCredential readCredentials(JsonReader reader) {
 		JsonObject request 	= reader.readObject();
-		String	   userId  	= request.getString("user_id");
+		String	   userName  	= request.getString("user_name");
 		Password   password = new Password(request.getString("password"));
-		return new UsernamePasswordCredential(userId, password);
+		return new UsernamePasswordCredential(userName, password);
 	}
 	
 	/**
@@ -70,19 +71,19 @@ public class DefaultLoginManager implements LoginManager{
 			UsernamePasswordCredential credential = readCredentials(reader);
 			CredentialValidationResult result = is.validate(credential);
 			
-			UserId userId = UserId.valueOf(credential.getCaller());
+			UserName userName = userName(credential.getCaller());
 			// Send unauthenticated reply if credentials are invalid
 			if(result.getStatus() == INVALID) {
 				audit.log(request.getRemoteAddr(),
 						  request.getHeader(USER_AGENT_HTTP_HEADER),
-						  userId, 
+						  userName, 
 						  FAILED);	
 				return result;
 			}
 			
 			audit.log(request.getRemoteAddr(), 
 					  request.getHeader(USER_AGENT_HTTP_HEADER), 
-					  userId, 
+					  userName, 
 					  PASSED);
 			
 			return result;

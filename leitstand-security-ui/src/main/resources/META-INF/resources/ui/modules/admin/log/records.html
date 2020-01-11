@@ -31,7 +31,7 @@
 	<thead>
 	<tr>
 		<th class="text">Remote IP</th>
-		<th class="text">User ID</th>
+		<th class="text">User Name</th>
 		<th>Login Date</th>
 		<th>Login Result</th>
 		<th>Record Signature</th>
@@ -41,7 +41,7 @@
 		<!-- {{#records}} -->
 		<tr>
 			<td class="text" >{{remote_ip}}</td>
-			<td class="text" ><a href="/ui/views/admin/log/record.html?local_ip={{local_ip}}&id={{id}}" title="Show record details">{{user_id}}</a></td>
+			<td class="text" ><a href="/ui/views/admin/log/record.html?local_ip={{local_ip}}&id={{id}}" title="Show record details">{{user_name}}</a></td>
 			<td><ui-date readonly>{{login_date}}</ui-date></td>
 			<td><span class="{{login_state}}">{{login_state}}</span></td>
 			<td>{{#valid}}<span class="VALID">VALID</span>{{/valid}}

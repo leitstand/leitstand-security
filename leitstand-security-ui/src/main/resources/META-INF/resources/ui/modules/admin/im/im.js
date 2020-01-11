@@ -27,7 +27,7 @@ export class Users extends Resource {
 export class Roles extends Resource {
 
 	load() {
-		return this.json("/api/v1/roles")
+		return this.json("/api/v1/userroles")
 				   .GET();
 	}
 

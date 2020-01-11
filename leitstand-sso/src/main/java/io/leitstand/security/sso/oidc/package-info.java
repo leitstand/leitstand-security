@@ -4,4 +4,4 @@
 /**
  * Contains a  <a href="http://www.openid.net" title="Open OpenID.net">OpenID compliant</a> user information provider. 
  */
-package io.leitstand.security.sso.openid;
+package io.leitstand.security.sso.oidc;

@@ -1,7 +1,7 @@
 /*
  * (c) RtBrick, Inc - All rights reserved, 2015 - 2019
  */
-package io.leitstand.security.sso.openid;
+package io.leitstand.security.sso.oidc;
 
 import static io.leitstand.commons.model.ObjectUtil.asSet;
 
@@ -12,11 +12,12 @@ import javax.enterprise.context.Dependent;
 import io.leitstand.commons.rs.ApiResourceProvider;
 
 @Dependent
-public class OpenIdResources implements ApiResourceProvider {
+public class OidcResources implements ApiResourceProvider {
 
 	@Override
 	public Set<Class<?>> getResources() {
-		return asSet(UserInfoResource.class);
+		return asSet(OidcAuthenticationFlowResource.class,
+					 UserInfoResource.class);
 	}
 
 }

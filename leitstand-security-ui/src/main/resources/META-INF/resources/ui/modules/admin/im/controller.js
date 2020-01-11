@@ -52,6 +52,8 @@ let userController = function() {
 			let roles = await new Roles().load();
 			// ... and add them as transient properties, i.e. roles shall not be serialized with the view model
 			viewModel.roles = roles;
+
+			
 			return viewModel;
 		},
 		buttons:{

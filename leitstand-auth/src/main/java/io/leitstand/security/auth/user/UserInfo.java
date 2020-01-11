@@ -11,7 +11,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import io.leitstand.commons.model.ValueObject;
-import io.leitstand.security.auth.UserId;
+import io.leitstand.security.auth.UserName;
 
 public class UserInfo extends ValueObject{
 
@@ -22,9 +22,9 @@ public class UserInfo extends ValueObject{
 	public static class Builder {
 		private UserInfo userInfo = new UserInfo();
 		
-		public Builder withUserId(UserId userId) {
+		public Builder withUserName(UserName userName) {
 			assertNotInvalidated(getClass(), userInfo);
-			userInfo.userId = userId;
+			userInfo.userName = userName;
 			return this;
 		}
 		
@@ -55,13 +55,13 @@ public class UserInfo extends ValueObject{
 		}
 	}
 	
-	private UserId userId;
+	private UserName userName;
 	private Set<String> roles = emptySet();
 	private Long accessTokenTtl;
 	private TimeUnit accessTokenTtlUnit;
 
-	public UserId getUserId() {
-		return userId;
+	public UserName getUserName() {
+		return userName;
 	}
 	
 	public Set<String> getRoles() {

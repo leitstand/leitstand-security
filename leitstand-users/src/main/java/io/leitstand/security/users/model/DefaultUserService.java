@@ -6,10 +6,13 @@ package io.leitstand.security.users.model;
 import static io.leitstand.commons.db.DatabaseService.prepare;
 import static io.leitstand.commons.messages.MessageFactory.createMessage;
 import static io.leitstand.security.auth.Role.ADMINISTRATOR;
+import static io.leitstand.security.auth.UserId.userId;
+import static io.leitstand.security.auth.UserName.userName;
 import static io.leitstand.security.users.model.PasswordService.ITERATIONS;
 import static io.leitstand.security.users.model.Role.findRoleByName;
-import static io.leitstand.security.users.model.User.findUserByUserId;
-import static io.leitstand.security.users.model.User.findUserByUuid;
+import static io.leitstand.security.users.model.User.findUserById;
+import static io.leitstand.security.users.model.User.findUserByName;
+import static io.leitstand.security.users.service.EmailAddress.emailAddress;
 import static io.leitstand.security.users.service.ReasonCode.IDM0001I_USER_STORED;
 import static io.leitstand.security.users.service.ReasonCode.IDM0002I_PASSWORD_RESET;
 import static io.leitstand.security.users.service.ReasonCode.IDM0003I_PASSWORD_UPDATED;
@@ -45,6 +48,7 @@ import io.leitstand.commons.model.Repository;
 import io.leitstand.commons.model.Service;
 import io.leitstand.security.auth.Authenticated;
 import io.leitstand.security.auth.UserId;
+import io.leitstand.security.auth.UserName;
 import io.leitstand.security.users.service.EmailAddress;
 import io.leitstand.security.users.service.UserReference;
 import io.leitstand.security.users.service.UserService;
@@ -99,25 +103,25 @@ public class DefaultUserService implements UserService {
 	public List<UserReference> findUsers(String filter) {
 		
 		if(filter == null || filter.isEmpty()) {
-			return db.executeQuery(prepare("SELECT uuid, userid, email, givenname, surname FROM auth.userdata ORDER BY surname,givenname,userid"), 
+			return db.executeQuery(prepare("SELECT uuid, name, email, givenname, familyname FROM auth.userdata ORDER BY familyname,givenname,name"), 
 						    	   rs -> newUserReference()
-						    	   		 .withUuid(rs.getString(1))
-						    	   		 .withUserId(UserId.valueOf(rs.getString(2)))
-						    	   		 .withEmailAddress(EmailAddress.valueOf(rs.getString(3)))
+						    	   		 .withUserId(userId(rs.getString(1)))
+						    	   		 .withUserName(userName(rs.getString(2)))
+						    	   		 .withEmailAddress(emailAddress(rs.getString(3)))
 						    	   		 .withGivenName(rs.getString(4))
-						    	   		 .withSurname(rs.getString(5))
+						    	   		 .withFamilyName(rs.getString(5))
 						    	   		 .build());
 		}
 
-		return db.executeQuery(prepare("SELECT uuid, userid, email, givenname, surname FROM auth.userdata WHERE (SURNAME ~ ? OR USERID ~ ? ) ORDER BY surname,givenname,userid",
+		return db.executeQuery(prepare("SELECT uuid, name, email, givenname, familyname FROM auth.userdata WHERE (familyname ~ ? OR name ~ ? ) ORDER BY familyname,givenname,name",
 									   filter,
 									   filter), 
 					    	   rs -> newUserReference()
-					    	   		 .withUuid(rs.getString(1))
-					    	   		 .withUserId(UserId.valueOf(rs.getString(2)))
-					    	   		 .withEmailAddress(EmailAddress.valueOf(rs.getString(3)))
+					    	   		 .withUserId(userId(rs.getString(1)))
+					    	   		 .withUserName(userName(rs.getString(2)))
+					    	   		 .withEmailAddress(emailAddress(rs.getString(3)))
 					    	   		 .withGivenName(rs.getString(4))
-					    	   		 .withSurname(rs.getString(5))
+					    	   		 .withFamilyName(rs.getString(5))
 					    	   		 .build());
 	}
 
@@ -126,11 +130,11 @@ public class DefaultUserService implements UserService {
 	 */
 	@Override
 	public void storeUserSettings(UserSettings settings) {
-		User user = findUser(settings.getUuid());
-		if(context.isUserInRole(ADMINISTRATOR) || user.getUserId().equals(UserId.valueOf(context.getUserPrincipal()))) {
-			user.setUserId(settings.getUserId());
+		User user = findUser(settings.getUserId());
+		if(context.isUserInRole(ADMINISTRATOR) || user.getUserName().equals(userName(context.getUserPrincipal()))) {
+			user.setUserName(settings.getUserName());
 			user.setGivenName(settings.getGivenName());
-			user.setSurname(settings.getSurname());
+			user.setFamilyName(settings.getFamilyName());
 			user.setEmailAddress(settings.getEmail());
 			if(settings.isCustomAccessTokenTtl()) {
 				user.setAccessTokenTtl(settings.getAccessTokenTtl(),
@@ -143,20 +147,23 @@ public class DefaultUserService implements UserService {
 				user.setRoles(roles);
 			}
 			messages.add(createMessage(IDM0001I_USER_STORED, 
-									   settings.getUserId()));
+									   settings.getUserName()));
 			return;
 			
 		}
 		throw new AccessDeniedException(IDM0007E_ADMIN_PRIVILEGES_REQUIRED, 
-										user.getUserId());
+										user.getUserName());
 
 	}
 
-	private User findUser(String uuid) {
-		User user = repository.execute(findUserByUuid(uuid));
+	private User findUser(UserId userId) {
+		User user = repository.execute(findUserById(userId));
 		if(user == null) {
+			LOG.fine(()->format("%s: User %s not found.",
+								IDM0004E_USER_NOT_FOUND.getReasonCode(),
+								userId));
 			throw new EntityNotFoundException(IDM0004E_USER_NOT_FOUND, 
-											  uuid);
+											  userId);
 		}
 		return user;
 	}
@@ -166,24 +173,24 @@ public class DefaultUserService implements UserService {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public UserSettings getUser(UserId userId) {
-		User user = findUser(userId);
+	public UserSettings getUser(UserName userName) {
+		User user = findUser(userName);
 		return settingsOf(user);
 	}
 	
 	@Override
-	public UserSettings getUser(String uuid) {
-		User user = findUser(uuid);
+	public UserSettings getUser(UserId userId) {
+		User user = findUser(userId);
 		return settingsOf(user);
 	}
 
 	private UserSettings settingsOf(User user) {
 		return newUserSettings()
 			   .withUserId(user.getUserId())
-			   .withUuid(user.getUuid())
+			   .withUserName(user.getUserName())
 			   .withEmailAddress(user.getEmailAddress())
 			   .withGivenName(user.getGivenName())
-			   .withSurname(user.getSurname())
+			   .withFamilyName(user.getFamilyName())
 			   .withDateCreated(user.getDateCreated())
 			   .withDateModified(user.getDateModified())
 			   .withRoles(user.getRoles(Role::getName))
@@ -199,8 +206,8 @@ public class DefaultUserService implements UserService {
 	 * @return the user with the specified user ID
 	 * @throws EntityNotFoundException if the user does not exist.
 	 */
-	protected User findUser(UserId userId) {
-		User user = repository.execute(findUserByUserId(userId));
+	protected User findUser(UserName userId) {
+		User user = repository.execute(findUserByName(userId));
 		if(user == null) {
 			LOG.fine(()->format("%s: User %s does not exist.",
 								IDM0004E_USER_NOT_FOUND.getReasonCode(),
@@ -215,7 +222,7 @@ public class DefaultUserService implements UserService {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setPassword(UserId userId, 
+	public void setPassword(UserName userId, 
 							Password current, 
 							Password newpass,
 							Password confirm) {
@@ -228,11 +235,11 @@ public class DefaultUserService implements UserService {
 	}
 	
 	@Override
-	public void setPassword(String uuid, 
+	public void setPassword(UserId userId, 
 							Password currentPassword,
 							Password newPassword, 
 							Password confirmPassword) {
-		User user = findUser(uuid);
+		User user = findUser(userId);
 		setPassword(user,
 					currentPassword,
 					newPassword,
@@ -252,7 +259,7 @@ public class DefaultUserService implements UserService {
 			if(isDifferent(newPassword,confirmPassword)) {
 				LOG.fine(() -> format("%s: Cannot change password for user %s because of password confirmation mismatch.",
 									  IDM0008E_PASSWORD_MISMATCH.getReasonCode(),
-									  user.getUserId()));
+									  user.getUserName()));
 				throw new UnprocessableEntityException(IDM0008E_PASSWORD_MISMATCH);
 			}
 
@@ -266,13 +273,13 @@ public class DefaultUserService implements UserService {
 							 salt, 
 							 ITERATIONS);
 			messages.add(createMessage(IDM0003I_PASSWORD_UPDATED,
-									   user.getUserId()));
+									   user.getUserName()));
 			return;
 		}
 		
 		LOG.fine(() -> format("%s: Password change for user %s rejected due to incorrect password.",
 							 IDM0005E_INCORRECT_PASSWORD.getReasonCode(),
-							 user.getUserId()));
+							 user.getUserName()));
 		throw new UnprocessableEntityException(IDM0005E_INCORRECT_PASSWORD);
 	}
 
@@ -290,7 +297,7 @@ public class DefaultUserService implements UserService {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void resetPassword(UserId userId, 
+	public void resetPassword(UserName userId, 
 							  Password newPassword, 
 							  Password confirmPassword) {
 		User user = findUser(userId);
@@ -300,10 +307,10 @@ public class DefaultUserService implements UserService {
 	}
 	
 	@Override
-	public void resetPassword(String uuid, 
+	public void resetPassword(UserId userId, 
 							  Password newPassword, 
 							  Password confirmPassword) {
-		User user = findUser(uuid);
+		User user = findUser(userId);
 		resetPassword(user,
 					  newPassword,
 					  confirmPassword);
@@ -327,18 +334,20 @@ public class DefaultUserService implements UserService {
 						 ITERATIONS);
 		LOG.info(() -> format("%s - Password reset for %s",
 				IDM0002I_PASSWORD_RESET.getReasonCode(),
-				user.getUserId()));
+				user.getUserName()));
 		messages.add(createMessage(IDM0002I_PASSWORD_RESET,
-								   user.getUserId()));
+								   user.getUserName()));
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean isValidPassword(UserId userId, Password password) {
+	public boolean isValidPassword(UserName userId, Password password) {
 		try {
 			User user = findUser(userId);
+
+			
 			boolean valid = hashing.isExpectedPassword(password, 
 													   user.getSalt(), 
 											  		   user.getPasswordHash(),
@@ -362,7 +371,7 @@ public class DefaultUserService implements UserService {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void removeUser(UserId userId) {
+	public void removeUser(UserName userId) {
 		User user = findUser(userId);
 		if(user != null) {
 			removeUser(user);
@@ -378,10 +387,10 @@ public class DefaultUserService implements UserService {
 			return;
 		}
 		
-		User user = new User(submission.getUuid(),
-							 submission.getUserId());
+		User user = new User(submission.getUserId(),
+							 submission.getUserName());
 		user.setGivenName(submission.getGivenName());
-		user.setSurname(submission.getSurname());
+		user.setFamilyName(submission.getFamilyName());
 		user.setEmailAddress(submission.getEmail());
 		if(submission.isCustomAccessTokenTtl()) {
 			user.setAccessTokenTtl(submission.getAccessTokenTtl(), 
@@ -402,8 +411,8 @@ public class DefaultUserService implements UserService {
 		repository.add(user);
 		LOG.info(()->format("%s: User %s created.",
 							IDM0001I_USER_STORED.getReasonCode(),
-							user.getUserId()));
-		messages.add(createMessage(IDM0001I_USER_STORED, user.getUserId()));
+							user.getUserName()));
+		messages.add(createMessage(IDM0001I_USER_STORED, user.getUserName()));
 	}
 
 	private List<Role> loadRoles(Collection<String> roleNames) {
@@ -424,14 +433,14 @@ public class DefaultUserService implements UserService {
 	@RequestScoped
 	@Authenticated
 	public UserSettings getAuthenticatedUser() {
-		UserId userId = UserId.valueOf(context.getUserPrincipal());
-		LOG.fine(()->format("Return authenticated user %s",userId));
-		return getUser(userId);
+		UserName userName = userName(context.getUserPrincipal());
+		LOG.fine(()->format("Return authenticated user %s",userName));
+		return getUser(userName);
 	}
 
 	@Override
-	public void removeUser(String uuid) {
-		User user = repository.execute(findUserByUuid(uuid));
+	public void removeUser(UserId userId) {
+		User user = repository.execute(findUserById(userId));
 		if(user != null) {
 			removeUser(user);
 		}
@@ -441,11 +450,11 @@ public class DefaultUserService implements UserService {
 		repository.remove(user);
 		LOG.fine(()->format("%s: Removed user %s (%s).", 
 							IDM0009I_USER_REMOVED.getReasonCode(),
-							user.getUserId(),
-							user.getUuid()));
+							user.getUserName(),
+							user.getUserId()));
 		messages.add(createMessage(IDM0009I_USER_REMOVED,
-								   user.getUserId(),
-								   user.getUuid()));
+								   user.getUserName(),
+								   user.getUserId()));
 	}
 
 }

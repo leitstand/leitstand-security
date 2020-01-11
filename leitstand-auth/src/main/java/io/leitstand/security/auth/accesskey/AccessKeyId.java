@@ -15,6 +15,10 @@ public class AccessKeyId extends Scalar<String>{
 
 	private static final long serialVersionUID = 1L;
 
+	public static AccessKeyId accessKeyId(String id) {
+		return valueOf(id);
+	}
+	
 	public static AccessKeyId randomAccessKeyId() {
 		return valueOf(UUID.randomUUID().toString());
 	}
@@ -33,7 +37,6 @@ public class AccessKeyId extends Scalar<String>{
 	public  String getValue() {
 		return value;
 	}
-
 
 	
 }

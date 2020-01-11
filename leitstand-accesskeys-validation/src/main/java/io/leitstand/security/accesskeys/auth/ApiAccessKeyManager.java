@@ -65,7 +65,7 @@ public class ApiAccessKeyManager implements AccessTokenManager {
 				}
 				ApiAccessKey accessKey = accesskeys.decode(auth.getCredentials());
 				if(authenticator.isAllowed(request,accessKey)) {
-					return new CredentialValidationResult(accessKey.getUserId().toString(),
+					return new CredentialValidationResult(accessKey.getUserName().toString(),
 														  asSet(SYSTEM));
 				} 
 			} catch (JsonWebTokenSignatureException e) {

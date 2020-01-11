@@ -15,7 +15,7 @@ public final class HttpServletRequestMother {
 
 	public static HttpServletRequest loginRequest() {
 		HttpServletRequest request = mock(HttpServletRequest.class);
-		when(request.getRequestURI()).thenReturn("/api/v1/_login");
+		when(request.getRequestURI()).thenReturn("/api/v1/login/_login");
 		when(request.getMethod()).thenReturn("POST");
 		return request;
 	}
@@ -41,7 +41,7 @@ public final class HttpServletRequestMother {
 		when(request.getRequestURI()).thenReturn("/api/v1/foo/bar");
 		when(request.getMethod()).thenReturn("POST");
 		Cookie cookie = mock(Cookie.class);
-		when(cookie.getName()).thenReturn("rtb-access");
+		when(cookie.getName()).thenReturn("LEITSTAND_ACCESS");
 		when(cookie.getValue()).thenReturn("TOKEN");
 		Locale.setDefault(Locale.US);
 		when(request.getCookies()).thenReturn(new Cookie[] {cookie});

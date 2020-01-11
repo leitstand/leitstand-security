@@ -3,6 +3,7 @@
  */
 package io.leitstand.security.auth.http;
 
+import static io.leitstand.security.auth.UserName.userName;
 import static io.leitstand.security.auth.http.HttpServletRequestMother.basicAuthenticationRequest;
 import static io.leitstand.security.auth.http.HttpServletRequestMother.loginRequest;
 import static java.lang.Boolean.TRUE;
@@ -39,7 +40,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import io.leitstand.security.auth.UserId;
+import io.leitstand.security.auth.UserName;
 import io.leitstand.security.auth.user.LoginManager;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -87,7 +88,7 @@ public class LeitstandHttpAuthMechanismTest {
 		when(loginManager.login(request, response)).thenReturn(VALID_CREDENTIALS);
 		when(accessTokenManager.issueAccessToken(eq(request), 
 												 eq(response), 
-												 any(UserId.class),
+												 any(UserName.class),
 												 any(Set.class))).thenReturn(TRUE);
 		AuthenticationStatus status = auth.validateRequest(request, 
 									  response, 
@@ -96,11 +97,11 @@ public class LeitstandHttpAuthMechanismTest {
 		verify(context).notifyContainerAboutLogin(VALID_CREDENTIALS);
 		verify(noopAccessTokenManager).issueAccessToken(request, 
 														response, 
-														UserId.valueOf(VALID_CREDENTIALS.getCallerPrincipal()),
+														userName(VALID_CREDENTIALS.getCallerPrincipal()),
 														VALID_CREDENTIALS.getCallerGroups());
 		verify(accessTokenManager).issueAccessToken(request, 
 													response, 
-													UserId.valueOf(VALID_CREDENTIALS.getCallerPrincipal()),
+													userName(VALID_CREDENTIALS.getCallerPrincipal()),
 													VALID_CREDENTIALS.getCallerGroups());
 	}
 	
@@ -136,18 +137,17 @@ public class LeitstandHttpAuthMechanismTest {
 		assertEquals(SUCCESS,status);
 		verify(noopAccessTokenManager,never()).issueAccessToken(eq(request),
 															    eq(response),
-															    any(UserId.class),
+															    any(UserName.class),
 															    any(Set.class));
 		verify(accessTokenManager,never()).issueAccessToken(eq(request),
 			    											eq(response),
-			    											any(UserId.class),
+			    											any(UserName.class),
 			    											any(Set.class));
 	}
 	
 	@Test
 	public void deny_access_for_invalid_credentials()throws AuthenticationException {
 		HttpServletRequest request = basicAuthenticationRequest();
-		Authorization authHeader = Authorization.valueOf(request.getHeader("Authorization"));
 		when(accessTokenManager.validateAccessToken(request, response)).thenReturn(INVALID_RESULT);
 		
 		AuthenticationStatus status = auth.validateRequest(request, 
@@ -157,11 +157,11 @@ public class LeitstandHttpAuthMechanismTest {
 		verify(response).setStatus(SC_UNAUTHORIZED);
 		verify(noopAccessTokenManager,never()).issueAccessToken(eq(request),
 																eq(response),
-																any(UserId.class),
+																any(UserName.class),
 																any(Set.class));
 		verify(accessTokenManager,never()).issueAccessToken(eq(request),
 															eq(response),
-															any(UserId.class),
+															any(UserName.class),
 															any(Set.class));
 	}
 	

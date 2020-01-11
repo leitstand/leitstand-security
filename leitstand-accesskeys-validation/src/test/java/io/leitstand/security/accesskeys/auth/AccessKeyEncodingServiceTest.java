@@ -20,7 +20,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import io.leitstand.security.auth.UserId;
+import io.leitstand.security.auth.UserName;
 import io.leitstand.security.auth.accesskey.ApiAccessKey;
 import io.leitstand.security.auth.jwt.JsonWebTokenConfig;
 import io.leitstand.security.crypto.Secret;
@@ -28,7 +28,7 @@ import io.leitstand.security.crypto.Secret;
 @RunWith(MockitoJUnitRunner.class)
 public class AccessKeyEncodingServiceTest {
 
-	private static final UserId USER_ID = UserId.valueOf("JUNIT");
+	private static final UserName USER_ID = UserName.valueOf("JUNIT");
 	
 	@Mock
 	private JsonWebTokenConfig config;
@@ -46,7 +46,7 @@ public class AccessKeyEncodingServiceTest {
 	public void can_encode_decode_method() {
 		ApiAccessKey accessKey = newApiAccessKey()
 								 .withId(randomAccessKeyId())
-								 .withUserId(USER_ID)
+								 .withUserName(USER_ID)
 								 .withMethods("GET")
 								 .withDateCreated(new Date())
 								 .build();
@@ -60,7 +60,7 @@ public class AccessKeyEncodingServiceTest {
 	public void can_encode_decode_methods() {
 		ApiAccessKey accessKey = newApiAccessKey()
 								 .withId(randomAccessKeyId())
-								 .withUserId(USER_ID)
+								 .withUserName(USER_ID)
 								 .withMethods("GET","PUT")
 								 .withDateCreated(new Date())
 								 .build();
@@ -73,7 +73,7 @@ public class AccessKeyEncodingServiceTest {
 	public void can_encode_decode_paths() {
 		ApiAccessKey accessKey = newApiAccessKey()
 								 .withId(randomAccessKeyId())
-								 .withUserId(USER_ID)
+								 .withUserName(USER_ID)
 								 .withPaths("/api/v1/elements","/api/v1/images")
 								 .withDateCreated(new Date())
 								 .build();
@@ -86,7 +86,7 @@ public class AccessKeyEncodingServiceTest {
 	public void can_encode_decode_path() {
 		ApiAccessKey accessKey = newApiAccessKey()
 								 .withId(randomAccessKeyId())
-								 .withUserId(USER_ID)
+								 .withUserName(USER_ID)
 								 .withPaths("/api/v1/elements")
 								 .withDateCreated(new Date())
 								 .build();
@@ -99,7 +99,7 @@ public class AccessKeyEncodingServiceTest {
 	public void can_encode_decode_temporary() {
 		ApiAccessKey accessKey = newApiAccessKey()
 								 .withId(randomAccessKeyId())
-								 .withUserId(USER_ID)
+								 .withUserName(USER_ID)
 								 .withTemporaryAccess(true)
 								 .withDateCreated(new Date())
 								 .build();
@@ -113,7 +113,7 @@ public class AccessKeyEncodingServiceTest {
 	public void can_encode_decode_complete_temporary_key() {
 		ApiAccessKey accessKey = newApiAccessKey()
 								 .withId(randomAccessKeyId())
-								 .withUserId(USER_ID)
+								 .withUserName(USER_ID)
 								 .withMethods("GET","PUT","POST","DELETE")
 								 .withPaths("/api/v1/elements","/api/v1/images")
 								 .withTemporaryAccess(true)
@@ -135,7 +135,7 @@ public class AccessKeyEncodingServiceTest {
 	public void can_encode_decode_complete_longtime_key() {
 		ApiAccessKey accessKey = newApiAccessKey()
 								 .withId(randomAccessKeyId())
-								 .withUserId(USER_ID)
+								 .withUserName(USER_ID)
 								 .withMethods("GET","PUT","POST","DELETE")
 								 .withPaths("/api/v1/elements","/api/v1/images")
 								 .withTemporaryAccess(false)

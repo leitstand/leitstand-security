@@ -7,7 +7,7 @@
 		<class>io.leitstand.security.users.model.Role</class>
 		
 		<class>io.leitstand.security.users.jpa.EmailAddressConverter</class>
-		<class>io.leitstand.security.auth.jpa.UserIdConverter</class>
+		<class>io.leitstand.security.auth.jpa.UserNameConverter</class>
 		<shared-cache-mode>NONE</shared-cache-mode>
 		<properties>
 			<property name="eclipselink.logging.logger" value="JavaLogger"/>

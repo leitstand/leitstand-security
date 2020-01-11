@@ -14,6 +14,6 @@
  * For SSO, however, it is key that all systems agreed on the structure of the user resource in order to obtain user data such as the user name as an example.
  * <a href="https://openid.net">OpenID</a> addresses exactly this issue. 
  * It specifies the authentication flow based on OAuth's Authorization Grant Flow and defines data structures to describe an authenticated user.
- * The {@link io.leitstand.security.sso.openid} package contains an OpenID compliant user resource.
+ * The {@link io.leitstand.security.sso.oidc} package contains an OpenID compliant user resource.
  */
 package io.leitstand.security.sso.oauth2;

@@ -3,6 +3,7 @@
  */
 package io.leitstand.security.auth.http;
 
+import static io.leitstand.security.auth.UserName.userName;
 import static io.leitstand.security.auth.http.AccessToken.newAccessToken;
 import static io.leitstand.security.auth.http.HttpServletRequestMother.cookieAuthenticationRequest;
 import static io.leitstand.security.auth.user.UserInfo.newUserInfo;
@@ -33,7 +34,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import io.leitstand.security.auth.UserId;
 import io.leitstand.security.auth.jwt.JsonWebTokenConfig;
 import io.leitstand.security.auth.jwt.JsonWebTokenDecoder;
 import io.leitstand.security.auth.jwt.JsonWebTokenEncoder;
@@ -94,7 +94,7 @@ public class CookieManagerTest {
 	@Test
 	public void grant_access_when_access_token_is_valid() {
 		AccessToken token = newAccessToken()
-							.withUserId(UserId.valueOf("unittest"))
+							.withUserName(userName("unittest"))
 							.withRoles("a","b")
 							.build();
 		when(decoder.decode(AccessToken.class, AccessToken.Payload.class, "TOKEN")).thenReturn(token);
@@ -111,16 +111,16 @@ public class CookieManagerTest {
 	@Test
 	public void renew_cookie_when_cookie_is_expired(){
 		AccessToken token = spy(newAccessToken()
-								.withUserId(UserId.valueOf("unittest"))
+								.withUserName(userName("unittest"))
 								.withRoles("a","b")
 								.build());		
-		when(token.getUserId()).thenReturn(UserId.valueOf("unittest"));
+		when(token.getUserName()).thenReturn(userName("unittest"));
 		when(token.isExpired()).thenReturn(FALSE);
 		when(token.isExpiringWithin(config.getRefreshInterval())).thenReturn(TRUE);
 		
-		when(users.getUserInfo(UserId.valueOf("unittest"))).thenReturn(newUserInfo()
-																	   .withUserId(UserId.valueOf("unittest"))
-																	   .build());
+		when(users.getUserInfo(userName("unittest"))).thenReturn(newUserInfo()
+																 .withUserName(userName("unittest"))
+																 .build());
 		
 		ArgumentCaptor<AccessToken> newTokenCaptor = forClass(AccessToken.class);
 		
@@ -131,16 +131,16 @@ public class CookieManagerTest {
 		CredentialValidationResult result = manager.validateAccessToken(cookieAuthenticationRequest(), 
 													 			 		response);
 		assertEquals(VALID, result.getStatus());
-		assertEquals(UserId.valueOf("unittest"),newTokenCaptor.getValue().getUserId());
+		assertEquals(userName("unittest"),newTokenCaptor.getValue().getUserName());
 	}
 	
 	@Test
 	public void do_not_renew_cookie_when_cookie_is_expired_and_user_does_not_exist_anymore(){
 		AccessToken token = spy(newAccessToken()
-								.withUserId(UserId.valueOf("unittest"))
+								.withUserName(userName("unittest"))
 								.withRoles("a","b")
 								.build());		
-		when(token.getUserId()).thenReturn(UserId.valueOf("unittest"));
+		when(token.getUserName()).thenReturn(userName("unittest"));
 		when(token.isExpired()).thenReturn(TRUE);
 		
 		when(decoder.decode(AccessToken.class, AccessToken.Payload.class, "TOKEN")).thenReturn(token);
@@ -156,10 +156,10 @@ public class CookieManagerTest {
 	@Test
 	public void reject_access_when_cookie_is_outdated() {
 		AccessToken token = spy(newAccessToken()
-								.withUserId(UserId.valueOf("unittest"))
+								.withUserName(userName("unittest"))
 								.withRoles("a","b")
 								.build());		
-		when(token.getUserId()).thenReturn(UserId.valueOf("unittest"));
+		when(token.getUserName()).thenReturn(userName("unittest"));
 		when(token.isExpired()).thenReturn(TRUE);
 
 		when(decoder.decode(AccessToken.class, AccessToken.Payload.class, "TOKEN")).thenReturn(token);

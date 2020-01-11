@@ -1,5 +1,5 @@
 /*
- * (c) RtBrick, Inc - All rights reserved, 2015 - 2019
+ * (c) RtBrick, Inc All rights reserved, 2015 2019
  */
 package io.leitstand.security.login.log.service;
 
@@ -11,7 +11,7 @@ import javax.json.bind.annotation.JsonbTypeAdapter;
 
 import io.leitstand.commons.jsonb.IsoDateAdapter;
 import io.leitstand.commons.model.ValueObject;
-import io.leitstand.security.auth.UserId;
+import io.leitstand.security.auth.UserName;
 
 
 /**
@@ -39,7 +39,7 @@ public class UserLoginAuditLogRecordData extends ValueObject {
 		
 		/**
 		 * Sets the log record's sequence number.
-		 * @param id - the sequence number
+		 * @param id the sequence number
 		 * @return a reference to this builder to continue with object creation
 		 */
 		public Builder withId(Long id) {
@@ -50,7 +50,7 @@ public class UserLoginAuditLogRecordData extends ValueObject {
 		
 		/**
 		 * Sets the IP address of the authentication service that has verified the provided credentials.
-		 * @param localIp - the authentication service IP address
+		 * @param localIp the authentication service IP address
 		 * @return a reference to this builder to continue with object creation
 		 */
 		public Builder withLocalIp(String localIp) {
@@ -61,7 +61,7 @@ public class UserLoginAuditLogRecordData extends ValueObject {
 		
 		/**
 		 * Sets the IP address from which the login attempt was made
-		 * @param remoteIp - the client IP address
+		 * @param remoteIp the client IP address
 		 * @return a reference to this builder to continue with object creation
 		 */
 		public Builder withRemoteIp(String remoteIp) {
@@ -72,19 +72,19 @@ public class UserLoginAuditLogRecordData extends ValueObject {
 		
 		/**
 		 * Sets the user ID of the authenticated user.
-		 * @param userId - the user ID
+		 * @param userName the user ID
 		 * @return a reference to this builder to continue with object creation
 		 */
-		public Builder withUserId(UserId userId) {
+		public Builder withUserName(UserName userName) {
 			assertNotInvalidated(getClass(), instance);
-			instance.userId = userId;
+			instance.userName = userName;
 			return this;
 		}
 		
 		/**
 		 * Sets whether the provided credentials were valid and the user passed the login verification, 
 		 * or the credentials were invalid and authentication failed.
-		 * @param loginState - the authentication result
+		 * @param loginState the authentication result
 		 * @return a reference to this builder to continue with object creation
 		 */
 		public Builder withLoginState(UserLoginState loginState) {
@@ -95,7 +95,7 @@ public class UserLoginAuditLogRecordData extends ValueObject {
 		
 		/**
 		 * Sets the user agent from which the login attempt was made.
-		 * @param userAgent - the recorded <code>User-Agent</code> HTTP header
+		 * @param userAgent the recorded <code>User-Agent</code> HTTP header
 		 * @return a reference to this builder to continue with object creation
 		 */
 		public Builder withUserAgent(String userAgent) {
@@ -106,7 +106,7 @@ public class UserLoginAuditLogRecordData extends ValueObject {
 
 		/**
 		 * Sets whether the record signature is valid and the specified previous record exists. 
-		 * @param valid - <code>true</code> if the record is valid, <code>false</code> otherwise.
+		 * @param valid <code>true</code> if the record is valid, <code>false</code> otherwise.
 		 * @return a reference to this builder to continue with object creation
 		 */
 		public Builder withValid(boolean valid) {
@@ -117,7 +117,7 @@ public class UserLoginAuditLogRecordData extends ValueObject {
 		
 		/**
 		 * Sets the timestamp of the login.
-		 * @param loginDate - the login timestamp
+		 * @param loginDate the login timestamp
  		 * @return a reference to this builder to continue with object creation
 		 */
 		public Builder withLoginDate(Date loginDate) {
@@ -146,7 +146,7 @@ public class UserLoginAuditLogRecordData extends ValueObject {
 	private Long id;
 	private String localIp;
 	private String remoteIp;
-	private UserId userId;
+	private UserName userName;
 	private UserLoginState loginState;
 	@JsonbTypeAdapter(IsoDateAdapter.class)
 	private Date loginDate;
@@ -178,11 +178,11 @@ public class UserLoginAuditLogRecordData extends ValueObject {
 	}
 	
 	/**
-	 * Returns the user ID.
-	 * @return the user ID.
+	 * Returns the user name.
+	 * @return the user name.
 	 */
-	public UserId getUserId() {
-		return userId;
+	public UserName getUserName() {
+		return userName;
 	}
 	
 	/**

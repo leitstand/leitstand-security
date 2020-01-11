@@ -21,7 +21,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import io.leitstand.commons.messages.Messages;
-import io.leitstand.security.auth.UserId;
+import io.leitstand.security.auth.UserName;
 import io.leitstand.security.auth.jwt.JsonWebTokenDecoder;
 import io.leitstand.security.auth.jwt.JsonWebTokenEncoder;
 import io.leitstand.security.auth.user.UserInfo;
@@ -105,12 +105,12 @@ public class AuthorizationServiceTest {
 	@Test
 	public void issue_access_token_request_when_client_id_matches() {
 		UserInfo user = mock(UserInfo.class);
-		when(user.getUserId()).thenReturn(UserId.valueOf("client"));
-		when(users.getUserInfo(UserId.valueOf("client"))).thenReturn(user);
+		when(user.getUserName()).thenReturn(UserName.valueOf("client"));
+		when(users.getUserInfo(UserName.valueOf("client"))).thenReturn(user);
 
 		AuthorizationCode token = newAuthorizationCode()
 				  				  .withClientId("junit")
-				  				  .withUserId(UserId.valueOf("client"))
+				  				  .withUserName(UserName.valueOf("client"))
 				  				  .build();
 		when(decoder.decode(AuthorizationCode.class, AuthorizationCode.Payload.class, "AUTHCODE")).thenReturn(token);
 		Response response = service.getAccessToken(authenticatedAs("junit"),null,"AUTHCODE");

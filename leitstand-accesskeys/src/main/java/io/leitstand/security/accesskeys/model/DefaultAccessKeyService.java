@@ -15,6 +15,7 @@ import static io.leitstand.security.accesskeys.service.AccessKeyData.newAccessKe
 import static io.leitstand.security.accesskeys.service.AccessKeyMetaData.newAccessKeyMetaData;
 import static io.leitstand.security.accesskeys.service.ReasonCode.AKY0001E_ACCESS_KEY_NOT_FOUND;
 import static io.leitstand.security.accesskeys.service.ReasonCode.AKY0005E_DUPLICATE_KEY_NAME;
+import static io.leitstand.security.auth.UserName.userName;
 import static io.leitstand.security.auth.accesskey.ApiAccessKey.newApiAccessKey;
 import static java.util.stream.Collectors.toList;
 
@@ -32,7 +33,7 @@ import io.leitstand.security.accesskeys.event.AccessKeyEvent;
 import io.leitstand.security.accesskeys.service.AccessKeyData;
 import io.leitstand.security.accesskeys.service.AccessKeyMetaData;
 import io.leitstand.security.accesskeys.service.AccessKeyService;
-import io.leitstand.security.auth.UserId;
+import io.leitstand.security.auth.UserName;
 import io.leitstand.security.auth.accesskey.AccessKeyId;
 import io.leitstand.security.auth.accesskey.ApiAccessKey;
 import io.leitstand.security.auth.accesskey.ApiAccessKeyEncoder;
@@ -108,7 +109,7 @@ public class DefaultAccessKeyService implements AccessKeyService{
 		
 		ApiAccessKey token = newApiAccessKey()
 							 .withId(key.getAccessKeyId())
-							 .withUserId(UserId.valueOf(key.getAccessKeyName().getValue()))
+							 .withUserName(userName(key.getAccessKeyName().getValue()))
 							 .withDateCreated(key.getDateCreated())
 							 .withMethods(key.getMethods())
 							 .withPaths(key.getPaths())

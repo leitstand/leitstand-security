@@ -36,7 +36,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 
 import io.leitstand.commons.messages.Messages;
-import io.leitstand.security.auth.UserId;
+import io.leitstand.security.auth.UserName;
 import io.leitstand.security.auth.accesskey.ApiAccessKey;
 import io.leitstand.security.auth.jwt.JsonWebTokenDecoder;
 import io.leitstand.security.auth.jwt.JsonWebTokenEncoder;
@@ -128,7 +128,7 @@ public class AuthorizationService {
 		if(OAUTH2_CODE.equals(responseType)){
 			String code64 = encoder.encode(newAuthorizationCode()
 										   .withClientId(clientId)
-										   .withUserId(new UserId(context.getUserPrincipal().getName()))
+										   .withUserName(new UserName(context.getUserPrincipal().getName()))
 										   .build());
 			
 
@@ -173,14 +173,14 @@ public class AuthorizationService {
 		
 		if(context.getUserPrincipal().getName().equals(authCode.getClientId())) {
 			
-			UserInfo userInfo = users.getUserInfo(authCode.getUserId());
+			UserInfo userInfo = users.getUserInfo(authCode.getUserName());
 			
 			if(userInfo == null) {
 				return status(FORBIDDEN).entity(messages).build();
 			}
 			
 			ApiAccessKey token = newApiAccessKey()
-								 .withUserId(userInfo.getUserId())
+								 .withUserName(userInfo.getUserName())
 								 .withTemporaryAccess(true)
 								 .build();
 

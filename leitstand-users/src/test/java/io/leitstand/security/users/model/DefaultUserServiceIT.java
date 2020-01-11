@@ -4,6 +4,9 @@
 package io.leitstand.security.users.model;
 
 import static io.leitstand.commons.model.ObjectUtil.asSet;
+import static io.leitstand.security.auth.UserId.randomUserId;
+import static io.leitstand.security.auth.UserName.userName;
+import static io.leitstand.security.users.service.EmailAddress.emailAddress;
 import static io.leitstand.security.users.service.ReasonCode.IDM0004E_USER_NOT_FOUND;
 import static io.leitstand.security.users.service.ReasonCode.IDM0008E_PASSWORD_MISMATCH;
 import static io.leitstand.security.users.service.UserSettings.newUserSettings;
@@ -30,6 +33,7 @@ import io.leitstand.commons.messages.Message;
 import io.leitstand.commons.messages.Messages;
 import io.leitstand.commons.model.Repository;
 import io.leitstand.security.auth.UserId;
+import io.leitstand.security.auth.UserName;
 import io.leitstand.security.users.service.EmailAddress;
 import io.leitstand.security.users.service.UserSettings;
 import io.leitstand.security.users.service.UserSubmission;
@@ -63,7 +67,7 @@ public class DefaultUserServiceIT extends UsersIT {
 	@Test
 	public void cannot_create_user_with_invalid_password_confirmation() {
 		UserSubmission user = newUserSubmission()
-							  .withUserId(UserId.valueOf("wrong_confirm"))
+							  .withUserName(UserName.valueOf("wrong_confirm"))
 							  .withPassword(new Password("unittest"))
 							  .withConfirmedPassword(new Password("mismatch"))
 							  .build();
@@ -78,12 +82,12 @@ public class DefaultUserServiceIT extends UsersIT {
 	@Test
 	public void can_create_user_with_valid_password_confirmation() {
 		UserSubmission user = newUserSubmission()
-							  .withUuid(randomUUID().toString())
-							  .withUserId(UserId.valueOf("create_user"))
+							  .withUserId(randomUserId())
+							  .withUserName(userName("create_user"))
 							  .withGivenName("Jane")
-							  .withSurname("Doe")
+							  .withFamilyName("Doe")
 							  .withRoles("Administrator","Operator")
-							  .withEmailAddress(EmailAddress.valueOf("jane.doe@leitstand.io"))
+							  .withEmailAddress(emailAddress("jane.doe@leitstand.io"))
 							  .withPassword(new Password("unittest"))
 							  .withConfirmedPassword(new Password("unittest"))
 							  .build();
@@ -93,11 +97,11 @@ public class DefaultUserServiceIT extends UsersIT {
 		});
 		
 		transaction(() -> {
-			UserSettings settings = service.getUser(UserId.valueOf("create_user"));
+			UserSettings settings = service.getUser(UserName.valueOf("create_user"));
+			assertEquals(user.getUserName(),settings.getUserName());
 			assertEquals(user.getUserId(),settings.getUserId());
-			assertEquals(user.getUuid(),settings.getUuid());
 			assertEquals(user.getGivenName(),settings.getGivenName());
-			assertEquals(user.getSurname(),settings.getSurname());
+			assertEquals(user.getFamilyName(),settings.getFamilyName());
 			assertEquals(user.getEmail(),settings.getEmail());
 			assertEquals(user.getRoles(),settings.getRoles());
 		});
@@ -106,9 +110,9 @@ public class DefaultUserServiceIT extends UsersIT {
 	@Test
 	public void cannot_update_non_existent_user() {
 		UserSettings user = newUserSettings()
-							  .withUserId(UserId.valueOf("unknown"))
+							  .withUserName(UserName.valueOf("unknown"))
 							  .withGivenName("Jane")
-							  .withSurname("Doe")
+							  .withFamilyName("Doe")
 							  .withRoles("Administrator","Operator")
 							  .withEmailAddress(EmailAddress.valueOf("jane.doe@leitstand.io"))
 							  .build();
@@ -127,10 +131,10 @@ public class DefaultUserServiceIT extends UsersIT {
 		
 		when(context.isUserInRole("Administrator")).thenReturn(TRUE);
 		UserSubmission user = newUserSubmission()
-							  .withUuid(randomUUID().toString())
-							  .withUserId(UserId.valueOf("updated_user"))
+							  .withUserId(randomUserId())
+							  .withUserName(UserName.valueOf("updated_user"))
 							  .withGivenName("Jane")
-							  .withSurname("Doe")
+							  .withFamilyName("Doe")
 							  .withRoles("Administrator","Operator")
 							  .withEmailAddress(EmailAddress.valueOf("jane.doe@leitstand.io"))
 							  .withPassword(new Password("unittest"))
@@ -142,19 +146,19 @@ public class DefaultUserServiceIT extends UsersIT {
 		});
 		
 		transaction(() -> {
-			UserSettings settings = service.getUser(UserId.valueOf("updated_user"));
+			UserSettings settings = service.getUser(UserName.valueOf("updated_user"));
+			assertEquals(user.getUserName(),settings.getUserName());
 			assertEquals(user.getUserId(),settings.getUserId());
-			assertEquals(user.getUuid(),settings.getUuid());
 			assertEquals(user.getGivenName(),settings.getGivenName());
-			assertEquals(user.getSurname(),settings.getSurname());
+			assertEquals(user.getFamilyName(),settings.getFamilyName());
 			assertEquals(user.getEmail(),settings.getEmail());
 			assertEquals(user.getRoles(),settings.getRoles());
 			
 			settings = newUserSettings()
-					   .withUuid(user.getUuid())
-					   .withUserId(UserId.valueOf("updated_user"))
+					   .withUserId(user.getUserId())
+					   .withUserName(UserName.valueOf("updated_user"))
 					   .withGivenName("John")
-					   .withSurname("Doe")
+					   .withFamilyName("Doe")
 					   .withRoles("Operator")
 					   .withEmailAddress(EmailAddress.valueOf("jane.doe@leitstand.io"))
 					   .build();
@@ -164,11 +168,11 @@ public class DefaultUserServiceIT extends UsersIT {
 		});
 		
 		transaction(() -> {
-			UserSettings settings = service.getUser(UserId.valueOf("updated_user"));
+			UserSettings settings = service.getUser(UserName.valueOf("updated_user"));
+			assertEquals(user.getUserName(),settings.getUserName());
 			assertEquals(user.getUserId(),settings.getUserId());
-			assertEquals(user.getUuid(),settings.getUuid());
 			assertEquals("John",settings.getGivenName());
-			assertEquals(user.getSurname(),settings.getSurname());
+			assertEquals(user.getFamilyName(),settings.getFamilyName());
 			assertEquals(user.getEmail(),settings.getEmail());
 			assertEquals(asSet("Operator"),settings.getRoles());
 		});
@@ -181,12 +185,12 @@ public class DefaultUserServiceIT extends UsersIT {
 		when(principal.getName()).thenReturn("user");
 		when(context.getUserPrincipal()).thenReturn(principal);
 		UserSubmission user = newUserSubmission()
-							  .withUuid(randomUUID().toString())
-							  .withUserId(UserId.valueOf("user"))
+							  .withUserId(randomUserId())
+							  .withUserName(userName("user"))
 							  .withGivenName("Jane")
-							  .withSurname("Doe")
+							  .withFamilyName("Doe")
 							  .withRoles("Operator")
-							  .withEmailAddress(EmailAddress.valueOf("jane.doe@leitstand.io"))
+							  .withEmailAddress(emailAddress("jane.doe@leitstand.io"))
 							  .withPassword(new Password("unittest"))
 							  .withConfirmedPassword(new Password("unittest"))
 							  .build();
@@ -196,19 +200,19 @@ public class DefaultUserServiceIT extends UsersIT {
 		});
 		
 		transaction(() -> {
-			UserSettings settings = service.getUser(UserId.valueOf("user"));
+			UserSettings settings = service.getUser(UserName.valueOf("user"));
+			assertEquals(user.getUserName(),settings.getUserName());
 			assertEquals(user.getUserId(),settings.getUserId());
-			assertEquals(user.getUuid(),settings.getUuid());
 			assertEquals(user.getGivenName(),settings.getGivenName());
-			assertEquals(user.getSurname(),settings.getSurname());
+			assertEquals(user.getFamilyName(),settings.getFamilyName());
 			assertEquals(user.getEmail(),settings.getEmail());
 			assertEquals(user.getRoles(),settings.getRoles());
 			
 			settings = newUserSettings()
-					   .withUuid(user.getUuid())
-					   .withUserId(UserId.valueOf("user"))
+					   .withUserId(user.getUserId())
+					   .withUserName(UserName.valueOf("user"))
 					   .withGivenName("John")
-					   .withSurname("Doe")
+					   .withFamilyName("Doe")
 					   .withRoles("Operator","Administrator")
 					   .withEmailAddress(EmailAddress.valueOf("jane.doe@leitstand.io"))
 					   .build();
@@ -218,11 +222,11 @@ public class DefaultUserServiceIT extends UsersIT {
 		});
 		
 		transaction(() -> {
-			UserSettings settings = service.getUser(UserId.valueOf("user"));
+			UserSettings settings = service.getUser(UserName.valueOf("user"));
+			assertEquals(user.getUserName(),settings.getUserName());
 			assertEquals(user.getUserId(),settings.getUserId());
-			assertEquals(user.getUuid(),settings.getUuid());
 			assertEquals("John",settings.getGivenName());
-			assertEquals(user.getSurname(),settings.getSurname());
+			assertEquals(user.getFamilyName(),settings.getFamilyName());
 			assertEquals(user.getEmail(),settings.getEmail());
 			assertEquals(asSet("Operator"),settings.getRoles());
 		});

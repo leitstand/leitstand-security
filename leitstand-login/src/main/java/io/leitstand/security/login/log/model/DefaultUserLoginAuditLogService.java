@@ -8,6 +8,7 @@ import static io.leitstand.commons.etc.FileProcessor.properties;
 import static io.leitstand.commons.model.ByteArrayUtil.decodeBase64String;
 import static io.leitstand.commons.model.StringUtil.isNonEmptyString;
 import static io.leitstand.commons.model.StringUtil.toUtf8Bytes;
+import static io.leitstand.security.auth.UserName.userName;
 import static io.leitstand.security.login.log.model.UserLoginRecord.fetchLastRecord;
 import static io.leitstand.security.login.log.service.ReasonCode.AUT0001E_RECORD_NOT_FOUND;
 import static io.leitstand.security.login.log.service.UserLoginAuditLogRecordData.newUserLoginRecordData;
@@ -35,7 +36,7 @@ import io.leitstand.commons.db.DatabaseService;
 import io.leitstand.commons.etc.Environment;
 import io.leitstand.commons.model.Repository;
 import io.leitstand.commons.model.Service;
-import io.leitstand.security.auth.UserId;
+import io.leitstand.security.auth.UserName;
 import io.leitstand.security.crypto.MasterSecret;
 import io.leitstand.security.crypto.Secret;
 import io.leitstand.security.login.log.service.UserLoginAuditLogQuery;
@@ -105,7 +106,7 @@ public class DefaultUserLoginAuditLogService implements UserLoginAuditLogService
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void log(String remoteIp, String userAgent, UserId userId, UserLoginState loginState) {
+	public void log(String remoteIp, String userAgent, UserName userName, UserLoginState loginState) {
 		UserLoginRecord previous = audit.execute(fetchLastRecord(localIp));	
 		Date loginDate = new Date();
 		long id = previous != null ? previous.getId()+1 : 1;
@@ -113,7 +114,7 @@ public class DefaultUserLoginAuditLogService implements UserLoginAuditLogService
 										id, 
 										remoteIp, 
 										userAgent, 
-										userId, 
+										userName, 
 										loginState,
 										previous, 
 										loginDate);
@@ -125,7 +126,7 @@ public class DefaultUserLoginAuditLogService implements UserLoginAuditLogService
 													 previous,
 												 	 localIp,
 													 remoteIp,
-													 userId,
+													 userName,
 													 userAgent,
 													 loginDate,
 													 loginState,
@@ -137,7 +138,7 @@ public class DefaultUserLoginAuditLogService implements UserLoginAuditLogService
 							  		 long id,
 							  		 String remoteIp, 
 							  		 String userAgent, 
-							  		 UserId userId, 
+							  		 UserName userName, 
 							  		 UserLoginState loginState,
 							  		 UserLoginRecord previous, 
 							  		 Date loginDate) {
@@ -145,7 +146,7 @@ public class DefaultUserLoginAuditLogService implements UserLoginAuditLogService
 						  id,
 						  remoteIp, 
 						  userAgent, 
-						  userId.toString(), 
+						  userName.toString(), 
 						  loginState.name(), 
 						  previous != null ? previous.getId() : 0L, 
 						  loginDate.getTime());
@@ -155,7 +156,7 @@ public class DefaultUserLoginAuditLogService implements UserLoginAuditLogService
 							  		 long   id,
 							  		 String remoteIp, 
 							  		 String userAgent, 
-							  		 String userId, 
+							  		 String userName, 
 							  		 String loginState,
 							  		 long   previous, 
 							  		 long   loginDate) {
@@ -164,7 +165,7 @@ public class DefaultUserLoginAuditLogService implements UserLoginAuditLogService
 					  id,
 					  remoteIp,
 					  userAgent,
-					  userId,
+					  userName,
 					  loginState,
 					  loginDate,
 					  previous);
@@ -191,7 +192,7 @@ public class DefaultUserLoginAuditLogService implements UserLoginAuditLogService
 			   .withRemoteIp(record.getRemoteIp())
 			   .withValid(validSignature)
 			   .withUserAgent(record.getUserAgent())
-			   .withUserId(record.getUserId())
+			   .withUserName(record.getUserName())
 			   .build();
 	}
 
@@ -200,7 +201,7 @@ public class DefaultUserLoginAuditLogService implements UserLoginAuditLogService
 									   record.getId(),
 									   record.getRemoteIp(), 
 				   					   record.getUserAgent(), 
-				   					   record.getUserId(), 
+				   					   record.getUserName(), 
 				   					   record.getState(), 
 				   					   record.getPreviousLogRecord(),
 				   					   record.getLoginDate());
@@ -232,9 +233,9 @@ public class DefaultUserLoginAuditLogService implements UserLoginAuditLogService
 			args.add(query.getToLoginDate());
 		}
 		
-		if(query.getUserIdPattern() != null && query.getUserIdPattern().length() > 0) {
-			filter.add("l.userid ~ ?");
-			args.add(query.getUserIdPattern());
+		if(query.getUserNamePattern() != null && query.getUserNamePattern().length() > 0) {
+			filter.add("l.username ~ ?");
+			args.add(query.getUserNamePattern());
 		}
 		
 		if(query.getRemoteIp() != null && query.getRemoteIp().length() > 0) {
@@ -252,7 +253,7 @@ public class DefaultUserLoginAuditLogService implements UserLoginAuditLogService
 			}
 			where.append(" ");
 		}
-		String sql = "SELECT l.localip, l.id, l.remoteip, l.useragent, l.userid, "+
+		String sql = "SELECT l.localip, l.id, l.remoteip, l.useragent, l.username, "+
 		                     "l.loginstate, l.previous_user_login_audit_log_id, "+
 		                     "l.tslogin, l.signature, r.id "+
 		              "FROM AUTH.USER_LOGIN_AUDIT_LOG l "+
@@ -266,7 +267,7 @@ public class DefaultUserLoginAuditLogService implements UserLoginAuditLogService
 							   		 .withId(rs.getLong(2))
 								     .withRemoteIp(rs.getString(3))
 							   		 .withUserAgent(rs.getString(4))
-							   		 .withUserId(new UserId(rs.getString(5)))
+							   		 .withUserName(userName(rs.getString(5)))
 							   		 .withLoginState(UserLoginState.valueOf(rs.getString(6)))
 							   		 .withLoginDate(rs.getTimestamp(8))
 							   		 .withValid(rs.getLong(7) == rs.getLong(10) && 

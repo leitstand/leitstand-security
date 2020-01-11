@@ -8,6 +8,7 @@ import java.util.List;
 import javax.security.enterprise.credential.Password;
 
 import io.leitstand.security.auth.UserId;
+import io.leitstand.security.auth.UserName;
 
 /**
  * Service to maintain users in the leitstand built-in Identity Management.
@@ -33,87 +34,85 @@ public interface UserService {
 	public UserSettings getAuthenticatedUser();
 	
 	/**
-	 * Returns the account settings for user account with the given UUID.
-	 * Throws an <code>EntityNotFoundException</code> the account does not exist.
-	 * @param uuid the account UUID
-	 * @return the account settings
-	 */
-	public UserSettings getUser(String uuid);
-
-	/**
-	 * Returns the account settings for user account with the given user ID.
-	 * Throws an <code>EntityNotFoundException</code> the account does not exist.
-	 * @param userId the user ID
+	 * Returns the account settings for user account with the given account UUID.
+	 * @param userId the user account UUID
 	 * @return the account settings
 	 */
 	public UserSettings getUser(UserId userId);
+
+	/**
+	 * Returns the account settings for user account with the given user name.
+	 * @param userName the user name
+	 * @return the account settings
+	 */
+	public UserSettings getUser(UserName userName);
 	
 	/**
 	 * Validates user credentials
-	 * @param userId the user id
+	 * @param userName the user name
 	 * @param password the user's password
 	 * @return <code>true</code> if the password is correct, <code>false</code> otherwise.
 	 */
-	public boolean isValidPassword(UserId userId, 
+	public boolean isValidPassword(UserName userName, 
 								   Password password);
 	
 	/**
 	 * Removes the user account with the given UUID.
 	 * Returns no error if the account does not exist.
-	 * @param uuid the accounts UUID.
-	 */
-	public void removeUser(String uuid);
-	
-	/**
-	 * Removes the user account with the given user ID.
-	 * Returns no error if the account does not exist.
-	 * @param userId the accounts user ID.
+	 * @param userId the user account UUID.
 	 */
 	public void removeUser(UserId userId);
 	
 	/**
+	 * Removes the user account with the given user ID.
+	 * Returns no error if the account does not exist.
+	 * @param userName the accounts user name.
+	 */
+	public void removeUser(UserName userName);
+	
+	/**
 	 * Resets the password of an user account.
 	 * Resetting the password requires administrator privileges.
-	 * @param uuid the account UUID
+	 * @param userId the user account UUID
 	 * @param newPassword the new password
 	 * @param confirmPassword the confirm password
 	 */
-	public void resetPassword(String uuid, 
+	public void resetPassword(UserId userId, 
 							  Password newPassword,
 							  Password confirmPassword);
 	
 	/**
 	 * Resets the password of an user account.
 	 * Resetting the password requires administrator privileges.
-	 * @param userId the user ID
+	 * @param userName the user ID
 	 * @param currentPassword the current password
 	 * @param newPassword the new password
 	 * @param confirmPassword the confirm password
 	 */
-	public void resetPassword(UserId userId, 
+	public void resetPassword(UserName userName, 
 			  				  Password newPassword,
 			  				  Password confirmPassword);
 	
 	/**
 	 * Sets the password of a user.
-	 * @param uuid the user account UUID
+	 * @param userId the user account UUID
 	 * @param currentPassword the current password
 	 * @param newPassword the new password
 	 * @param confirmPassword the confirm password
 	 */
-	public void setPassword(String uuid, 
+	public void setPassword(UserId userId, 
 							Password currentPassword, 
 							Password newPassword, 
 							Password confirmPassword);
 	
 	/**
 	 * Sets the password of a user.
-	 * @param userId the user ID
+	 * @param userName the user name
 	 * @param currentPassword the current password
 	 * @param newPassword the new password
 	 * @param confirmPassword the confirm password
 	 */
-	public void setPassword(UserId userId, 
+	public void setPassword(UserName userName, 
 							Password currentPassword, 
 							Password newPassword, 
 							Password confirmPassword);

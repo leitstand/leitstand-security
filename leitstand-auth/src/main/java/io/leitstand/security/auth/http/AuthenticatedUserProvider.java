@@ -3,6 +3,8 @@
  */
 package io.leitstand.security.auth.http;
 
+import static io.leitstand.security.auth.UserName.userName;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.RequestScoped;
 import javax.enterprise.inject.Produces;
@@ -10,7 +12,7 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
 import io.leitstand.security.auth.Authenticated;
-import io.leitstand.security.auth.UserId;
+import io.leitstand.security.auth.UserName;
 
 @ApplicationScoped
 class AuthenticatedUserProvider {
@@ -21,8 +23,8 @@ class AuthenticatedUserProvider {
 	@Produces
 	@RequestScoped
 	@Authenticated
-	public UserId getAuthenticatedUserId() {
-		return UserId.valueOf(request.getUserPrincipal());
+	public UserName getAuthenticatedUserName() {
+		return userName(request.getUserPrincipal());
 	}
 	
 }

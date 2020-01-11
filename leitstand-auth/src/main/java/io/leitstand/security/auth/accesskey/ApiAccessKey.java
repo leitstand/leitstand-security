@@ -21,7 +21,7 @@ import javax.json.bind.annotation.JsonbTypeAdapter;
 
 import io.leitstand.commons.jsonb.DateToLongAdapter;
 import io.leitstand.commons.model.ValueObject;
-import io.leitstand.security.auth.UserId;
+import io.leitstand.security.auth.UserName;
 import io.leitstand.security.auth.http.LeitstandHttpAuthMechanism;
 import io.leitstand.security.auth.jwt.JsonWebToken;
 
@@ -52,7 +52,7 @@ public class ApiAccessKey extends JsonWebToken<ApiAccessKey.Payload> {
 	 */
 	public static Builder newApiAccessKey(ApiAccessKey template) {
 		Builder builder = new Builder();
-		builder.payload.userId = template.getPayload().getUserId();
+		builder.payload.userName = template.getPayload().getUserName();
 		return builder;
 	}
 	
@@ -72,13 +72,13 @@ public class ApiAccessKey extends JsonWebToken<ApiAccessKey.Payload> {
 		}
 		
 		/**
-		 * Sets the user ID of the authenticated user.
-		 * @param userId - the user ID
+		 * Sets the user name of the authenticated user.
+		 * @param userName the user name
 		 * @return a reference to this builder to continue token creation
 		 */
-		public Builder withUserId(UserId userId) {
+		public Builder withUserName(UserName userName) {
 			assertNotInvalidated(getClass(),  payload);
-			payload.userId = userId;
+			payload.userName = userName;
 			return this;
 		}
 		
@@ -149,7 +149,7 @@ public class ApiAccessKey extends JsonWebToken<ApiAccessKey.Payload> {
 		private AccessKeyId id = randomAccessKeyId();
 		
 		@JsonbProperty("sub")
-		private UserId userId;
+		private UserName userName;
 		
 		@JsonbProperty("iat")
 		@JsonbTypeAdapter(DateToLongAdapter.class)
@@ -177,8 +177,8 @@ public class ApiAccessKey extends JsonWebToken<ApiAccessKey.Payload> {
 		 * Returns the user ID of the authenticated user.
 		 * @return the user ID of the authenticated user.
 		 */
-		public UserId getUserId() {
-			return userId;
+		public UserName getUserName() {
+			return userName;
 		}
 		
 		/**
@@ -236,8 +236,8 @@ public class ApiAccessKey extends JsonWebToken<ApiAccessKey.Payload> {
 	 * Returns the user ID of the authenticated user.
 	 * @return the user ID of the auchenticated user.
 	 */
-	public UserId getUserId() {
-		return getPayload().getUserId();
+	public UserName getUserName() {
+		return getPayload().getUserName();
 	}
 	
 	/**
