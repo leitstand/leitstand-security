@@ -1,5 +1,5 @@
 /*
- * (c) RtBrick, Inc - All rights reserved, 2015 - 2019
+ * (c) RtBrick, Inc All rights reserved, 2015 2019
  */
 package io.leitstand.security.login.log.service;
 
@@ -33,19 +33,19 @@ public class UserLoginAuditLogQuery extends ValueObject{
 		
 		/**
 		 * Sets the optional user ID pattern the record's user ID must match.
-		 * @param userIdPattern
+		 * @param userNamePattern
 		 * @return a reference to this builder to continue with object creation
 		 */
-		public Builder withUserIdPattern(String userIdPattern) {
+		public Builder withUserNamePattern(String userNamePattern) {
 			assertNotInvalidated(getClass(), query);
-			query.userIdPattern = userIdPattern;
+			query.userNamePattern = userNamePattern;
 			return this;
 		}
 		
 		/**
 		 * Sets the optional timestamp after which the log record must have been written to the
 		 * login audit log.
-		 * @param date - the timestamp value
+		 * @param date the timestamp value
 		 * @return a reference to this builder to continue with object creation
 		 * @see #withToLoginDate(Date)
 		 */
@@ -58,7 +58,7 @@ public class UserLoginAuditLogQuery extends ValueObject{
 		/**
 		 * Sets the optional timestamp before which the log record must have been written to the
 		 * login audit log.
-		 * @param date - the timestamp value
+		 * @param date the timestamp value
 		 * @return a reference to this builder to continue with object creation
 		 * @see #withFromLoginDate(Date)
 		 */
@@ -70,7 +70,7 @@ public class UserLoginAuditLogQuery extends ValueObject{
 		
 		/**
 		 * Sets the optional remote IP address from which the login attempt must have been made.
-		 * @param remoteIp - the remote IP address
+		 * @param remoteIp the remote IP address
 		 * @return a reference to this builder to continue object creation
 		 */
 		public Builder withRemoteIp(String remoteIp) {
@@ -84,7 +84,7 @@ public class UserLoginAuditLogQuery extends ValueObject{
 		 * The default limit is {@value #DEFAULT_LIMIT} records.
 		 * Zero and all negative values are silently ignored and result into the 
 		 * default limit being applied
-		 * @param limit - the positive maximum number of records returned by this query
+		 * @param limit the positive maximum number of records returned by this query
 		 * @return a reference to this builder to continue object creation
 		 */
 		public Builder withLimit(int limit) {
@@ -112,7 +112,7 @@ public class UserLoginAuditLogQuery extends ValueObject{
 	
 	private Date fromLoginDate;
 	private Date toLoginDate;
-	private String userIdPattern;
+	private String userNamePattern;
 	private String remoteIp;
 	private int limit = Builder.DEFAULT_LIMIT;
 	
@@ -152,8 +152,8 @@ public class UserLoginAuditLogQuery extends ValueObject{
 	 * @return the user ID pattern the log record's user ID must match or
 	 * <code>null</code> if no such pattern was specified.
 	 */
-	public String getUserIdPattern() {
-		return userIdPattern;
+	public String getUserNamePattern() {
+		return userNamePattern;
 	}
 	
 	/**

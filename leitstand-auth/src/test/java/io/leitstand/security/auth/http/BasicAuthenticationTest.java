@@ -13,7 +13,7 @@ import javax.security.enterprise.credential.Password;
 
 import org.junit.Test;
 
-import io.leitstand.security.auth.UserId;
+import io.leitstand.security.auth.UserName;
 
 public class BasicAuthenticationTest {
 
@@ -33,7 +33,7 @@ public class BasicAuthenticationTest {
 	public void can_decode_basic_authorization_header() {
 		Authorization header = new Authorization("Basic "+getEncoder().encodeToString(toUtf8Bytes("user:password")));
 		BasicAuthentication auth = new BasicAuthentication(header);
-		assertEquals(UserId.valueOf("user"),auth.getUserId());
+		assertEquals(UserName.valueOf("user"),auth.getUserName());
 		assertArrayEquals(new Password("password").getValue(),auth.getPassword().getValue());
 	}
 	

@@ -8,6 +8,7 @@ import static io.leitstand.commons.model.ByteArrayUtil.encodeBase64String;
 import static io.leitstand.commons.model.ObjectUtil.isDifferent;
 import static io.leitstand.commons.model.StringUtil.fromUtf8Bytes;
 import static io.leitstand.commons.model.StringUtil.toUtf8Bytes;
+import static io.leitstand.security.auth.UserName.userName;
 import static io.leitstand.security.auth.accesskey.ApiAccessKey.newApiAccessKey;
 import static io.leitstand.security.mac.MessageAuthenticationCodes.hmacSha256;
 import static java.lang.Boolean.parseBoolean;
@@ -22,7 +23,7 @@ import java.util.Set;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import io.leitstand.security.auth.UserId;
+import io.leitstand.security.auth.UserName;
 import io.leitstand.security.auth.accesskey.AccessKeyId;
 import io.leitstand.security.auth.accesskey.ApiAccessKey;
 import io.leitstand.security.auth.accesskey.ApiAccessKeyDecoder;
@@ -52,7 +53,7 @@ public class AccessKeyEncodingService implements ApiAccessKeyDecoder, ApiAccessK
 		StringBuilder buffer = new StringBuilder();
 		buffer.append(key.getId())
 			  .append(":")
-			  .append(key.getUserId())
+			  .append(key.getUserName())
 			  .append(":")
 			  .append(key.getMethods().stream().collect(joining(",")))
 			  .append(":")
@@ -84,8 +85,8 @@ public class AccessKeyEncodingService implements ApiAccessKeyDecoder, ApiAccessK
 			throw new JsonWebTokenSignatureException("Signature mismatch!");
 		}
 		String[] segments = tokenData.split(":");
- 		AccessKeyId id = AccessKeyId.valueOf(segments[0]);
-		UserId userId = UserId.valueOf(segments[1]); 
+ 		AccessKeyId id = AccessKeyId.accessKeyId(segments[0]);
+		UserName userName = userName(segments[1]); 
 		Set<String> methods = stream(segments[2].split(","))
 							  .filter(s -> s.length() > 0)
 			    			  .collect(toSet());
@@ -97,7 +98,7 @@ public class AccessKeyEncodingService implements ApiAccessKeyDecoder, ApiAccessK
 		
 		return newApiAccessKey()
 			   .withId(id)
-			   .withUserId(userId)
+			   .withUserName(userName)
 			   .withMethods(methods)
 			   .withPaths(paths)
 			   .withTemporaryAccess(temporary)

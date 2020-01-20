@@ -83,7 +83,7 @@ public class DefaultAccessKeyServiceIT extends AccessKeysIT{
 		
 		ApiAccessKey decoded = encoder.decode(token);
 		assertEquals(key.getAccessKeyId(),decoded.getId());
-		assertEquals(key.getAccessKeyName().toString(),decoded.getUserId().toString());
+		assertEquals(key.getAccessKeyName().toString(),decoded.getUserName().toString());
 		assertTrue(decoded.isMethodAllowed("foo")); // No restrictions on methods at all
 		assertTrue(decoded.isPathAllowed("/foo/bar"));
 		
@@ -109,7 +109,7 @@ public class DefaultAccessKeyServiceIT extends AccessKeysIT{
 		
 		ApiAccessKey decoded = encoder.decode(token);
 		assertEquals(key.getAccessKeyId(),decoded.getId());
-		assertEquals(key.getAccessKeyName().toString(),decoded.getUserId().toString());
+		assertEquals(key.getAccessKeyName().toString(),decoded.getUserName().toString());
 		assertTrue(decoded.isMethodAllowed("post"));
 		assertTrue(decoded.isMethodAllowed("get"));
 		assertTrue(decoded.isMethodAllowed("put"));
@@ -138,7 +138,7 @@ public class DefaultAccessKeyServiceIT extends AccessKeysIT{
 		
 		ApiAccessKey decoded = encoder.decode(token);
 		assertEquals(key.getAccessKeyId(),decoded.getId());
-		assertEquals(key.getAccessKeyName().toString(),decoded.getUserId().toString());
+		assertEquals(key.getAccessKeyName().toString(),decoded.getUserName().toString());
 		assertTrue(decoded.isPathAllowed("/foo"));
 		assertFalse(decoded.isPathAllowed("/bar"));
 		
@@ -167,7 +167,7 @@ public class DefaultAccessKeyServiceIT extends AccessKeysIT{
 		
 		ApiAccessKey decoded = encoder.decode(token);
 		assertEquals(key.getAccessKeyId(),decoded.getId());
-		assertEquals(key.getAccessKeyName().toString(),decoded.getUserId().toString());
+		assertEquals(key.getAccessKeyName().toString(),decoded.getUserName().toString());
 		assertTrue(decoded.isMethodAllowed("post"));
 		assertTrue(decoded.isMethodAllowed("get"));
 		assertTrue(decoded.isMethodAllowed("put"));

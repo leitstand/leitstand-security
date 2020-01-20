@@ -9,7 +9,7 @@ import javax.security.enterprise.identitystore.CredentialValidationResult;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import io.leitstand.security.auth.UserId;
+import io.leitstand.security.auth.UserName;
 
 /**
  * The <code>AccessTokenManager</code> validates the access token associated with the current HTTP request.
@@ -43,14 +43,14 @@ public interface AccessTokenManager {
 	 * Returns <code>false</code> if no access token was issued, <code>true</code> otherwise.
 	 * @param request the HTTP request
 	 * @param response the HTTP response
-	 * @param userId the user ID of the authenticated user
-	 * @param roles the roles of the authenticated user
+	 * @param userName the user name of the authenticated user
+	 * @param userRoles the roles of the authenticated user
 	 * @return <code>true</code> if an access token was issued, <code>false</code> otherwise.
 	 */
 	default boolean issueAccessToken(HttpServletRequest request, 
 							 		 HttpServletResponse response, 
-							 		 UserId userId, 
-							 		 Set<String> roles) {
+							 		 UserName userName,
+							 		 Set<String> userRoles) {
 		return false;
 	}
 	

@@ -14,7 +14,7 @@ import javax.security.enterprise.identitystore.CredentialValidationResult;
 import javax.security.enterprise.identitystore.IdentityStore;
 
 import io.leitstand.commons.model.Service;
-import io.leitstand.security.auth.UserId;
+import io.leitstand.security.auth.UserName;
 import io.leitstand.security.auth.user.UserInfo;
 import io.leitstand.security.auth.user.UserRegistry;
 
@@ -37,12 +37,12 @@ public class DefaultIdentityStore implements IdentityStore {
 	 * 
 	 * {@inheritDoc}
 	 * 
-	 * @see UserRegistry#getUserInfo(UserId)
+	 * @see UserRegistry#getUserInfo(UserName)
 	 * @see UserInfo#getRoles()
 	 */
 	@Override
 	public Set<String> getCallerGroups(CredentialValidationResult validationResult) {
-		UserInfo user = users.getUserInfo(UserId.valueOf(validationResult.getCallerUniqueId()));
+		UserInfo user = users.getUserInfo(UserName.valueOf(validationResult.getCallerUniqueId()));
 		if(user != null) {
 			return user.getRoles();
 		}

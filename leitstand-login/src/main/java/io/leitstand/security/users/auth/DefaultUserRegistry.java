@@ -3,6 +3,7 @@
  */
 package io.leitstand.security.users.auth;
 
+import static io.leitstand.security.auth.UserName.userName;
 import static io.leitstand.security.auth.user.UserInfo.newUserInfo;
 import static javax.security.enterprise.identitystore.CredentialValidationResult.INVALID_RESULT;
 
@@ -13,7 +14,7 @@ import javax.security.enterprise.credential.UsernamePasswordCredential;
 import javax.security.enterprise.identitystore.CredentialValidationResult;
 
 import io.leitstand.commons.EntityNotFoundException;
-import io.leitstand.security.auth.UserId;
+import io.leitstand.security.auth.UserName;
 import io.leitstand.security.auth.user.UserInfo;
 import io.leitstand.security.auth.user.UserRegistry;
 import io.leitstand.security.users.service.UserService;
@@ -26,11 +27,11 @@ public class DefaultUserRegistry implements UserRegistry{
 	private UserService users;
 	
 	@Override
-	public UserInfo getUserInfo(UserId userId) {
+	public UserInfo getUserInfo(UserName userName) {
 		try {
-			UserSettings user = users.getUser(userId);
+			UserSettings user = users.getUser(userName);
 			return newUserInfo()
-				   .withUserId(user.getUserId())
+				   .withUserName(user.getUserName())
 				   .withRoles(user.getRoles())
 				   .withAccessTokenTtl(user.getAccessTokenTtl(), 
 						   		   	   user.getAccessTokenTtlUnit())
@@ -42,11 +43,11 @@ public class DefaultUserRegistry implements UserRegistry{
 
 	@Override
 	public CredentialValidationResult validateCredentials(UsernamePasswordCredential credentials) {
-		UserId   userId = UserId.valueOf(credentials.getCaller());
+		UserName userName = userName(credentials.getCaller());
 		Password passwd = credentials.getPassword(); 
-		if(users.isValidPassword(userId,passwd)){
-			UserInfo user = getUserInfo(userId);
-			return new CredentialValidationResult(userId.toString(),user.getRoles());
+		if(users.isValidPassword(userName,passwd)){
+			UserInfo user = getUserInfo(userName);
+			return new CredentialValidationResult(userName.toString(),user.getRoles());
 		}
 		return INVALID_RESULT;
 	}

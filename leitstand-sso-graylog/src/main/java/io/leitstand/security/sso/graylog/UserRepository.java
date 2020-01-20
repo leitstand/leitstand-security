@@ -3,6 +3,7 @@
  */
 package io.leitstand.security.sso.graylog;
 
+import static io.leitstand.security.auth.UserName.userName;
 import static io.leitstand.security.sso.graylog.UserInfo.newUserInfo;
 
 import javax.enterprise.context.RequestScoped;
@@ -14,7 +15,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.SecurityContext;
 
-import io.leitstand.security.auth.UserId;
+import io.leitstand.security.auth.UserName;
 import io.leitstand.security.users.service.EmailAddress;
 import io.leitstand.security.users.service.UserService;
 import io.leitstand.security.users.service.UserSettings;
@@ -30,13 +31,13 @@ public class UserRepository {
 	@Produces(MediaType.APPLICATION_JSON)
 	public UserInfo getUserInfo(@Context SecurityContext context) {
 		
-		UserSettings user = users.getUser(UserId.valueOf(context.getUserPrincipal()));
+		UserSettings user = users.getUser(userName(context.getUserPrincipal()));
 		
 		return newUserInfo()
 			   .withName(user.getGivenName())
-			   .withSurname(user.getSurname())
+			   .withSurname(user.getFamilyName())
 			   .withEmail(EmailAddress.toString(user.getEmail()))
-			   .withUsername(user.getUserId())
+			   .withUsername(user.getUserName())
 			   .withRoles(user.getRoles())
 			   .build();
 	}

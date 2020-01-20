@@ -24,8 +24,8 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 
 import io.leitstand.commons.model.Query;
-import io.leitstand.security.auth.UserId;
-import io.leitstand.security.auth.jpa.UserIdConverter;
+import io.leitstand.security.auth.UserName;
+import io.leitstand.security.auth.jpa.UserNameConverter;
 import io.leitstand.security.login.log.service.UserLoginState;
 
 /**
@@ -64,9 +64,9 @@ public class UserLoginRecord {
 	@Column(name="remoteip")
 	private String  remoteIp;
 	
-	@Convert(converter=UserIdConverter.class)
-	@Column(name="userid")
-	private UserId 	userId;
+	@Convert(converter=UserNameConverter.class)
+	@Column(name="username")
+	private UserName 	userName;
 	
 	@Column(name="useragent")
 	private String 	userAgent;
@@ -95,7 +95,7 @@ public class UserLoginRecord {
 	 * @param previousLogin the previous log record to implement the log record chain
 	 * @param localIp the local IP address of the service writing this record
 	 * @param remoteIp the remote IP address of the client, that attempts to login
-	 * @param userId the user ID of the user that attempts to login
+	 * @param userName the user ID of the user that attempts to login
 	 * @param userAgent the user agent (HTTP header) used to login
 	 * @param loginDate the login timestamp
 	 * @param loginState the outcome of the login attempt
@@ -105,7 +105,7 @@ public class UserLoginRecord {
 							  UserLoginRecord previousLogin, 
 							  String localIp, 
 							  String remoteIp, 
-							  UserId userId, 
+							  UserName userName, 
 							  String userAgent,
 							  Date loginDate,
 							  UserLoginState loginState,
@@ -113,7 +113,7 @@ public class UserLoginRecord {
 		this.previousLogin = previousLogin;
 		this.id			   = id;
 		this.localIp 	   = localIp;
-		this.userId 	   = userId;
+		this.userName 	   = userName;
 		this.remoteIp 	   = remoteIp;
 		this.userAgent 	   = userAgent;
 		this.loginDate	   = new Date(loginDate.getTime());
@@ -133,8 +133,8 @@ public class UserLoginRecord {
 	 * The user ID of the user that attempted to login
 	 * @return the user ID
 	 */
-	public UserId getUserId() {
-		return userId;
+	public UserName getUserName() {
+		return userName;
 	}
 	
 	/**

@@ -3,12 +3,13 @@
  */
 package io.leitstand.security.users.model;
 
+import static io.leitstand.security.auth.UserId.randomUserId;
+import static io.leitstand.security.auth.UserName.userName;
 import static io.leitstand.security.users.service.UserSettings.newUserSettings;
 
 import java.security.Principal;
-import java.util.UUID;
 
-import io.leitstand.security.auth.UserId;
+import io.leitstand.security.auth.UserName;
 import io.leitstand.security.users.service.UserSettings;
 
 final class UserSettingsMother {
@@ -18,17 +19,16 @@ final class UserSettingsMother {
 		return newOperator(principal.getName());
 	}
 	
-	public static UserSettings newOperator(String userId) {
-		return newOperator(UserId.valueOf(userId));
+	public static UserSettings newOperator(String userName) {
+		return newOperator(userName(userName));
 	}
 	
-	public static UserSettings newOperator(UserId userId) {
+	public static UserSettings newOperator(UserName userName) {
 		return newUserSettings()
-			   .withUuid(UUID.randomUUID().toString())
-			   .withUserId(userId)
+			   .withUserId(randomUserId())
+			   .withUserName(userName)
 			   .withRoles("Operator")
 			   .build();
 	}
-	
 	
 }

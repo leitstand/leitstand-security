@@ -1,5 +1,5 @@
 /*
- * (c) RtBrick, Inc - All rights reserved, 2015 - 2019
+ * (c) RtBrick, Inc All rights reserved, 2015 2019
  */
 package io.leitstand.security.login.log.rs;
 
@@ -36,8 +36,8 @@ public class UserLoginAuditLogResource {
 	
 	/**
 	 * Returns a single user login audit log record.
-	 * @param localIp - the IP address of the service that has written the log record
-	 * @param id - the sequence number of the log record.
+	 * @param localIp the IP address of the service that has written the log record
+	 * @param id the sequence number of the log record.
 	 * @return the log record
 	 */
 	@GET
@@ -49,11 +49,11 @@ public class UserLoginAuditLogResource {
 
 	/**
 	 * Runs a query for user audit login records. All query parameters are optional.
-	 * @param from - the from timestamp in ISO date format. Records must be written after this timestamp, if specified
-	 * @param to - the to timestamp in ISO date format. Records must be written before this timstemp, if specified.
-	 * @param remoteIp - the IP address from which the login was attempted, if specified.
-	 * @param userId - the user ID pattern as POSIX regular expression the user ID in the record must match, if specified
-	 * @param limit - the maximum number of returned items. Defaults to 100 if not specified.
+	 * @param from the from timestamp in ISO date format. Records must be written after this timestamp, if specified
+	 * @param to the to timestamp in ISO date format. Records must be written before this timstemp, if specified.
+	 * @param remoteIp the IP address from which the login was attempted, if specified.
+	 * @param userName the user ID pattern as POSIX regular expression the user ID in the record must match, if specified
+	 * @param limit the maximum number of returned items. Defaults to 100 if not specified.
 	 * @return a list of matching user login audit log records or an empty list if no matching records were found.
 	 */
 	@GET
@@ -61,14 +61,14 @@ public class UserLoginAuditLogResource {
 	public List<UserLoginAuditLogRecordData> findLogRecords(@QueryParam("from") String from,
 														    @QueryParam("to") String to,
 														    @QueryParam("remote_ip") String remoteIp,
-														    @QueryParam("user_id") String userId,
+														    @QueryParam("user") String userName,
 														    @QueryParam("limit") @DefaultValue("100") String limit) {
 		
 		UserLoginAuditLogQuery query = newUserLoginAuditLogQuery()
 									   .withFromLoginDate(tryParseDate(from))
 									   .withToLoginDate(tryParseDate(to))
 									   .withRemoteIp(remoteIp)
-									   .withUserIdPattern(userId)
+									   .withUserNamePattern(userName)
 									   .withLimit(tryParseInt(limit,100))
 									   .build();
 		

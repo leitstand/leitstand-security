@@ -5,16 +5,17 @@
 <ui-form>
 	<ui-group>
 		<ui-label>General Settings</ui-label>
-		<ui-input name="user_id" bind="profile.user_id" disabled readonly>
-			<ui-label>User ID</ui-label>
-			<ui-note>User account login ID</ui-note>
+		<ui-input name="user_name" bind="profile.user_name" disabled readonly>
+			<ui-label>User Name</ui-label>
+			<ui-note>User account name</ui-note>
 		</ui-input>
 		<ui-input name="given_name" bind="profile.given_name">
 			<ui-label>Given Name</ui-label>
-			<ui-note>Your first name</ui-note>
+			
+			<ui-note>Your given name</ui-note>
 		</ui-input>
-		<ui-input name="surname" bind="profile.surname">
-			<ui-label>Surname</ui-label>
+		<ui-input name="family_name" bind="profile.family_name">
+			<ui-label>Family Name</ui-label>
 			<ui-note>Your family name</ui-note>
 		</ui-input>
 		<ui-input name="email" bind="profile.email">

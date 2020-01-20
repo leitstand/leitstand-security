@@ -41,7 +41,7 @@ import io.leitstand.commons.UnprocessableEntityException;
 import io.leitstand.commons.messages.Messages;
 import io.leitstand.commons.model.Query;
 import io.leitstand.commons.model.Repository;
-import io.leitstand.security.auth.UserId;
+import io.leitstand.security.auth.UserName;
 import io.leitstand.security.users.service.UserSettings;
 import io.leitstand.security.users.service.UserSubmission;
 
@@ -87,22 +87,22 @@ public class DefaultUserServiceTest {
 		ArgumentCaptor<User> user = ArgumentCaptor.forClass(User.class);
 		doNothing().when(repository).add(user.capture());
 		UserSubmission submission = newUserSubmission()
-									.withUserId(UserId.valueOf("non-existent-user"))
+									.withUserName(UserName.valueOf("non-existent-user"))
 									.withPassword(password)
 									.withConfirmedPassword(password)
 									.build();
 		
 		service.addUser(submission);
 		User newUser = user.getValue();
-		assertNotNull(newUser.getUuid());
-		assertEquals(submission.getUserId(),
-					 newUser.getUserId());
+		assertNotNull(newUser.getUserId());
+		assertEquals(submission.getUserName(),
+					 newUser.getUserName());
 		
 	}
 	
 	@Test(expected=AccessDeniedException.class)
 	public void non_admin_user_cannot_modify_other_user() {
-		when(repository.execute(any(Query.class))).thenReturn(new User(new UserId("other")));
+		when(repository.execute(any(Query.class))).thenReturn(new User(new UserName("other")));
 		when(context.getUserPrincipal()).thenReturn(AUTHENTICATED);
 		service.storeUserSettings(newOperator("other"));
 	}
@@ -111,32 +111,32 @@ public class DefaultUserServiceTest {
 	public void admin_user_can_modify_other_user() {
 		when(context.isUserInRole("Administrator")).thenReturn(true);
 		User user = mock(User.class);
-		when(user.getUserId()).thenReturn(new UserId("other"));
+		when(user.getUserName()).thenReturn(new UserName("other"));
 		when(repository.execute(any(Query.class))).thenReturn(user).thenReturn(OPERATOR);
 		when(context.getUserPrincipal()).thenReturn(AUTHENTICATED);
 		
 		UserSettings settings = newOperator("other");
 		service.storeUserSettings(settings);
-		verify(user).setUserId(settings.getUserId());
+		verify(user).setUserName(settings.getUserName());
 		verify(user).setEmailAddress(settings.getEmail());
 		verify(user).setGivenName(settings.getGivenName());
-		verify(user).setSurname(settings.getSurname());
+		verify(user).setFamilyName(settings.getFamilyName());
 	}
 	
 	@Test
 	public void non_admin_user_can_modify_its_own_settings() {
 		when(context.isUserInRole("Administrator")).thenReturn(true);
 		User user = mock(User.class);
-		when(user.getUserId()).thenReturn(UserId.valueOf(AUTHENTICATED));
+		when(user.getUserName()).thenReturn(UserName.valueOf(AUTHENTICATED));
 		when(repository.execute(any(Query.class))).thenReturn(user).thenReturn(OPERATOR);
 		when(context.getUserPrincipal()).thenReturn(AUTHENTICATED);
 		
 		UserSettings settings = newOperator(AUTHENTICATED);
 		service.storeUserSettings(settings);
-		verify(user).setUserId(settings.getUserId());
+		verify(user).setUserName(settings.getUserName());
 		verify(user).setEmailAddress(settings.getEmail());
 		verify(user).setGivenName(settings.getGivenName());
-		verify(user).setSurname(settings.getSurname());
+		verify(user).setFamilyName(settings.getFamilyName());
 	}
 	
 	@Test
@@ -146,7 +146,7 @@ public class DefaultUserServiceTest {
 		Password current = new Password("current");
 		Password newpass = new Password("newpass");
 		Password confirm = new Password("confirm");
-		UserId userId = UserId.valueOf("unittest");
+		UserName userId = UserName.valueOf("unittest");
 		User user = mock(User.class);
 		when(user.getSalt()).thenReturn(salt);
 		when(user.getPasswordHash()).thenReturn(hash);
@@ -172,7 +172,7 @@ public class DefaultUserServiceTest {
 		Password current = new Password("current");
 		Password newpass = new Password("newpass");
 		Password confirm = new Password("newpass");
-		UserId userId = UserId.valueOf("unittest");
+		UserName userId = UserName.valueOf("unittest");
 		User user = mock(User.class);
 		when(user.getSalt()).thenReturn(salt);
 		when(user.getPasswordHash()).thenReturn(hash);
@@ -200,7 +200,7 @@ public class DefaultUserServiceTest {
 		Password current = new Password("current");
 		Password newpass = new Password("newpass");
 		Password confirm = new Password("newpass");
-		UserId userId = UserId.valueOf("unittest");
+		UserName userId = UserName.valueOf("unittest");
 		User user = mock(User.class);
 		when(user.getSalt()).thenReturn(salt);
 		when(user.getPasswordHash()).thenReturn(hash);
@@ -221,7 +221,7 @@ public class DefaultUserServiceTest {
 	@Test
 	public void password_is_invalid_for_unknown_user() {
 		Password password = new Password("secret");
-		assertFalse(service.isValidPassword(UserId.valueOf("unknown"),
+		assertFalse(service.isValidPassword(UserName.valueOf("unknown"),
 											password));
 		verify(hashing,never()).isExpectedPassword(eq(password), 
 												   any(byte[].class), 
@@ -235,7 +235,7 @@ public class DefaultUserServiceTest {
 		byte[] hash = new byte[0];
 
 		Password password = new Password("secret");
-		UserId userId = UserId.valueOf("unittest");
+		UserName userId = UserName.valueOf("unittest");
 		User user = mock(User.class);
 		when(repository.execute(any(Query.class))).thenReturn(user);
 		when(user.getSalt()).thenReturn(salt);

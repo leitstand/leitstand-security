@@ -38,7 +38,7 @@ public class BasicAuthManager implements AccessTokenManager{
 		Authorization auth = Authorization.valueOf(request);
 		if(auth != null && auth.isBasic()) {
 			BasicAuthentication basic = new BasicAuthentication(auth);
-			return is.validate(new UsernamePasswordCredential(basic.getUserId().toString(), 
+			return is.validate(new UsernamePasswordCredential(basic.getUserName().toString(), 
 														 	  basic.getPassword()));
 		}
 		return NOT_VALIDATED_RESULT;

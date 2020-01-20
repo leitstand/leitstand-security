@@ -4,17 +4,21 @@
 <ui-view-header>
 	<ui-breadcrumbs>
 		<ui-breadcrumb href="users.html">Users</ui-breadcrumb>
-		<ui-breadcrumb>User {{user.user_id}}</ui-breadcrumb>
+		<ui-breadcrumb>User {{user.user_name}}</ui-breadcrumb>
 	</ui-breadcrumbs>
 	<ui-title>User Settings</ui-title>
-	<ui-subtitle>Manage settings for user {{user.user_id}}.</ui-subtitle>
+	<ui-subtitle>Manage settings for user {{user.user_name}}.</ui-subtitle>
 </ui-view-header>
 <ui-form rolesAllowed="Administrator">
 	<ui-group>
 		<ui-label>User Settings</ui-label>
-		<ui-input name="user_id" bind="user.user_id">
+		<ui-input name="User ID" bind="user.user_id" readonly disabled>
 			<ui-label>User ID</ui-label>
-			<ui-note>The user account login ID</ui-note>
+			<ui-note>The user account ID</ui-note>
+		</ui-input>
+		<ui-input name="User Name" bind="user.user_name">
+			<ui-label>User Name</ui-label>
+			<ui-note>The user account name.</ui-note>
 		</ui-input>
 		<ui-input name="email" bind="user.email">
 			<ui-label>Email</ui-label>
@@ -24,8 +28,8 @@
 			<ui-label>Given Name</ui-label>
 			<ui-note>The user's given name.</ui-note>
 		</ui-input>
-		<ui-input name="surname" bind="user.surname">
-			<ui-label>Surname</ui-label>
+		<ui-input name="family_name" bind="user.family_name">
+			<ui-label>Family Name</ui-label>
 			<ui-note>The user's family name.</ui-note>
 		</ui-input>
 	</ui-group>

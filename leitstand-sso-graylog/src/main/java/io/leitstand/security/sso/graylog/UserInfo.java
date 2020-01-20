@@ -14,8 +14,8 @@ import javax.json.bind.annotation.JsonbProperty;
 import javax.json.bind.annotation.JsonbTypeAdapter;
 
 import io.leitstand.commons.model.ValueObject;
-import io.leitstand.security.auth.UserId;
-import io.leitstand.security.auth.jsonb.UserIdAdapter;
+import io.leitstand.security.auth.UserName;
+import io.leitstand.security.auth.jsonb.UserNameAdapter;
 
 public class UserInfo extends ValueObject{
 
@@ -38,7 +38,7 @@ public class UserInfo extends ValueObject{
 			return this;
 		}
 		
-		public Builder withUsername(UserId name) {
+		public Builder withUsername(UserName name) {
 			assertNotInvalidated(getClass(), userInfo);
 			userInfo.username = name;
 			return this;
@@ -68,8 +68,8 @@ public class UserInfo extends ValueObject{
 	
 	private String name;
 	private String surname;
-	@JsonbTypeAdapter(UserIdAdapter.class)
-	private UserId username;
+	@JsonbTypeAdapter(UserNameAdapter.class)
+	private UserName username;
 	private String email;
 	@JsonbProperty("role_ids")
 	private Set<String> roles = emptySet();
@@ -83,7 +83,7 @@ public class UserInfo extends ValueObject{
 	public String getSurname() {
 		return surname;
 	}
-	public UserId getUsername() {
+	public UserName getUsername() {
 		return username;
 	}
 	

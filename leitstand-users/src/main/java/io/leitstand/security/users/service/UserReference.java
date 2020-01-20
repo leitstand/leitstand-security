@@ -4,12 +4,14 @@
 package io.leitstand.security.users.service;
 
 import static io.leitstand.commons.model.BuilderUtil.assertNotInvalidated;
+import static io.leitstand.security.auth.UserId.randomUserId;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 import io.leitstand.commons.model.ValueObject;
 import io.leitstand.security.auth.UserId;
+import io.leitstand.security.auth.UserName;
 
 public class UserReference extends ValueObject{
 
@@ -25,15 +27,15 @@ public class UserReference extends ValueObject{
 			this.instance = instance;
 		}
 		
-		public B withUuid(String uuid) {
-			assertNotInvalidated(getClass(), instance);
-			((UserReference)instance).uuid = uuid;
-			return (B) this;
-		}
-
 		public B withUserId(UserId userId) {
 			assertNotInvalidated(getClass(), instance);
 			((UserReference)instance).userId = userId;
+			return (B) this;
+		}
+
+		public B withUserName(UserName userName) {
+			assertNotInvalidated(getClass(), instance);
+			((UserReference)instance).userName = userName;
 			return (B) this;
 		}
 
@@ -43,9 +45,9 @@ public class UserReference extends ValueObject{
 			return (B) this;
 		}
 		
-		public B withSurname(String surName) {
+		public B withFamilyName(String surName) {
 			assertNotInvalidated(getClass(), instance);
-			((UserReference)instance).surname = surName;
+			((UserReference)instance).familyName = surName;
 			return (B) this;
 		}
 		
@@ -71,33 +73,38 @@ public class UserReference extends ValueObject{
 		}
 	}
 	
-	private String uuid;
+	private UserId userId = randomUserId();
 	@Valid
-	@NotNull(message="{user_id.required}")
-	private UserId userId;
+	@NotNull(message="{user_name.required}")
+	private UserName userName;
 	private String givenName;
-	private String surname;
+	private String familyName;
+	private boolean oidcOnly;
 	@Valid
 	private EmailAddress email;
 	
-	public String getUuid() {
-		return uuid;
-	}
-	
 	public UserId getUserId() {
 		return userId;
+	}
+	
+	public UserName getUserName() {
+		return userName;
 	}
 	
 	public String getGivenName() {
 		return givenName;
 	}
 	
-	public String getSurname() {
-		return surname;
+	public String getFamilyName() {
+		return familyName;
 	}
 	
 	public EmailAddress getEmail() {
 		return email;
+	}
+	
+	public boolean isOidcOnly() {
+		return oidcOnly;
 	}
 	
 }

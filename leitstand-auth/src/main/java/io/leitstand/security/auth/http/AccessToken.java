@@ -1,5 +1,5 @@
 /*
- * (c) RtBrick, Inc - All rights reserved, 2015 - 2019
+ * (c) RtBrick, Inc All rights reserved, 2015 2019
  */
 package io.leitstand.security.auth.http;
 
@@ -18,7 +18,7 @@ import javax.json.bind.annotation.JsonbProperty;
 import javax.json.bind.annotation.JsonbTypeAdapter;
 
 import io.leitstand.commons.jsonb.DateToLongAdapter;
-import io.leitstand.security.auth.UserId;
+import io.leitstand.security.auth.UserName;
 import io.leitstand.security.auth.accesskey.ApiAccessKey;
 import io.leitstand.security.auth.jwt.JsonWebToken;
 
@@ -42,12 +42,12 @@ public class AccessToken extends JsonWebToken<AccessToken.Payload> {
 	/**
 	 * Returns a builder to create a new immutable access token and copies the value of the given template token to the new token.
 	 * This facilitates refreshing access tokens. 
-	 * @param template - the access token used as template for the new access token.
+	 * @param template the access token used as template for the new access token.
 	 * @return a new access token with the same values as the template token but a new issuing date
 	 */
 	public static Builder newAccessToken(JsonWebToken<Payload> template) {
 		Builder builder = new Builder();
-		builder.payload.userId = template.getPayload().getUserId();
+		builder.payload.userName = template.getPayload().getUserName();
 		builder.payload.roles = new TreeSet<>(template.getPayload().getRoles());
 		return builder;
 	}
@@ -63,18 +63,18 @@ public class AccessToken extends JsonWebToken<AccessToken.Payload> {
 		
 		/**
 		 * Sets the user ID of the authenticated user.
-		 * @param userId - the user ID
+		 * @param userName the user name
 		 * @return a reference to this builder to continue token creation
 		 */
-		public Builder withUserId(UserId userId) {
+		public Builder withUserName(UserName userName) {
 			assertNotInvalidated(getClass(),  payload);
-			payload.userId = userId;
+			payload.userName = userName;
 			return this;
 		}
 		
 		/**
 		 * Sets the roles of the authenticated user.
-		 * @param roles - the roles of the authenticated user.
+		 * @param roles the roles of the authenticated user.
 		 * @return a reference to this builder to continue token creation.
 		 */
 		public Builder withRoles(String... roles) {
@@ -131,7 +131,7 @@ public class AccessToken extends JsonWebToken<AccessToken.Payload> {
 		private String id = randomUUID().toString();
 		
 		@JsonbProperty("sub")
-		private UserId userId;
+		private UserName userName;
 		
 		@JsonbProperty("iat")
 		@JsonbTypeAdapter(DateToLongAdapter.class)
@@ -155,11 +155,11 @@ public class AccessToken extends JsonWebToken<AccessToken.Payload> {
 		}
 		
 		/**
-		 * Returns the user ID of the authenticated user.
-		 * @return the user ID of the authenticated user.
+		 * Returns the user name of the authenticated user.
+		 * @return the user name of the authenticated user.
 		 */
-		public UserId getUserId() {
-			return userId;
+		public UserName getUserName() {
+			return userName;
 		}
 		
 		/**
@@ -200,11 +200,11 @@ public class AccessToken extends JsonWebToken<AccessToken.Payload> {
 	}
 	
 	/**
-	 * Returns the user ID of the authenticated user.
-	 * @return the user ID of the authenticated user.
+	 * Returns the user name of the authenticated user.
+	 * @return the user name of the authenticated user.
 	 */
-	public UserId getUserId() {
-		return getPayload().getUserId();
+	public UserName getUserName() {
+		return getPayload().getUserName();
 	}
 	
 	/**
@@ -227,7 +227,7 @@ public class AccessToken extends JsonWebToken<AccessToken.Payload> {
 	
 	/**
 	 * Checks whether a user has the given role.
-	 * @param role - the role the user shall be tested for
+	 * @param role the role the user shall be tested for
 	 * @return <code>true</code> if the user has the given role, <code>false</code> otherwise.
 	 */
 	public boolean isUserInRole(String role) {

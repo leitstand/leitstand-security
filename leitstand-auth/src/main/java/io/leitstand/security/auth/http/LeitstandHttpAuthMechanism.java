@@ -1,8 +1,9 @@
 /*
- * (c) RtBrick, Inc - All rights reserved, 2015 - 2019
+# * (c) RtBrick, Inc All rights reserved, 2015 2019
  */
 package io.leitstand.security.auth.http;
 
+import static io.leitstand.security.auth.UserName.userName;
 import static java.lang.String.format;
 import static java.util.logging.Logger.getLogger;
 import static javax.security.enterprise.AuthenticationStatus.NOT_DONE;
@@ -24,7 +25,6 @@ import javax.security.enterprise.identitystore.CredentialValidationResult;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import io.leitstand.security.auth.UserId;
 import io.leitstand.security.auth.user.LoginManager;
 
 
@@ -57,30 +57,18 @@ public class LeitstandHttpAuthMechanism implements HttpAuthenticationMechanism{
 	private static final Logger LOG = getLogger(LeitstandHttpAuthMechanism.class.getName());
 	
 	/**
-	 * Creates a failed authentication attempt reply.
-	 * @param response - the HTTP response
-	 * @return {@link AuthenticationStatus#SEND_FAILURE} to inform about the failed request authentication
-	 */
-	static AuthenticationStatus unauthenticated(HttpServletResponse response) {
-		response.setStatus(SC_UNAUTHORIZED);
-		response.setHeader("Cache-Control", "no-cache");
-		response.setHeader("Pragma","no-cache");
-		return SEND_FAILURE;
-	}
-
-	/**
 	 * Returns <code>true</code> if the request is a login request, 
 	 * i.e. a <code>POST</code> request submitted to <code>/api/v1/_login</code>.
-	 * @param request - the HTTP request.
+	 * @param request the HTTP request.
 	 * @return <code>true</code> if the request is a login request
 	 */
 	static boolean isLoginRequest(HttpServletRequest request) {
-		return request.getRequestURI().startsWith("/api/v1/_login") && "POST".equals(request.getMethod());
+		return request.getRequestURI().startsWith("/api/v1/login");
 	}
 
 	/**
 	 * Returns <code>true</code> if the request is an API request, either invoking the REST API or fetching UI metadata, which is also an API.
-	 * @param request - the HTTP request.
+	 * @param request the HTTP request.
 	 * @return <code>true</code> if the requests is a login request.
 	 */
 	static boolean isApiRequest(HttpServletRequest request) {
@@ -103,9 +91,13 @@ public class LeitstandHttpAuthMechanism implements HttpAuthenticationMechanism{
 		
 		if(isApiRequest(request)) {
 			if(isLoginRequest(request)) {
-				return login(request,
-							 response,
-							 context);
+				if(request.getRequestURI().startsWith("/api/v1/login/_login") && "POST".equals(request.getMethod())) {
+					return login(request,
+								 response,
+								 context);
+				}
+				// Grant unauthenticated access to login configurationa and SSO flows.
+				return NOT_DONE;
 			}
 			
 			return authenticate(request,
@@ -119,9 +111,9 @@ public class LeitstandHttpAuthMechanism implements HttpAuthenticationMechanism{
 
 	/**
 	 * Processes a login request and logs the login attempt outcome.
-	 * @param request - the HTTP request
-	 * @param response - the HTTP response
-	 * @param context - the context to be notified about a successful login attempt
+	 * @param request the HTTP request
+	 * @param response the HTTP response
+	 * @param context the context to be notified about a successful login attempt
 	 * @return {@link AuthenticationStatus#SUCCESS} if the identity store accepted the credentials 
 	 * and {@link AuthenticationStatus#SEND_FAILURE} in any other case.
 	 */
@@ -138,7 +130,7 @@ public class LeitstandHttpAuthMechanism implements HttpAuthenticationMechanism{
 		for(AccessTokenManager manager : accessTokenManagers) {
 			if(manager.issueAccessToken(request, 
 										response, 
-										UserId.valueOf(result.getCallerPrincipal()), 
+										userName(result.getCallerPrincipal()),
 										result.getCallerGroups())) {
 				break;
 			}
@@ -154,9 +146,9 @@ public class LeitstandHttpAuthMechanism implements HttpAuthenticationMechanism{
 	 * First the HTTP <i>Authorization</i> header is verified, if such a header is present.
 	 * Second the HTTP request is scanned for the <code>rtb-access</code> cookie.
 	 * If a cookie is present, the cookie is verified.
-	 * @param request - the HTTP request
-	 * @param response - the HTTP response
-	 * @param context - the context to be notified about successfully authenticated requests
+	 * @param request the HTTP request
+	 * @param response the HTTP response
+	 * @param context the context to be notified about successfully authenticated requests
 	 * @return {@link AuthenticationStatus#NOT_DONE} if no credential data was found, 
 	 *         {@link AuthenticationStatus#SEND_FAILURE} if the credentials are invalid and 
 	 *         {@link AuthenticationStatus#SUCCESS} if the identity store accepted the provided credentials.
@@ -201,5 +193,18 @@ public class LeitstandHttpAuthMechanism implements HttpAuthenticationMechanism{
 		}
 		httpMessageContext.cleanClientSubject();
 	}
+	
+	/**
+	 * Creates a failed authentication attempt reply.
+	 * @param response the HTTP response
+	 * @return {@link AuthenticationStatus#SEND_FAILURE} to inform about the failed request authentication
+	 */
+	protected AuthenticationStatus unauthenticated(HttpServletResponse response) {
+		response.setStatus(SC_UNAUTHORIZED);
+		response.setHeader("Cache-Control", "no-cache");
+		response.setHeader("Pragma","no-cache");
+		return SEND_FAILURE;
+	}
+
 	
 }

@@ -66,7 +66,7 @@ public class UsersResource {
 	public Response storeUserSettings(@Valid UserSubmission user) {
 		service.addUser(user);
 		return created(URI.create(format("/api/v1/users/%s",
-										 user.getUserId())))
+										 user.getUserName())))
 			   .entity(messages)
 			   .build();
 	}

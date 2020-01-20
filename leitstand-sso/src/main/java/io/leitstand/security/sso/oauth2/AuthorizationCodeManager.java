@@ -49,7 +49,7 @@ public class AuthorizationCodeManager implements AccessTokenManager{
 				if(authCode.isOlderThan(60,SECONDS)) {
 					return INVALID_RESULT;
 				}
-				return new CredentialValidationResult(authCode.getUserId().toString(),
+				return new CredentialValidationResult(authCode.getUserName().toString(),
 													  emptySet());
 			} catch(JsonWebTokenSignatureException e) {
 				LOG.log(FINE,e.getMessage(),e);

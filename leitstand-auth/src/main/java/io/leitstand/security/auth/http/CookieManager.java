@@ -24,7 +24,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import io.leitstand.security.auth.UserId;
+import io.leitstand.security.auth.UserName;
 import io.leitstand.security.auth.http.AccessToken.Payload;
 import io.leitstand.security.auth.jwt.JsonWebToken;
 import io.leitstand.security.auth.jwt.JsonWebTokenConfig;
@@ -44,12 +44,12 @@ import io.leitstand.security.auth.user.UserRegistry;
  *  <li>Deleting a cookie after the user logged off.</li>
  *  <li>Decoding and verification of an access token restored from the cookie.</li>
  * </ul>
- * The cookie name defaults to <code>rtb-access</code> and can be overriden by specifying the <code>rbms.access.token.cookie.name</code> environment variable.
+ * The cookie name defaults to <code>LEISTAND_ACCESS</code> and can be overridden by specifying the <code>LEITSTAND_ACCESS_TOKEN_COOKIE_NAME</code> environment variable.
  */
 @Dependent
 public class CookieManager implements AccessTokenManager{
 	
-	private static final String JWT_COOKIE = getSystemProperty("rbms.access.token.cookie","rtb-access");
+	private static final String JWT_COOKIE = getSystemProperty("LEITSTAND_ACCESS_TOKEN_COOKIE_NAME","LEITSTAND_ACCESS");
 	private static final Logger LOG = getLogger(CookieManager.class.getName());
 	
 	/**
@@ -90,23 +90,23 @@ public class CookieManager implements AccessTokenManager{
 	 * Creates an {@link AccessToken} for the given authenticated user with the given roles.
 	 * @param request the HTTP request
 	 * @param response the HTTP response
-	 * @param userId the user ID of the authenticate user
- 	 * @param roles the roles of the authenticated user.
+	 * @param userName the user ID of the authenticate user
+ 	 * @param userRoles the roles of the authenticated user.
 	 */
 	@Override
 	public boolean issueAccessToken(HttpServletRequest request,
 									HttpServletResponse response,
-									UserId userId,
-									Set<String> roles) {
+									UserName userName,
+									Set<String> userRoles ) {
 		
-		UserInfo user = userRegistry.getUserInfo(userId);
+		UserInfo user = userRegistry.getUserInfo(userName);
 
 		Date expiryDate = computeExpiryDate(user);
 		
 		// Create JWT access token and send it as a cookie to the caller.
 		JsonWebToken<Payload> token = newAccessToken()
-									  .withUserId(userId)
-									  .withRoles(roles)
+									  .withUserName(userName)
+									  .withRoles(userRoles)
 									  .withDateExpiry(expiryDate)
 									  .build();
 		String jwt = encoder.encode(token);
@@ -115,7 +115,7 @@ public class CookieManager implements AccessTokenManager{
 					jwt,
 					(int)(expiryDate.getTime() - currentTimeMillis())/1000);
 		
-		LOG.fine(() -> format("User %s login succeeded!",userId));
+		LOG.fine(() -> format("User %s login succeeded!",userName));
 		return true;
 	}
 
@@ -132,18 +132,17 @@ public class CookieManager implements AccessTokenManager{
 							 String jwt,
 							 int maxAgeSeconds) {
 		Cookie cookie = findAccessToken(request);
-		if(cookie != null) {
-			cookie.setValue(jwt);
-			cookie.setMaxAge(maxAgeSeconds);
-			response.addCookie(cookie);
-		} else {
+		if(cookie == null) {
 			cookie = new Cookie(JWT_COOKIE, jwt);
-			cookie.setHttpOnly(true);
-			cookie.setSecure(request.isSecure());
-			cookie.setPath("/");
-			cookie.setMaxAge(maxAgeSeconds);
-			response.addCookie(cookie);
-		}
+		} else {
+			cookie.setValue(jwt);
+		} 
+		cookie.setMaxAge(maxAgeSeconds);
+		cookie.setHttpOnly(true);
+		cookie.setSecure(request.isSecure());
+		cookie.setPath("/");
+		cookie.setMaxAge(maxAgeSeconds);
+		response.addCookie(cookie);
 	}
 
 
@@ -184,7 +183,7 @@ public class CookieManager implements AccessTokenManager{
 											   jwt.getValue());
 			if(token.isExpired()) {
 				LOG.fine(() -> format("Token for user %s created at %s expired.",
-									  token.getUserId(),
+									  token.getUserName(),
 									  isoDateFormat(token.getDateCreated())));
 				invalidateAccessToken(request, response);
 				return INVALID_RESULT;
@@ -192,18 +191,18 @@ public class CookieManager implements AccessTokenManager{
 			
 			if(token.isExpiringWithin(config.getRefreshInterval())) {
 				LOG.fine(() -> format("Refreshing token for user %s created at %s.",
-						  			  token.getUserId(),
+						  			  token.getUserName(),
 						  			  isoDateFormat(token.getDateCreated())));
 				
 				// Fetch user again to apply recent roles to access token.
 				// Throws an EntityNotFoundException, if the user does not exist!
-				UserInfo user = userRegistry.getUserInfo(token.getUserId());
+				UserInfo user = userRegistry.getUserInfo(token.getUserName());
 				if(user == null) {
 					return INVALID_RESULT;
 				}
 				Date expiry = computeExpiryDate(user);
 				JsonWebToken<Payload> renewedToken = newAccessToken(token)
-										   			 .withUserId(user.getUserId())
+										   			 .withUserName(user.getUserName())
 										   			 .withRoles(user.getRoles())
 										   			 .withDateExpiry(expiry)
 										   			 .build();
@@ -215,7 +214,7 @@ public class CookieManager implements AccessTokenManager{
 				
 			}
 			
-			return new CredentialValidationResult(token.getUserId().toString(),
+			return new CredentialValidationResult(token.getUserName().toString(),
 												  token.getRoles());
 			
 		} catch (JsonWebTokenSignatureException e) {

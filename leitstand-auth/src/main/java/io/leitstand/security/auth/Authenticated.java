@@ -17,10 +17,10 @@ import javax.inject.Qualifier;
 
 /**
  * Qualified annotation to obtain information of the authenticated user.
- * Use <code>{@literal @Inject} {@literal @Authenticated} UserId</code> 
- * to get the {@link UserId} of the authenticated user 
+ * Use <code>{@literal @Inject} {@literal @Authenticated} UserName</code> 
+ * to get the {@link UserName} of the authenticated user 
  * to obtain the settings of the authenticated user.
- * @see UserId
+ * @see UserName
  * 
  */
 @Retention(RUNTIME)

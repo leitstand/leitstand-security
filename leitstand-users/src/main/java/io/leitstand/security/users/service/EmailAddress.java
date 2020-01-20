@@ -13,6 +13,10 @@ public class EmailAddress extends Scalar<String> {
 
 	private static final long serialVersionUID = 1L;
 
+	public static EmailAddress emailAddress(String email) {
+		return valueOf(email);
+	}
+	
 	public static EmailAddress valueOf(String email) {
 		return fromString(email, EmailAddress::new);
 	}

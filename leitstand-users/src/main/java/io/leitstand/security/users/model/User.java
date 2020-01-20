@@ -1,13 +1,13 @@
 /*
- * (c) RtBrick, Inc - All rights reserved, 2015 - 2019
+ * (c) RtBrick, Inc All rights reserved, 2015 2019
  */
 package io.leitstand.security.users.model;
 
 import static io.leitstand.commons.model.ByteArrayUtil.decodeBase64String;
 import static io.leitstand.commons.model.ByteArrayUtil.encodeBase64String;
-import static io.leitstand.commons.model.StringUtil.isEmptyString;
+import static io.leitstand.security.auth.UserId.randomUserId;
+import static io.leitstand.security.auth.UserId.userId;
 import static java.util.Collections.unmodifiableSet;
-import static java.util.UUID.randomUUID;
 import static java.util.stream.Collectors.toSet;
 import static javax.persistence.EnumType.STRING;
 
@@ -36,7 +36,8 @@ import javax.persistence.Table;
 import io.leitstand.commons.model.AbstractEntity;
 import io.leitstand.commons.model.Query;
 import io.leitstand.security.auth.UserId;
-import io.leitstand.security.auth.jpa.UserIdConverter;
+import io.leitstand.security.auth.UserName;
+import io.leitstand.security.auth.jpa.UserNameConverter;
 import io.leitstand.security.users.jpa.EmailAddressConverter;
 import io.leitstand.security.users.service.EmailAddress;
 
@@ -50,15 +51,15 @@ import io.leitstand.security.users.service.EmailAddress;
  * Every user account has an immutable UUID.
  * This UUID can be used as an external reference. 
  * By that, all other user account attributes can be updated 
- * - even the user ID to log in to the system.
+ * even the user ID to log in to the system.
  */
 @Entity
 @Table(schema="auth", name="userdata")
 @NamedQueries({
-	@NamedQuery(name = "User.findUserByUuid",
+	@NamedQuery(name = "User.findUserById",
 			    query= "SELECT u FROM User u WHERE u.uuid=:uuid"),
-	@NamedQuery(name = "User.findUserByUserId",
-				query= "SELECT u FROM User u WHERE u.userId=:userId")
+	@NamedQuery(name = "User.findUserByName",
+				query= "SELECT u FROM User u WHERE u.name=:name")
 })
 public class User extends AbstractEntity {
 
@@ -66,35 +67,35 @@ public class User extends AbstractEntity {
 
 	/**
 	 * Returns a query to search a user account by its UUID.
-	 * @param uuid - the user accounts UUID
+	 * @param userId the user accounts UUID
 	 * @return the user account
 	 */
-	public static Query<User> findUserByUuid(String uuid){
-		return em -> em.createNamedQuery("User.findUserByUuid",User.class)
-					   .setParameter("uuid",uuid)
+	public static Query<User> findUserById(UserId userId){
+		return em -> em.createNamedQuery("User.findUserById",User.class)
+					   .setParameter("uuid",userId.toString())
 					   .getSingleResult();
 	}
 
 	/**
 	 * Returns a query to search a user account by its user ID,
 	 * i.e. the ID to log in to the system.
-	 * @param userId - the user ID
+	 * @param userName the user name
 	 * @return
 	 */
-	public static Query<User> findUserByUserId(UserId userId){
-		return em -> em.createNamedQuery("User.findUserByUserId",User.class)
-					   .setParameter("userId",userId)
+	public static Query<User> findUserByName(UserName userName){
+		return em -> em.createNamedQuery("User.findUserByName",User.class)
+					   .setParameter("name",userName)
 					   .getSingleResult();
 	}
 	
 	private String uuid;
 	
-	@Convert(converter=UserIdConverter.class)
-	private UserId userId;
+	@Convert(converter=UserNameConverter.class)
+	private UserName name;
 	
 	private String givenName;
 	
-	private String surname;
+	private String familyName;
 
 	@Convert(converter=EmailAddressConverter.class)
 	private EmailAddress email;
@@ -128,49 +129,45 @@ public class User extends AbstractEntity {
 	
 	/**
 	 * Creates a <code>User</code> and assigns a random user account UUID.
-	 * @param id the user login ID
+	 * @param userName the user name
 	 */
-	protected User(UserId id) {
-		this(randomUUID().toString(),id);
+	public User(UserName userName) {
+		this(randomUserId(),userName);
 	}
 	
 	/**
 	 * Creates a <code>User</code>.
-	 * @param uuid the user account UUID.
-	 * @param id the user's login ID.
+	 * @param userId the user account UUID.
+	 * @param userName the user name.
 	 */
-	protected User(String uuid, UserId userId) {
+	public User(UserId userId, UserName userName) {
 		this();
-		this.userId = userId;
-		if(isEmptyString(uuid)) {
-			this.uuid = randomUUID().toString();
-		}else {
-			this.uuid = uuid;
-		}
+		this.uuid = userId.toString();
+		this.name = userName;
 	}
 
 	/**
 	 * Returns the user account UUID.
 	 * @return the user account UUID.
 	 */
-	public String getUuid() {
-		return uuid;
+	public UserId getUserId() {
+		return userId(uuid);
 	}
 	
 	/**
 	 * Returns the user ID to log in to the system.
 	 * @return the user login ID
 	 */
-	public UserId getUserId() {
-		return userId;
+	public UserName getUserName() {
+		return name;
 	}
 	
 	/**
-	 * Sets the user ID to log in to the system.
-	 * @param userId - the user login ID
+	 * Sets the user name to log in to the system.
+	 * @param userName the user name
 	 */
-	public void setUserId(UserId userId) {
-		this.userId = userId;
+	public void setUserName(UserName userName) {
+		this.name = userName;
 	}
 	
 	/**
@@ -183,31 +180,31 @@ public class User extends AbstractEntity {
 	
 	/**
 	 * Sets the user's given name.
-	 * @param givenName - the user's given name
+	 * @param givenName the user's given name
 	 */
 	public void setGivenName(String givenName) {
 		this.givenName = givenName;
 	}
 	
 	/**
-	 * Returns the user's surname.
-	 * @return the user's surname if set, <code>null</code> otherwise 
+	 * Returns the user's family name.
+	 * @return the user's family if set, <code>null</code> otherwise 
 	 */
-	public String getSurname() {
-		return surname;
+	public String getFamilyName() {
+		return familyName;
 	}
 	
 	/**
-	 * Sets the user's surname.
-	 * @param surname - the user's surname.
+	 * Sets the user's family name.
+	 * @param familyName the user's family name.
 	 */
-	public void setSurname(String surname) {
-		this.surname = surname;
+	public void setFamilyName(String familyName) {
+		this.familyName = familyName;
 	}
 	
 	/**
 	 * Sets the user's email address.
-	 * @param email - the user's email address.
+	 * @param email the user's email address.
 	 */
 	public void setEmailAddress(EmailAddress email) {
 		this.email = email;
@@ -265,7 +262,7 @@ public class User extends AbstractEntity {
 	
 	/**
 	 * Returns all associated roles mapped to the specified target type.
-	 * @param mapping - a function to map an associated role to a target type.
+	 * @param mapping a function to map an associated role to a target type.
 	 * @return an unmodifiable set of role description in the specified data type
 	 */
 	public <T> Set<T> getRoles(Function<Role,T> mapping){
@@ -277,7 +274,7 @@ public class User extends AbstractEntity {
 	
 	/**
 	 * Sets the user accounts roles.
-	 * @param roles - the user's roles
+	 * @param roles the user's roles
 	 */
 	public void setRoles(Collection<Role> roles) {
 		Set<Role> newRoles = new HashSet<>(roles);
@@ -304,7 +301,7 @@ public class User extends AbstractEntity {
 
 	/**
 	 * Checks whether the user has the specified role.
-	 * @param name - the role to be checked
+	 * @param name the role to be checked
 	 * @return <code>true</code> if the user has the given role, <code>false</code> otherwise.
 	 */
 	public boolean isUserInRole(String name) {
@@ -313,9 +310,9 @@ public class User extends AbstractEntity {
 	
 	/**
 	 * Sets the computed password hash value.
-	 * @param hash - the computed password hash value
-	 * @param salt - the salt that has been used to compute the password hash
-	 * @param iterations - the number of iterations when the password hash was computed
+	 * @param hash the computed password hash value
+	 * @param salt the salt that has been used to compute the password hash
+	 * @param iterations the number of iterations when the password hash was computed
 	 */
 	public void setPassword(byte[] hash, 
 							byte[] salt, 
@@ -341,4 +338,6 @@ public class User extends AbstractEntity {
 		this.tokenTtl = (int) duration;
 		this.tokenTtlUnit = unit;
 	}
+	
+	
 }

@@ -1,5 +1,5 @@
 /*
- * (c) RtBrick, Inc - All rights reserved, 2015 - 2019
+ * (c) RtBrick, Inc All rights reserved, 2015 - 2019
  */
 package io.leitstand.security.users.rs;
 
@@ -25,9 +25,11 @@ import javax.ws.rs.Produces;
 import io.leitstand.commons.ConflictException;
 import io.leitstand.commons.messages.Messages;
 import io.leitstand.security.auth.UserId;
+import io.leitstand.security.auth.UserName;
 import io.leitstand.security.users.service.UserService;
 import io.leitstand.security.users.service.UserSettings;
 
+//TODO Name clashes
 /**
  * The REST API resource to manage a user account.
  */
@@ -45,7 +47,7 @@ public class UserResource {
 	
 	/**
 	 * Returns the user account settings.
-	 * @param userId - the login ID 
+	 * @param userName the login ID 
 	 * @return the user account settings.
 	 */
 	@GET
@@ -56,46 +58,46 @@ public class UserResource {
 	
 	/**
 	 * Returns the user account settings.
-	 * @param userId - the login ID 
+	 * @param userName the login ID 
 	 * @return the user account settings.
 	 */
 	@GET
 	@Path("/{user}")
 	@RolesAllowed({ADMINISTRATOR,SYSTEM})
-	public UserSettings getUserSettings(@Valid @PathParam("user") UserId userId) {
-		return service.getUser(userId);
+	public UserSettings getUserSettings(@Valid @PathParam("user") UserName userName) {
+		return service.getUser(userName);
 	}
 	
 	/**
 	 * Returns the user account settings.
-	 * @param uuid - the account UUID
+	 * @param userId the account UUID
 	 * @return the user account settings.
 	 */
 	@GET
-	@Path("/{uuid:"+UUID_PATTERN+"}")
+	@Path("/{user:"+UUID_PATTERN+"}")
 	@RolesAllowed({ADMINISTRATOR,SYSTEM})
-	public UserSettings getUserSettings(@PathParam("uuid") String uuid) {
-		return service.getUser(uuid);
+	public UserSettings getUserSettings(@PathParam("user") UserId userId) {
+		return service.getUser(userId);
 	}
 
 
 	/**
 	 * Stores a user account by either updating an existing account or creating a new account.
-	 * @param uuid - the immutable user account UUID
-	 * @param user - the user settings
+	 * @param userId the immutable user account UUID
+	 * @param userId the user settings
 	 * @return messages to explain the outcome of the operation, 
 	 * 		   wrapped in a response object to set the HTTP status code properly,
 	 * 		   i.e. <code>201 Created</code>, if a new user account was created or 
 	 * 				<code>200 Ok</code>, if an existing user account was updated.
 	 */
 	@PUT
-	@Path("/{uuid:"+UUID_PATTERN+"}")
+	@Path("/{user:"+UUID_PATTERN+"}")
 	@RolesAllowed({ADMINISTRATOR,SYSTEM})
-	public Messages storeUserSettings(@PathParam("uuid") String uuid, 
+	public Messages storeUserSettings(@PathParam("user") UserId userId, 
 									  @Valid UserSettings settings) {
 		
-		if(isDifferent(uuid, settings.getUuid())) {
-			throw new ConflictException(VAL0003E_IMMUTABLE_ATTRIBUTE, uuid);
+		if(isDifferent(userId, settings.getUserId())) {
+			throw new ConflictException(VAL0003E_IMMUTABLE_ATTRIBUTE, userId);
 		}
 		service.storeUserSettings(settings);
 		return messages;
@@ -106,31 +108,12 @@ public class UserResource {
 	/**
 	 * Changes an user's password.
 	 * The user must provide their current password in order to update the password.
-	 * @param userId - the user login ID
-	 * @param passwd - the password change request
+	 * @param userId the user login ID
+	 * @param passwd the password change request
 	 * @return messages to explain the outcome of the operation
 	 */
 	@POST
-	@Path("/{uuid:"+UUID_PATTERN+"}/_passwd")
-	@RolesAllowed({ADMINISTRATOR,SYSTEM})
-	public Messages storePassword(@Valid @PathParam("uuid") String uuid, 
-							      @Valid ChangePasswordRequest passwd) {
-		service.setPassword(uuid, 
-							passwd.getPassword(),
-							passwd.getNewPassword(),
-							passwd.getConfirmedPassword());
-		return messages;
-	}
-	
-	/**
-	 * Changes a user's password.
-	 * The user must provide their current password in order to update the password.
-	 * @param userId - the user login ID
-	 * @param passwd - the password change request
-	 * @return messages to explain the outcome of the operation
-	 */
-	@POST
-	@Path("/{user}/_passwd")
+	@Path("/{user:"+UUID_PATTERN+"}/_passwd")
 	@RolesAllowed({ADMINISTRATOR,SYSTEM})
 	public Messages storePassword(@Valid @PathParam("user") UserId userId, 
 							      @Valid ChangePasswordRequest passwd) {
@@ -140,38 +123,38 @@ public class UserResource {
 							passwd.getConfirmedPassword());
 		return messages;
 	}
-
-
+	
 	/**
-	 * Resets the user account password to the specified password.
-	 * This operation requires administrator privileges.
-	 * @param userId - the user's ID
-	 * @param passwd - the reset password request
+	 * Changes a user's password.
+	 * The user must provide their current password in order to update the password.
+	 * @param userName the user login ID
+	 * @param passwd the password change request
 	 * @return messages to explain the outcome of the operation
 	 */
 	@POST
-	@Path("/{uuid:"+UUID_PATTERN+"}/_reset")
+	@Path("/{user}/_passwd")
 	@RolesAllowed({ADMINISTRATOR,SYSTEM})
-	public Messages reset(@PathParam("uuid") String uuid, 
-						  @Valid ResetPasswordRequest passwd) {
-		service.resetPassword(uuid, 
-							  passwd.getNewPassword(),
-							  passwd.getConfirmedPassword());
+	public Messages storePassword(@Valid @PathParam("user") UserName userName, 
+							      @Valid ChangePasswordRequest passwd) {
+		service.setPassword(userName, 
+							passwd.getPassword(),
+							passwd.getNewPassword(),
+							passwd.getConfirmedPassword());
 		return messages;
 	}
-	
-	
+
+
 	/**
 	 * Resets the user account password to the specified password.
 	 * This operation requires administrator privileges.
-	 * @param userId - the user's ID
-	 * @param passwd - the reset password request
+	 * @param userId the user account ID
+	 * @param passwd the reset password request
 	 * @return messages to explain the outcome of the operation
 	 */
 	@POST
-	@Path("/{user}/_reset")
+	@Path("/{user:"+UUID_PATTERN+"}/_reset")
 	@RolesAllowed({ADMINISTRATOR,SYSTEM})
-	public Messages reset(@Valid @PathParam("user") UserId userId, 
+	public Messages reset(@PathParam("user") UserId userId, 
 						  @Valid ResetPasswordRequest passwd) {
 		service.resetPassword(userId, 
 							  passwd.getNewPassword(),
@@ -179,17 +162,36 @@ public class UserResource {
 		return messages;
 	}
 	
+	
+	/**
+	 * Resets the user account password to the specified password.
+	 * This operation requires administrator privileges.
+	 * @param userName the user name
+	 * @param passwd the reset password request
+	 * @return messages to explain the outcome of the operation
+	 */
+	@POST
+	@Path("/{user}/_reset")
+	@RolesAllowed({ADMINISTRATOR,SYSTEM})
+	public Messages reset(@Valid @PathParam("user") UserName userName, 
+						  @Valid ResetPasswordRequest passwd) {
+		service.resetPassword(userName, 
+							  passwd.getNewPassword(),
+							  passwd.getConfirmedPassword());
+		return messages;
+	}
+	
 	/**
 	 * Removes a user from the user repository.
 	 * This operation requires administrator privileges.
-	 * @param userId - the user ID to be removed.
+	 * @param userId the name of the user to be removed
 	 * @return messages to explain the outcome of the operation
 	 */
 	@DELETE
-	@Path("/{uuid:"+UUID_PATTERN+"}")
+	@Path("/{user:"+UUID_PATTERN+"}")
 	@RolesAllowed({ADMINISTRATOR,SYSTEM})
-	public Messages removeUser(@PathParam("uuid") String uuid) {
-		service.removeUser(uuid);
+	public Messages removeUser(@PathParam("user") UserId userId) {
+		service.removeUser(userId);
 		return messages;
 	}
 	
@@ -197,14 +199,14 @@ public class UserResource {
 	/**
 	 * Removes a user from the user repository.
 	 * This operation requires administrator privileges.
-	 * @param userId - the user ID to be removed.
+	 * @param userName the user ID to be removed.
 	 * @return messages to explain the outcome of the operation
 	 */
 	@DELETE
 	@Path("/{user}")
 	@RolesAllowed({ADMINISTRATOR,SYSTEM})
-	public Messages removeUser(@Valid @PathParam("user") UserId userId) {
-		service.removeUser(userId);
+	public Messages removeUser(@Valid @PathParam("user") UserName userName) {
+		service.removeUser(userName);
 		return messages;
 	}
 	

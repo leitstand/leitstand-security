@@ -15,16 +15,16 @@
 <table class="list">
 	<thead>
 		<tr>
-			<th class="text">UserId</th>
-			<th class="text">Surname</th>
-			<th class="text">Given name</th>
-			<th class="text">Email</th>
+			<th class="text">User Name</th>
+			<th class="text">Family Name</th>
+			<th class="text">Given Name</th>
+			<th class="text">Email Address</th>
 		</tr>
 	</thead>
 	<tbody>
 		<!-- {{#users}} -->
 		<tr>
-			<td class="text" ><a href="/ui/views/admin/im/user.html?user={{uuid}}" title="Show user details">{{user_id}}</a></td>
+			<td class="text" ><a href="/ui/views/admin/im/user.html?user={{user_id}}" title="Show user details">{{user_name}}</a></td>
 			<td class="text" >{{given_name}}{{^given_name}}-{{/given_name}}</td>
 			<td class="text" >{{surname}}{{^surname}}-{{/surname}}</td>
 			<td class="text" >{{#email}}<a href="mailto:{{.}}" title="Send an email">{{.}}</a>{{/email}}{{^email}}-{{/email}}</td>
