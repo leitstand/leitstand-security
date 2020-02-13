@@ -29,6 +29,12 @@ public class Oauth2AccessToken extends ValueObject{
 		
 		private Oauth2AccessToken token = new Oauth2AccessToken();
 		
+		public Builder withIdToken(String idToken) {
+			assertNotInvalidated(getClass(), token);
+			token.idToken = idToken;
+			return this;
+		}
+		
 		public Builder withAccessToken(String accessToken) {
 			assertNotInvalidated(getClass(), token);
 			token.accessToken = accessToken;
@@ -53,6 +59,12 @@ public class Oauth2AccessToken extends ValueObject{
 			return this;
 		}
 		
+		public Builder withRefreshExpiresIn(int ttl) {
+			assertNotInvalidated(getClass(), token);
+			token.refreshExpiresIn = ttl;
+			return this;
+		}
+		
 		public Oauth2AccessToken build() {
 			try {
 				assertNotInvalidated(getClass(), token);
@@ -63,10 +75,12 @@ public class Oauth2AccessToken extends ValueObject{
 		}
 	}	
 	
+	private String idToken;
 	private String accessToken;
 	private String refreshToken;
 	private String tokenType;
 	private int expiresIn;
+	private int refreshExpiresIn;
 	
 	public String getAccessToken() {
 		return accessToken;
@@ -76,12 +90,20 @@ public class Oauth2AccessToken extends ValueObject{
 		return refreshToken;
 	}
 	
+	public String getIdToken() {
+		return idToken;
+	}
+	
 	public String getTokenType() {
 		return tokenType;
 	}
 	
 	public int getExpiresIn() {
 		return expiresIn;
+	}
+	
+	public int getRefreshExpiresIn() {
+		return refreshExpiresIn;
 	}
 	
 }

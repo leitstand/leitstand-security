@@ -5,7 +5,8 @@
 		<jta-data-source>java:/jdbc/leitstand</jta-data-source>
 		<class>io.leitstand.security.users.model.User</class>
 		<class>io.leitstand.security.users.model.Role</class>
-		
+		<class>io.leitstand.security.users.jpa.RoleNameConverter</class>
+		<class>io.leitstand.commons.jpa.BooleanConverter</class>
 		<class>io.leitstand.security.users.jpa.EmailAddressConverter</class>
 		<class>io.leitstand.security.auth.jpa.UserNameConverter</class>
 		<shared-cache-mode>NONE</shared-cache-mode>

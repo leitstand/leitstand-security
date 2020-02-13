@@ -14,7 +14,7 @@
  * the License.
  */
 import {Controller,Menu} from '/ui/js/ui.js';
-import {Roles,Users,User} from './im.js';
+import {Roles,Role,Users,User} from './im.js';
 
 let rolesController = function() {
 	let roles = new Roles();
@@ -25,6 +25,13 @@ let rolesController = function() {
 		}
 	});
 };
+
+let roleController = function(){
+	let role = new Role();
+	return new Controller({
+		resource:role,
+	})
+}
 
 let usersController = function() {
 	let users = new Users();
@@ -118,6 +125,11 @@ let usersMenu = {
 				 "add-user.html":addUserController()}
 };
 
+let rolesMenu = {
+	"master" : rolesController(),
+	"details": {"role.html":roleController()}
+}
+
 export const menu = new Menu({"users.html":usersMenu,
-							  "roles.html":rolesController()});
+							  "roles.html":rolesMenu});
 	

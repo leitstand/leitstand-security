@@ -20,17 +20,17 @@
 <ui-form>
 	<ui-group>
 		<ui-label>Change Password</ui-label>
-		<ui-password name="password" rolesAllowed="Administrator">
+		<ui-password name="password" scoesAllowed="adm">
 			<ui-label>Password</ui-label>
 			<ui-note>Enter the new password</ui-note>
 		</ui-password>
-		<ui-password name="confirmed_password" rolesAllowed="Administrator">
+		<ui-password name="confirmed_password" scopesAllowed="adm">
 			<ui-label>Confirm Password</ui-label>
 			<ui-note>Re-type the new password in order to detect accidential typos.</ui-note>
 		</ui-password>
 	</ui-group>
 	<ui-actions>
-	  <ui-button name="passwd" primary rolesAllowed="Administrator">Reset password</ui-button>
+	  <ui-button name="passwd" primary scopesAllowed="adm">Reset password</ui-button>
 	  <ui-button href="user.html?user={{user_id}}" danger>Cancel</ui-button>
 	</ui-actions>
 </ui-form>

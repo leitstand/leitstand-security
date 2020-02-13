@@ -18,22 +18,21 @@ package io.leitstand.security.users.model;
 import static io.leitstand.commons.model.ObjectUtil.asSet;
 import static io.leitstand.security.auth.UserId.randomUserId;
 import static io.leitstand.security.auth.UserName.userName;
+import static io.leitstand.security.users.model.Role.findRoleByName;
 import static io.leitstand.security.users.service.EmailAddress.emailAddress;
 import static io.leitstand.security.users.service.ReasonCode.IDM0004E_USER_NOT_FOUND;
 import static io.leitstand.security.users.service.ReasonCode.IDM0008E_PASSWORD_MISMATCH;
+import static io.leitstand.security.users.service.RoleId.randomRoleId;
+import static io.leitstand.security.users.service.RoleName.roleName;
 import static io.leitstand.security.users.service.UserSettings.newUserSettings;
 import static io.leitstand.security.users.service.UserSubmission.newUserSubmission;
 import static java.lang.Boolean.TRUE;
-import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.security.Principal;
-
 import javax.security.enterprise.credential.Password;
-import javax.servlet.http.HttpServletRequest;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -44,9 +43,9 @@ import io.leitstand.commons.db.DatabaseService;
 import io.leitstand.commons.messages.Message;
 import io.leitstand.commons.messages.Messages;
 import io.leitstand.commons.model.Repository;
+import io.leitstand.security.auth.UserContext;
 import io.leitstand.security.auth.UserId;
 import io.leitstand.security.auth.UserName;
-import io.leitstand.security.users.service.EmailAddress;
 import io.leitstand.security.users.service.UserSettings;
 import io.leitstand.security.users.service.UserSubmission;
 
@@ -56,7 +55,7 @@ public class DefaultUserServiceIT extends UsersIT {
 	private DefaultUserService service;
 	private ArgumentCaptor<Message> message;
 	
-	private HttpServletRequest context;
+	private UserContext context;
 	
 	@Before
 	public void initTestResources() {
@@ -66,12 +65,16 @@ public class DefaultUserServiceIT extends UsersIT {
 		message = ArgumentCaptor.forClass(Message.class);
 		doNothing().when(messages).add(message.capture());
 		PasswordService hashing = new PasswordService();
-		context = mock(HttpServletRequest.class);
+		context = mock(UserContext.class);
 		service = new DefaultUserService(repository,db,hashing,messages,context);
 		
 		transaction(()->{
-			repository.merge(new Role(1L,"Administrator"));
-			repository.merge(new Role(2L,"Operator"));
+			Role admin = repository.addIfAbsent(findRoleByName(roleName("Administrator")),
+											    ()-> (new Role(randomRoleId(),roleName("Administrator"))));
+			admin.setScopes(asSet("admin"));
+			Role operator = repository.addIfAbsent(findRoleByName(roleName("Operator")),
+												   ()-> (new Role(randomRoleId(),roleName("Operator"))));
+			operator.setScopes(asSet("pod","element","metric","image"));
 		});
 		
 	}
@@ -98,7 +101,7 @@ public class DefaultUserServiceIT extends UsersIT {
 							  .withUserName(userName("create_user"))
 							  .withGivenName("Jane")
 							  .withFamilyName("Doe")
-							  .withRoles("Administrator","Operator")
+							  .withRoles(roleName("Administrator"),roleName("Operator"))
 							  .withEmailAddress(emailAddress("jane.doe@leitstand.io"))
 							  .withPassword(new Password("unittest"))
 							  .withConfirmedPassword(new Password("unittest"))
@@ -125,8 +128,8 @@ public class DefaultUserServiceIT extends UsersIT {
 							  .withUserName(UserName.valueOf("unknown"))
 							  .withGivenName("Jane")
 							  .withFamilyName("Doe")
-							  .withRoles("Administrator","Operator")
-							  .withEmailAddress(EmailAddress.valueOf("jane.doe@leitstand.io"))
+							  .withRoles(roleName("Administrator"),roleName("Operator"))
+							  .withEmailAddress(emailAddress("jane.doe@leitstand.io"))
 							  .build();
 		
 		transaction(()->{
@@ -141,14 +144,14 @@ public class DefaultUserServiceIT extends UsersIT {
 	@Test
 	public void admin_can_update_existing_user() {
 		
-		when(context.isUserInRole("Administrator")).thenReturn(TRUE);
+		when(context.scopesIncludeOneOf("adm")).thenReturn(TRUE);
 		UserSubmission user = newUserSubmission()
 							  .withUserId(randomUserId())
 							  .withUserName(UserName.valueOf("updated_user"))
 							  .withGivenName("Jane")
 							  .withFamilyName("Doe")
-							  .withRoles("Administrator","Operator")
-							  .withEmailAddress(EmailAddress.valueOf("jane.doe@leitstand.io"))
+							  .withRoles(roleName("Administrator"),roleName("Operator"))
+							  .withEmailAddress(emailAddress("jane.doe@leitstand.io"))
 							  .withPassword(new Password("unittest"))
 							  .withConfirmedPassword(new Password("unittest"))
 							  .build();
@@ -171,8 +174,8 @@ public class DefaultUserServiceIT extends UsersIT {
 					   .withUserName(UserName.valueOf("updated_user"))
 					   .withGivenName("John")
 					   .withFamilyName("Doe")
-					   .withRoles("Operator")
-					   .withEmailAddress(EmailAddress.valueOf("jane.doe@leitstand.io"))
+					   .withRoles(roleName("Operator"))
+					   .withEmailAddress(emailAddress("jane.doe@leitstand.io"))
 					   .build();
 			
 			service.storeUserSettings(settings);
@@ -186,22 +189,21 @@ public class DefaultUserServiceIT extends UsersIT {
 			assertEquals("John",settings.getGivenName());
 			assertEquals(user.getFamilyName(),settings.getFamilyName());
 			assertEquals(user.getEmail(),settings.getEmail());
-			assertEquals(asSet("Operator"),settings.getRoles());
+			assertEquals(asSet(roleName("Operator")),settings.getRoles());
 		});
  	}
 	
 	@Test
 	public void user_can_update_own_settings() {
-		
-		Principal principal = mock(Principal.class);
-		when(principal.getName()).thenReturn("user");
-		when(context.getUserPrincipal()).thenReturn(principal);
+		UserId userId = randomUserId();
+		when(context.getUserName()).thenReturn(userName("user"));
+		when(context.getUserId()).thenReturn(userId);
 		UserSubmission user = newUserSubmission()
-							  .withUserId(randomUserId())
+							  .withUserId(userId)
 							  .withUserName(userName("user"))
 							  .withGivenName("Jane")
 							  .withFamilyName("Doe")
-							  .withRoles("Operator")
+							  .withRoles(roleName("Operator"))
 							  .withEmailAddress(emailAddress("jane.doe@leitstand.io"))
 							  .withPassword(new Password("unittest"))
 							  .withConfirmedPassword(new Password("unittest"))
@@ -212,7 +214,7 @@ public class DefaultUserServiceIT extends UsersIT {
 		});
 		
 		transaction(() -> {
-			UserSettings settings = service.getUser(UserName.valueOf("user"));
+			UserSettings settings = service.getUser(userName("user"));
 			assertEquals(user.getUserName(),settings.getUserName());
 			assertEquals(user.getUserId(),settings.getUserId());
 			assertEquals(user.getGivenName(),settings.getGivenName());
@@ -225,8 +227,8 @@ public class DefaultUserServiceIT extends UsersIT {
 					   .withUserName(UserName.valueOf("user"))
 					   .withGivenName("John")
 					   .withFamilyName("Doe")
-					   .withRoles("Operator","Administrator")
-					   .withEmailAddress(EmailAddress.valueOf("jane.doe@leitstand.io"))
+					   .withRoles(roleName("Operator"),roleName("Administrator"))
+					   .withEmailAddress(emailAddress("jane.doe@leitstand.io"))
 					   .build();
 			
 			service.storeUserSettings(settings);
@@ -240,7 +242,8 @@ public class DefaultUserServiceIT extends UsersIT {
 			assertEquals("John",settings.getGivenName());
 			assertEquals(user.getFamilyName(),settings.getFamilyName());
 			assertEquals(user.getEmail(),settings.getEmail());
-			assertEquals(asSet("Operator"),settings.getRoles());
+			assertEquals(asSet(roleName("Operator")),settings.getRoles());
+			assertEquals(asSet("pod","element","metric","image"),settings.getScopes());
 		});
  	}
 	

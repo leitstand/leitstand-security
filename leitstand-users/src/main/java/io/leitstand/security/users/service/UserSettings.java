@@ -58,7 +58,7 @@ public class UserSettings extends UserReference{
 			return (B) this;
 		}
 		
-		public B withRoles(String... roles) {
+		public B withRoles(RoleName... roles) {
 			return withRoles(asSet(roles));
 		}
 		
@@ -69,26 +69,36 @@ public class UserSettings extends UserReference{
 			return (B) this;
 		}
 
-		public B withRoles(Set<String> roles) {
+		public B withRoles(Set<RoleName> roles) {
 			assertNotInvalidated(getClass(), instance);
 			instance.roles = new TreeSet<>(roles);
 			return (B) this;
 		}
 
+		public B withScopes(String... scopes) {
+			return withScopes(asSet(scopes));
+		}
+		
+		public B withScopes(Set<String> scopes) {
+			assertNotInvalidated(getClass(), instance);
+			instance.scopes = new TreeSet<>(scopes);
+			return (B) this;
+		}
+		
 	}
 	
 	public static class Builder extends UserSettingsBuilder<UserSettings,Builder> {
 		public Builder() {
 			super(new UserSettings());
 		}
-
 	}
 	
 	private Date   dateCreated;
 	private Date   dateModified;
 	private Long   accessTokenTtl;
 	private TimeUnit accessTokenTtlUnit;
-	private Set<String> roles = emptySet();
+	private Set<RoleName> roles = emptySet();
+	private Set<String> scopes = emptySet();
 	
 	public Date getDateCreated() {
 		if(dateCreated != null) {
@@ -104,8 +114,12 @@ public class UserSettings extends UserReference{
 		return null;
 	}
 	
-	public Set<String> getRoles(){
+	public Set<RoleName> getRoles(){
 		return unmodifiableSet(roles);
+	}
+	
+	public Set<String> getScopes() {
+		return unmodifiableSet(scopes);
 	}
 
 	public Long getAccessTokenTtl() {

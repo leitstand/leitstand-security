@@ -34,8 +34,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import java.util.Set;
-
 import javax.enterprise.inject.Instance;
 import javax.security.enterprise.AuthenticationException;
 import javax.security.enterprise.AuthenticationStatus;
@@ -100,8 +98,7 @@ public class LeitstandHttpAuthMechanismTest {
 		when(loginManager.login(request, response)).thenReturn(VALID_CREDENTIALS);
 		when(accessTokenManager.issueAccessToken(eq(request), 
 												 eq(response), 
-												 any(UserName.class),
-												 any(Set.class))).thenReturn(TRUE);
+												 any(UserName.class))).thenReturn(TRUE);
 		AuthenticationStatus status = auth.validateRequest(request, 
 									  response, 
 									  context);
@@ -109,12 +106,10 @@ public class LeitstandHttpAuthMechanismTest {
 		verify(context).notifyContainerAboutLogin(VALID_CREDENTIALS);
 		verify(noopAccessTokenManager).issueAccessToken(request, 
 														response, 
-														userName(VALID_CREDENTIALS.getCallerPrincipal()),
-														VALID_CREDENTIALS.getCallerGroups());
+														userName(VALID_CREDENTIALS.getCallerPrincipal()));
 		verify(accessTokenManager).issueAccessToken(request, 
 													response, 
-													userName(VALID_CREDENTIALS.getCallerPrincipal()),
-													VALID_CREDENTIALS.getCallerGroups());
+													userName(VALID_CREDENTIALS.getCallerPrincipal()));
 	}
 	
 	@Test
@@ -149,12 +144,10 @@ public class LeitstandHttpAuthMechanismTest {
 		assertEquals(SUCCESS,status);
 		verify(noopAccessTokenManager,never()).issueAccessToken(eq(request),
 															    eq(response),
-															    any(UserName.class),
-															    any(Set.class));
+															    any(UserName.class));
 		verify(accessTokenManager,never()).issueAccessToken(eq(request),
 			    											eq(response),
-			    											any(UserName.class),
-			    											any(Set.class));
+			    											any(UserName.class));
 	}
 	
 	@Test
@@ -169,12 +162,10 @@ public class LeitstandHttpAuthMechanismTest {
 		verify(response).setStatus(SC_UNAUTHORIZED);
 		verify(noopAccessTokenManager,never()).issueAccessToken(eq(request),
 																eq(response),
-																any(UserName.class),
-																any(Set.class));
+																any(UserName.class));
 		verify(accessTokenManager,never()).issueAccessToken(eq(request),
 															eq(response),
-															any(UserName.class),
-															any(Set.class));
+															any(UserName.class));
 	}
 	
 	@After

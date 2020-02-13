@@ -15,7 +15,8 @@
  */
 package io.leitstand.security.mac;
 
-import java.util.logging.Level;
+import static java.util.logging.Level.SEVERE;
+
 import java.util.logging.Logger;
 
 import javax.crypto.Mac;
@@ -29,23 +30,59 @@ import io.leitstand.security.crypto.Secret;
 public class MessageAuthenticationCodes {
 
 	private static final String HMACSHA256 = "HmacSHA256";
+	private static final String HMACSHA384 = "HmacSHA384";
+	private static final String HMACSHA512 = "HmacSHA512";
 	private static final Logger LOG = Logger.getLogger(MessageAuthenticationCodes.class.getName());
 
+	public static MessageAuthenticationCode hmac(String alg, Secret secret) {
+		try{
+			Mac hmac = Mac.getInstance(alg);
+			hmac.init(new SecretKeySpec(secret.toByteArray(), alg));
+			return new MessageAuthenticationCode(hmac);
+		} catch (Exception e){
+			LOG.log(SEVERE, "An error occured while calculating HmacSHA256: "+e.getMessage(), e);
+			throw new MessageAuthenticationCodeException(e);
+		}
+	}
+	
+	public static MessageAuthenticationCode hmac(SecretKeySpec secret) {
+		try{
+			Mac hmac = Mac.getInstance(secret.getAlgorithm());
+			hmac.init(secret);
+			return new MessageAuthenticationCode(hmac);
+		} catch (Exception e){
+			LOG.log(SEVERE, "An error occured while calculating HmacSHA256: "+e.getMessage(), e);
+			throw new MessageAuthenticationCodeException(e);
+		}
+	}
+	
 	/**
 	 * Creates a {@link MessageAuthenticationCode} to compute HMAC-SHA256 message authentication codes.
 	 * @param secret - the secret to compute the authentication code
 	 * @return the initialized {@link MessageAuthenticationCode}
 	 */
 	public static MessageAuthenticationCode hmacSha256(Secret secret) {
-		try{
-			Mac hmacSha256 = Mac.getInstance(HMACSHA256);
-			hmacSha256.init(new SecretKeySpec(secret.toByteArray(), HMACSHA256));
-			return new MessageAuthenticationCode(hmacSha256);
-		} catch (Exception e){
-			LOG.log(Level.SEVERE, "An error occured while calculating HmacSHA256: "+e.getMessage(), e);
-			throw new MessageAuthenticationCodeException(e);
-		}
+		return hmac(HMACSHA256,secret);
 	}
+	
+	/**
+	 * Creates a {@link MessageAuthenticationCode} to compute HMAC-SHA384 message authentication codes.
+	 * @param secret - the secret to compute the authentication code
+	 * @return the initialized {@link MessageAuthenticationCode}
+	 */
+	public static MessageAuthenticationCode hmacSha384(Secret secret) {
+		return hmac(HMACSHA384,secret);
+	}
+	
+	/**
+	 * Creates a {@link MessageAuthenticationCode} to compute HMAC-SHA512 message authentication codes.
+	 * @param secret - the secret to compute the authentication code
+	 * @return the initialized {@link MessageAuthenticationCode}
+	 */
+	public static MessageAuthenticationCode hmacSha512(Secret secret) {
+		return hmac(HMACSHA512,secret);
+	}
+	
 	
 	
 	private MessageAuthenticationCodes() {

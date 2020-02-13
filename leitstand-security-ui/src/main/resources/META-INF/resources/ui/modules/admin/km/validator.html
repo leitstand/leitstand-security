@@ -18,7 +18,7 @@
 	<ui-subtitle>Validate an encoded acceess key</ui-subtitle>
 </ui-view-header>
 <!--  {{^encoded}} -->
-<ui-form rolesAllowed="Administrator">
+<ui-form scopesAllowed="adm adm.accesskey adm.accesskeys.read">
 	<ui-group>
 		<ui-label>Encoded Access Key</ui-label>
 		<ui-textarea name="accesskey">

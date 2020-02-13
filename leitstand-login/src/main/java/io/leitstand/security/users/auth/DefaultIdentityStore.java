@@ -54,10 +54,7 @@ public class DefaultIdentityStore implements IdentityStore {
 	 */
 	@Override
 	public Set<String> getCallerGroups(CredentialValidationResult validationResult) {
-		UserInfo user = users.getUserInfo(UserName.valueOf(validationResult.getCallerUniqueId()));
-		if(user != null) {
-			return user.getRoles();
-		}
+		// User is no assigned to any Java EE roles due to scope-based authorization
 		return emptySet();
 	}
 		

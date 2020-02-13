@@ -15,8 +15,6 @@
  */
 package io.leitstand.security.auth.http;
 
-import java.util.Set;
-
 import javax.security.enterprise.identitystore.CredentialValidationResult;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -56,13 +54,11 @@ public interface AccessTokenManager {
 	 * @param request the HTTP request
 	 * @param response the HTTP response
 	 * @param userName the user name of the authenticated user
-	 * @param userRoles the roles of the authenticated user
 	 * @return <code>true</code> if an access token was issued, <code>false</code> otherwise.
 	 */
 	default boolean issueAccessToken(HttpServletRequest request, 
 							 		 HttpServletResponse response, 
-							 		 UserName userName,
-							 		 Set<String> userRoles) {
+							 		 UserName userName) {
 		return false;
 	}
 	

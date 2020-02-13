@@ -1,0 +1,74 @@
+scope: all
+description: Root scope for full access
+path: /
+scopes:
+- scope: ivt.read
+  description: Readononly access to the Leitstand resource inventory.
+  path: /api/v1/(?:pods|elements|images|metrics|roles|services)
+  methods:
+  - GET
+- scope: ivt
+  description: Full access to the Leitstand resource inventory
+  path: /api/v1/(?:pods|elements|images|metrics|roles|services)
+  scopes:
+  - scope: ivt.pod
+    description: Full access to Leitstand resource inventory pod records
+    path: /api/v1/(?:pods).*
+  - scope: ivt.pod.settings
+    path: /api/v1/(?:pods)/[^/\.]*)/settings.*
+    description: Full access to general pod settings
+  - scope: ivt.element
+    path: /api/v1/(?:elements|roles).*
+    description: Full access to Leitstand resource inventory element records
+  - scope: ivt.element.settings
+    description: Full access to general element settings
+    path: /api/v1/(?:elements)/[^/\.]*)/settings.*
+  - scope: ivt.image
+    description: Full access to Leitstand resource inventory image records
+    path: /api/v1/(?:elements|roles).*
+  - scope: ivt.metric
+    description: Full access to metric definitions.
+- scope: job.read
+  description: Readonly access to Leistand jobs.
+  methods:
+  - GET
+
+- scope: ui
+  description: Access Leitstand UI
+  path: /api/v1/ui/*
+  methods:
+  - GET
+- scope: element
+  description: Manage resource inventory elements
+  scopes:
+  - scope: element_op_state
+    description: Manage the operational state of an element
+    path: /api/v1/element/.*/operational_state$
+  - scope: element_adm_state
+    description: Manage the administrative state of an element
+    path: /api/v1/element/.*/administrative_state$
+- scope: events
+  description: Leitstand administrator
+  path: /api/v1/events/*
+  scopes:
+  - scope: webhooks
+    path: /api/v1/webhooks/.*
+- scope: pod
+  description: Manage pods
+  path: /api/v1/pod/.*
+- scope: metric
+  description: Manage metrics
+  path: /api/v1/metric/.*
+- scope: images
+  description: Manage images
+  path: /api/v1/images/.*
+- scope: job
+  description: Manage jobs
+  path: /api/v1/jobs/.*
+- scope: admin
+  description: Leitstand administrator
+  path: /api/v1/(?:user.*|userroles.*|webhooks.*|scopes.*|roles.*|services.*|ui.*)
+  scopes:
+  - scope: webhooks
+    path: /api/v1/webhooks/.*
+  

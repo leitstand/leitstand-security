@@ -15,16 +15,23 @@
  */
 package io.leitstand.security.users.model;
 
+import static io.leitstand.security.auth.UserId.randomUserId;
 import static io.leitstand.security.users.model.PasswordService.ITERATIONS;
 import static io.leitstand.security.users.model.UserSettingsMother.newOperator;
 import static io.leitstand.security.users.service.ReasonCode.IDM0005E_INCORRECT_PASSWORD;
+import static io.leitstand.security.users.service.ReasonCode.IDM0007E_ADMIN_PRIVILEGES_REQUIRED;
 import static io.leitstand.security.users.service.ReasonCode.IDM0008E_PASSWORD_MISMATCH;
+import static io.leitstand.security.users.service.UserSettings.newUserSettings;
 import static io.leitstand.security.users.service.UserSubmission.newUserSubmission;
+import static io.leitstand.testing.ut.LeitstandCoreMatchers.reason;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
+import static java.util.Arrays.asList;
+import static java.util.concurrent.TimeUnit.HOURS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
@@ -36,12 +43,11 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.security.Principal;
-
 import javax.security.enterprise.credential.Password;
-import javax.servlet.http.HttpServletRequest;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
@@ -53,6 +59,8 @@ import io.leitstand.commons.UnprocessableEntityException;
 import io.leitstand.commons.messages.Messages;
 import io.leitstand.commons.model.Query;
 import io.leitstand.commons.model.Repository;
+import io.leitstand.security.auth.UserContext;
+import io.leitstand.security.auth.UserId;
 import io.leitstand.security.auth.UserName;
 import io.leitstand.security.users.service.UserSettings;
 import io.leitstand.security.users.service.UserSubmission;
@@ -60,8 +68,9 @@ import io.leitstand.security.users.service.UserSubmission;
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultUserServiceTest {
 	
-	@Mock
-	private HttpServletRequest context;
+	@Rule
+	public ExpectedException exception = ExpectedException.none();
+	
 	
 	@Mock
 	private Repository repository;
@@ -72,26 +81,41 @@ public class DefaultUserServiceTest {
 	@Mock
 	private PasswordService hashing;
 	
+	@Mock
+	private UserContext userContext;
+	
 	@InjectMocks
 	private DefaultUserService service = new DefaultUserService();
 	
-	private static final Principal AUTHENTICATED = new Principal() {
-
-		@Override
-		public String getName() {
-			return "JUNIT";
-		}
-		
-	};
-	
-	private static final Role OPERATOR = new Role(io.leitstand.security.auth.Role.OPERATOR);
+	private static final UserId AUTHENTICATED = randomUserId();
 	
 	@Test
-	public void admin_user_can_create_new_user() {
-		when(context.isUserInRole("Administrator")).thenReturn(true);
-		when(repository.execute(any(Query.class)))
-					   .thenReturn(null)
-					   .thenReturn(OPERATOR); // Role found
+	public void create_new_user_with_custom_ttl() {
+		byte[] SALT = new byte[ITERATIONS];
+		Password password = new Password("test");
+		when(hashing.salt()).thenReturn(SALT);
+		when(hashing.hash(password, SALT, ITERATIONS)).thenReturn(new byte[] {1,2});
+		ArgumentCaptor<User> user = ArgumentCaptor.forClass(User.class);
+		doNothing().when(repository).add(user.capture());
+		UserSubmission submission = newUserSubmission()
+									.withUserName(UserName.valueOf("non-existent-user"))
+									.withPassword(password)
+									.withConfirmedPassword(password)
+									.withAccessTokenTtl(10, HOURS)
+									.build();
+		
+		service.addUser(submission);
+		User newUser = user.getValue();
+		assertNotNull(newUser.getUserId());
+		assertEquals(submission.getUserName(),
+					 newUser.getUserName());
+		assertEquals(HOURS,newUser.getTokenTtlUnit());
+		assertEquals(10,newUser.getTokenTtl());
+		
+	}
+	
+	@Test
+	public void create_new_user_with_default_token_ttl() {
 		byte[] SALT = new byte[ITERATIONS];
 		Password password = new Password("test");
 		when(hashing.salt()).thenReturn(SALT);
@@ -109,23 +133,36 @@ public class DefaultUserServiceTest {
 		assertNotNull(newUser.getUserId());
 		assertEquals(submission.getUserName(),
 					 newUser.getUserName());
+		assertNull(newUser.getTokenTtlUnit());
+		assertEquals(0,newUser.getTokenTtl());
 		
 	}
 	
-	@Test(expected=AccessDeniedException.class)
+	@Test
 	public void non_admin_user_cannot_modify_other_user() {
-		when(repository.execute(any(Query.class))).thenReturn(new User(new UserName("other")));
-		when(context.getUserPrincipal()).thenReturn(AUTHENTICATED);
-		service.storeUserSettings(newOperator("other"));
+		exception.expect(AccessDeniedException.class);
+		exception.expect(reason(IDM0007E_ADMIN_PRIVILEGES_REQUIRED));
+		UserId other =randomUserId();
+		User user = mock(User.class);
+		when(userContext.getUserId()).thenReturn(other);
+		when(repository.execute(any(Query.class)))
+					   .thenReturn(user);
+		service.storeUserSettings(newOperator("unittest"));
 	}
 	
 	@Test
 	public void admin_user_can_modify_other_user() {
-		when(context.isUserInRole("Administrator")).thenReturn(true);
+		
+		when(userContext.scopesIncludeOneOf("adm")).thenReturn(true);
 		User user = mock(User.class);
+		Role role = mock(Role.class);
 		when(user.getUserName()).thenReturn(new UserName("other"));
-		when(repository.execute(any(Query.class))).thenReturn(user).thenReturn(OPERATOR);
-		when(context.getUserPrincipal()).thenReturn(AUTHENTICATED);
+		
+		when(userContext.getUserId()).thenReturn(AUTHENTICATED);
+		when(repository.execute(any(Query.class)))
+					   .thenReturn(user)
+					   .thenReturn(role);
+
 		
 		UserSettings settings = newOperator("other");
 		service.storeUserSettings(settings);
@@ -133,17 +170,18 @@ public class DefaultUserServiceTest {
 		verify(user).setEmailAddress(settings.getEmail());
 		verify(user).setGivenName(settings.getGivenName());
 		verify(user).setFamilyName(settings.getFamilyName());
+		verify(user).setRoles(asList(role));
 	}
 	
 	@Test
 	public void non_admin_user_can_modify_its_own_settings() {
-		when(context.isUserInRole("Administrator")).thenReturn(true);
 		User user = mock(User.class);
-		when(user.getUserName()).thenReturn(UserName.valueOf(AUTHENTICATED));
-		when(repository.execute(any(Query.class))).thenReturn(user).thenReturn(OPERATOR);
-		when(context.getUserPrincipal()).thenReturn(AUTHENTICATED);
-		
-		UserSettings settings = newOperator(AUTHENTICATED);
+		when(user.getUserId()).thenReturn(AUTHENTICATED);
+		when(userContext.getUserId()).thenReturn(AUTHENTICATED);
+		when(userContext.scopesIncludeOneOf("adm")).thenReturn(true);
+		when(repository.execute(any(Query.class))).thenReturn(user);
+
+		UserSettings settings = newUserSettings().withUserId(AUTHENTICATED).build();
 		service.storeUserSettings(settings);
 		verify(user).setUserName(settings.getUserName());
 		verify(user).setEmailAddress(settings.getEmail());

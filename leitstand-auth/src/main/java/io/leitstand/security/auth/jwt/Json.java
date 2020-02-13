@@ -31,7 +31,7 @@ import javax.json.bind.config.PropertyVisibilityStrategy;
 /**
  * A thread-safe utility to convert Java object graphs to JSON object graphs and vice versa via JSON-B.
  */
-class Json {
+public  class Json {
 	
 	//Jsonb is thread-safe
 	private static final Jsonb JSONB;

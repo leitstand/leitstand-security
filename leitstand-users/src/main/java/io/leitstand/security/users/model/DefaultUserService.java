@@ -17,7 +17,6 @@ package io.leitstand.security.users.model;
 
 import static io.leitstand.commons.db.DatabaseService.prepare;
 import static io.leitstand.commons.messages.MessageFactory.createMessage;
-import static io.leitstand.security.auth.Role.ADMINISTRATOR;
 import static io.leitstand.security.auth.UserId.userId;
 import static io.leitstand.security.auth.UserName.userName;
 import static io.leitstand.security.users.model.PasswordService.ITERATIONS;
@@ -45,11 +44,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Logger;
 
-import javax.enterprise.context.RequestScoped;
-import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import javax.security.enterprise.credential.Password;
-import javax.servlet.http.HttpServletRequest;
 
 import io.leitstand.commons.AccessDeniedException;
 import io.leitstand.commons.EntityNotFoundException;
@@ -58,10 +54,10 @@ import io.leitstand.commons.db.DatabaseService;
 import io.leitstand.commons.messages.Messages;
 import io.leitstand.commons.model.Repository;
 import io.leitstand.commons.model.Service;
-import io.leitstand.security.auth.Authenticated;
+import io.leitstand.security.auth.UserContext;
 import io.leitstand.security.auth.UserId;
 import io.leitstand.security.auth.UserName;
-import io.leitstand.security.users.service.EmailAddress;
+import io.leitstand.security.users.service.RoleName;
 import io.leitstand.security.users.service.UserReference;
 import io.leitstand.security.users.service.UserService;
 import io.leitstand.security.users.service.UserSettings;
@@ -72,6 +68,8 @@ import io.leitstand.security.users.service.UserSubmission;
  */
 @Service
 public class DefaultUserService implements UserService {
+
+	private static final String ADM_SCOPE = "adm";
 
 	private static final Logger LOG = Logger.getLogger(DefaultUserService.class.getName());
 	
@@ -90,22 +88,25 @@ public class DefaultUserService implements UserService {
 	private PasswordService hashing;
 	
 	@Inject
-	private HttpServletRequest context;
+	private UserContext context;
+	
 	
 	public DefaultUserService() {
 		// CDI constructor
 	}
-
+	
+	// Unit tests
 	protected DefaultUserService(Repository repository,
 								 DatabaseService db,
 								 PasswordService hashing,
 								 Messages messages,
-								 HttpServletRequest context) {
+								 UserContext context) {
 		this.repository = repository;
 		this.db = db;
 		this.messages = messages;
 		this.hashing = hashing;
 		this.context = context;
+		
 	}
 	
 	/**
@@ -143,7 +144,7 @@ public class DefaultUserService implements UserService {
 	@Override
 	public void storeUserSettings(UserSettings settings) {
 		User user = findUser(settings.getUserId());
-		if(context.isUserInRole(ADMINISTRATOR) || user.getUserName().equals(userName(context.getUserPrincipal()))) {
+		if(context.scopesIncludeOneOf(ADM_SCOPE) || context.getUserId().equals(user.getUserId())) {
 			user.setUserName(settings.getUserName());
 			user.setGivenName(settings.getGivenName());
 			user.setFamilyName(settings.getFamilyName());
@@ -154,7 +155,7 @@ public class DefaultUserService implements UserService {
 			} else {
 				user.setAccessTokenTtl(0, null);
 			}
-			if(context.isUserInRole(ADMINISTRATOR)) {
+			if(context.scopesIncludeOneOf(ADM_SCOPE)) {
 				List<Role> roles = loadRoles(settings.getRoles());
 				user.setRoles(roles);
 			}
@@ -205,7 +206,8 @@ public class DefaultUserService implements UserService {
 			   .withFamilyName(user.getFamilyName())
 			   .withDateCreated(user.getDateCreated())
 			   .withDateModified(user.getDateModified())
-			   .withRoles(user.getRoles(Role::getName))
+			   .withRoles(user.getRoles(Role::getRoleName))
+			   .withScopes(user.getScopes())
 			   .withAccessTokenTtl(user.getTokenTtl(),user.getTokenTtlUnit())
 			   .build();
 	}
@@ -427,9 +429,9 @@ public class DefaultUserService implements UserService {
 		messages.add(createMessage(IDM0001I_USER_STORED, user.getUserName()));
 	}
 
-	private List<Role> loadRoles(Collection<String> roleNames) {
+	private List<Role> loadRoles(Collection<RoleName> roleNames) {
 		List<Role> roles = new LinkedList<>();
-		for(String roleName : roleNames) {
+		for(RoleName roleName : roleNames) {
 			Role role = repository.execute(findRoleByName(roleName));
 			if(role == null) {
 				throw new EntityNotFoundException(IDM0006E_ROLE_NOT_FOUND,
@@ -441,11 +443,8 @@ public class DefaultUserService implements UserService {
 	}
 
 	@Override
-	@Produces
-	@RequestScoped
-	@Authenticated
 	public UserSettings getAuthenticatedUser() {
-		UserName userName = userName(context.getUserPrincipal());
+		UserName userName = context.getUserName();
 		LOG.fine(()->format("Return authenticated user %s",userName));
 		return getUser(userName);
 	}

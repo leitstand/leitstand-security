@@ -15,14 +15,22 @@
  */
 package io.leitstand.security.auth.http;
 
+import static io.leitstand.commons.model.ObjectUtil.asSet;
 import static io.leitstand.commons.model.StringUtil.toUtf8Bytes;
+import static io.leitstand.security.auth.UserId.userId;
+import static io.leitstand.security.auth.UserName.userName;
 import static io.leitstand.security.auth.http.Authorization.HTTP_AUTHORIZATION_HEADER;
+import static io.leitstand.security.auth.user.UserInfo.newUserInfo;
 import static java.util.Base64.getEncoder;
+import static java.util.Collections.emptySet;
 import static javax.security.enterprise.identitystore.CredentialValidationResult.INVALID_RESULT;
 import static javax.security.enterprise.identitystore.CredentialValidationResult.NOT_VALIDATED_RESULT;
+import static javax.security.enterprise.identitystore.CredentialValidationResult.Status.VALID;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentCaptor.forClass;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import javax.security.enterprise.credential.UsernamePasswordCredential;
@@ -38,12 +46,26 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import io.leitstand.security.auth.standalone.StandaloneLoginConfig;
+import io.leitstand.security.auth.user.BasicAuthManager;
+import io.leitstand.security.auth.user.UserInfo;
+import io.leitstand.security.auth.user.UserRegistry;
+
 
 @RunWith(MockitoJUnitRunner.class)
 public class BasicAuthManagerTest {
 
 	@Mock
 	private IdentityStore is;
+	
+	@Mock
+	private StandaloneLoginConfig config;
+	
+	@Mock
+	private UserRegistry users;
+	
+	@Mock
+	private UserContextProvider userContext;
 	
 	@InjectMocks
 	private BasicAuthManager manager = new BasicAuthManager();
@@ -66,18 +88,67 @@ public class BasicAuthManagerTest {
 	
 	
 	@Test
-	public void decode_and_verify_credentials() {
+	public void authenticate_request_with_valid_basic_authentication_header_when_basic_auth_is_enabled() {
+		when(config.isBasicAuthEnabled()).thenReturn(true);
+		HttpServletRequest request = mock(HttpServletRequest.class);
+		when(request.getHeader(HTTP_AUTHORIZATION_HEADER)).thenReturn("Basic "+getEncoder().encodeToString(toUtf8Bytes("user:password")));
+		
+		UserInfo user = newUserInfo()
+						.withUserName(userName("user"))
+						.withScopes("a","b").build();
+		when(users.getUserInfo(userName("user"))).thenReturn(user);
+		
+		ArgumentCaptor<UsernamePasswordCredential> credentialCaptor = forClass(UsernamePasswordCredential.class);
+		CredentialValidationResult isResult = new CredentialValidationResult(getClass().getName(), 
+				  														     "user",
+																		     null,
+																		     "uuid",
+																		     emptySet());
+		when(is.validate(credentialCaptor.capture())).thenReturn(isResult);
+		
+		CredentialValidationResult result =  manager.validateAccessToken(request, 
+																		 mock(HttpServletResponse.class));
+		assertEquals(result.getStatus(),VALID);
+		UsernamePasswordCredential credentials = credentialCaptor.getValue();
+		verify(userContext).setUserId(userId("uuid"));
+		verify(userContext).setUserName(userName("user"));
+		verify(userContext).setScopes(asSet("a","b"));
+		verify(userContext).seal();
+		assertEquals("user", credentials.getCaller());
+		assertEquals("password",credentials.getPasswordAsString());
+		
+	}
+	
+	
+	@Test
+	public void reject_request_with_valid_basic_authentication_header_when_basic_auth_is_enabled() {
+		when(config.isBasicAuthEnabled()).thenReturn(true);
 		HttpServletRequest request = mock(HttpServletRequest.class);
 		when(request.getHeader(HTTP_AUTHORIZATION_HEADER)).thenReturn("Basic "+getEncoder().encodeToString(toUtf8Bytes("user:password")));
 		
 		ArgumentCaptor<UsernamePasswordCredential> credentialCaptor = forClass(UsernamePasswordCredential.class);
-		
 		when(is.validate(credentialCaptor.capture())).thenReturn(INVALID_RESULT);
 		
-		manager.validateAccessToken(request, 
-					  			  	mock(HttpServletResponse.class));
-		UsernamePasswordCredential credentials = credentialCaptor.getValue();
-		assertEquals("user", credentials.getCaller());
-		assertEquals("password",credentials.getPasswordAsString());
+		CredentialValidationResult result = manager.validateAccessToken(request, 
+					  			  										mock(HttpServletResponse.class));
+		
+		assertEquals(INVALID_RESULT, result);
+		verify(userContext).seal();
+		verifyNoMoreInteractions(userContext);
+	}
+	
+	@Test
+	public void reject_access_when_basic_auth_is_disabled() {
+		HttpServletRequest request = mock(HttpServletRequest.class);
+		when(request.getHeader(HTTP_AUTHORIZATION_HEADER)).thenReturn("Basic "+getEncoder().encodeToString(toUtf8Bytes("user:password")));
+				
+		
+		CredentialValidationResult result = manager.validateAccessToken(request, 
+																		mock(HttpServletResponse.class));
+		
+		assertEquals(INVALID_RESULT, result);
+		verify(userContext).seal();
+		verifyNoMoreInteractions(userContext);
+		
 	}
 }

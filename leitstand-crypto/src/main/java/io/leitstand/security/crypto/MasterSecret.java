@@ -31,7 +31,7 @@ import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.crypto.Cipher;
-import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -39,16 +39,18 @@ import javax.inject.Inject;
 import io.leitstand.commons.etc.Environment;
 
 /**
- * A service to decrypt sensitive information, such as the key to sign access tokens for example.
+ * The master secret allows to protect sensitive configuration settings using <em>AES-GCM</em> encryption.
  * <p>
- * The <code>MasterSecret</code> leverages <a href="http://en.wikipedia.org">Advanced Encryption Standard (AES)</a> to encrypt sensitive information. 
- * By that, it is expected that the information was encrypted with AES before.
- * The <code>master.secret</code> and the <code>master.iv</code> properties set the ASE secret and initialization vector (IV).
- * Both properties can be either specified as system properties or in the <code>/etc/rbms/master.secret</code> file, 
+ * The <code>master.secret</code> and the <code>master.iv</code> properties set the AES secret and initialization vector (IV) 
+ * that shall be used to encrypt and decrypt data respectively.
+ * Both properties can be either specified as system properties or in the <code>/etc/leitstand/master.secret</code> file, 
  * with system properties having precedence over the configuration file. The specified values must be Base64 encoded.
  * <p>
- * AES requires a key and IV length of 16 bytes. This is accomplished by computing the MD5 hash values from the specified properties and 
- * using the 16 MD5 bytes as key and IV respectively. If no IV is specified, the IV defaults to the MD5 of the secret MD5 hash value.
+ * AES requires a key with a length of 16 bytes and the IV should be 12 bytes long for GCM.
+ * The master secret computes the MD5 sum of the configured secret to create a 128 bit key.
+ * It also computes the MD5 sum of the configured IV and uses the first 12 bytes as IV.
+ * If no IV was configured, master secret computes the MD5 of the secret MD5 sum and uses the first 12 bytes as IV. 
+ *
  * <p>
  * If no secret is specified, the master secret key defaults to <i>changeit</i>.
  */
@@ -60,6 +62,10 @@ public class MasterSecret {
 	static final String RBMS_PROPERTY_MASTER_SECRET  = "master.secret";
 	static final String RBMS_PROPERTY_MASTER_IV	     = "master.iv";
 
+	private static final int GCM_IV_LENGTH = 12;
+	private static final int GCM_TAG_LENGTH = 16;
+	private static final int AES_KEY_SIZE = 32;
+	
 	private Environment env;
 	
 	private byte[] master;
@@ -76,8 +82,8 @@ public class MasterSecret {
 	
 	@PostConstruct
 	public void init() {
-		this.master = new byte[16];
-		this.iv     = new byte[16];
+		this.master = new byte[AES_KEY_SIZE];
+		this.iv     = new byte[GCM_IV_LENGTH];
 		
 		// Load the master.secret file. 
 		// Defaults to empty properties file, if file does not exist.
@@ -90,33 +96,29 @@ public class MasterSecret {
 		if(isNonEmptyString(secret64)) {
  			byte[] secretMd5 = md5().hash(decodeBase64String(secret64));
  			byte[] secretMd5Md5 = md5().hash(secretMd5);
- 			// Use first 16 bytes of MD5 as secret key
  			arraycopy(secretMd5,
  					  0,
  					  master,
  					  0,
- 					  16);
- 			// Use last 16 bytes of MD5 as default IV.
+ 					  GCM_IV_LENGTH);
  			arraycopy(secretMd5Md5,
-					  0,
+ 					  0,
 					  iv,
 					  0,
-					  16);
+					  GCM_IV_LENGTH);
  		} else {
  			byte[] defaultMd5 = md5().hash("changeit");
  			byte[] defaultMd5Md5 = md5().hash(defaultMd5);
- 			// Use first 16 bytes of MD5 as secret key
  			arraycopy(defaultMd5,
 					  0,
 					  master,
 					  0,
-					  16);
- 			// Use last 16 bytes of MD5 as default IV.
- 			arraycopy(defaultMd5Md5,
+					  GCM_IV_LENGTH);
+			arraycopy(defaultMd5Md5,
 					  0,
 					  iv,
 					  0,
-					  16);
+					  GCM_IV_LENGTH);
  		}
 
 		// Overwrite iv, if another iv is configured
@@ -127,7 +129,7 @@ public class MasterSecret {
 					  0,
 					  iv,
 					  0,
-					  16);
+					  GCM_IV_LENGTH);
  		}
 		
 	}
@@ -140,10 +142,10 @@ public class MasterSecret {
 	 */
 	public byte[] decrypt(byte[] ciphertext){
 		try{
-			Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+			Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
 			cipher.init(DECRYPT_MODE, 
 						new SecretKeySpec(master,"AES"),
-						new IvParameterSpec(iv));
+						new GCMParameterSpec(GCM_TAG_LENGTH * 8, iv));
 			return cipher.doFinal(ciphertext);
 		} catch(Exception e){
 			LOG.fine(() -> "Cannot decrypt ciphertext: "+e.getMessage());
@@ -170,10 +172,10 @@ public class MasterSecret {
 	 */
 	public byte[] encrypt(byte[] plaintext) {
 		try{
-			Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+			Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
 			cipher.init(ENCRYPT_MODE, 
 						new SecretKeySpec(master,"AES"),
-						new IvParameterSpec(iv));
+						new GCMParameterSpec(GCM_TAG_LENGTH * 8, iv));
 			return cipher.doFinal(plaintext);
 		} catch(Exception e){
 			LOG.fine(() -> "Cannot encrypt ciphertext: "+e.getMessage());

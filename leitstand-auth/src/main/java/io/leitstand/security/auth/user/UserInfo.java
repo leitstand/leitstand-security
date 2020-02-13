@@ -39,14 +39,14 @@ public class UserInfo extends ValueObject{
 			userInfo.userName = userName;
 			return this;
 		}
-		
-		public Builder withRoles(String... roles) {
-			return withRoles(asSet(roles));
+				
+		public Builder withScopes(String... scopes) {
+			return withScopes(asSet(scopes));
 		}
 		
-		public Builder withRoles(Set<String> roles) {
+		public Builder withScopes(Set<String> scopes) {
 			assertNotInvalidated(getClass(), userInfo);
-			userInfo.roles = roles;
+			userInfo.scopes = scopes;
 			return this;
 		}
 		
@@ -68,7 +68,7 @@ public class UserInfo extends ValueObject{
 	}
 	
 	private UserName userName;
-	private Set<String> roles = emptySet();
+	private Set<String> scopes = emptySet();
 	private Long accessTokenTtl;
 	private TimeUnit accessTokenTtlUnit;
 
@@ -76,8 +76,8 @@ public class UserInfo extends ValueObject{
 		return userName;
 	}
 	
-	public Set<String> getRoles() {
-		return roles;
+	public Set<String> getScopes() {
+		return scopes;
 	}
 	
 	public Long getAccessTokenTtl() {

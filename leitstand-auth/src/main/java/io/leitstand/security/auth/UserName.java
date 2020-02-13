@@ -76,10 +76,6 @@ public class UserName extends Scalar<String> {
 			 message="{user_name.invalid}")
 	private String value;
 	
-	protected UserName() {
-		// CDI
-	}
-	
 	/**
 	 * Creates a <code>UserName</code>.
 	 * @param value the user ID

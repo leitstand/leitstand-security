@@ -14,10 +14,11 @@
  * the License.
  */
 package io.leitstand.security.accesskeys.rs;
-
 import static io.leitstand.commons.model.StringUtil.isEmptyString;
-import static io.leitstand.security.auth.Role.ADMINISTRATOR;
-import static io.leitstand.security.auth.Role.SYSTEM;
+import static io.leitstand.security.accesskeys.rs.Scopes.ADM;
+import static io.leitstand.security.accesskeys.rs.Scopes.ADM_ACCESSKEY;
+import static io.leitstand.security.accesskeys.rs.Scopes.ADM_ACCESSKEY_READ;
+import static io.leitstand.security.accesskeys.rs.Scopes.ADM_READ;
 import static java.lang.String.format;
 import static java.net.URI.create;
 import static javax.servlet.http.HttpServletResponse.SC_CONFLICT;
@@ -32,8 +33,6 @@ import static javax.ws.rs.core.Response.status;
 
 import java.util.List;
 
-import javax.annotation.security.RolesAllowed;
-import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.ws.rs.Consumes;
@@ -49,17 +48,21 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
 import io.leitstand.commons.messages.Messages;
-import io.leitstand.security.accesskeys.auth.AccessKeyEncodingService;
+import io.leitstand.commons.rs.Resource;
 import io.leitstand.security.accesskeys.flow.CreateAccessKeyFlow;
 import io.leitstand.security.accesskeys.flow.RenewAccessKeyFlow;
 import io.leitstand.security.accesskeys.service.AccessKeyData;
 import io.leitstand.security.accesskeys.service.AccessKeyMetaData;
 import io.leitstand.security.accesskeys.service.AccessKeyService;
+import io.leitstand.security.auth.Scopes;
 import io.leitstand.security.auth.accesskey.AccessKeyId;
 import io.leitstand.security.auth.accesskey.ApiAccessKey;
+import io.leitstand.security.auth.accesskeys.AccessKeyEncodingService;
 
-@RequestScoped
+@Resource
 @Path("/accesskeys")
+@Scopes({ADM,ADM_ACCESSKEY})
+@Consumes(APPLICATION_JSON)
 @Produces(APPLICATION_JSON)
 public class AccessKeyResource {
 
@@ -73,12 +76,14 @@ public class AccessKeyResource {
 	private Messages messages;
 	
 	@GET
+	@Scopes({ADM,ADM_READ,ADM_ACCESSKEY,ADM_ACCESSKEY_READ})
 	public List<AccessKeyMetaData> findAccessKey(@QueryParam("filter") @DefaultValue(".*") String filter){
 		return service.findAccessKeys(filter);
 	}
 	
 	@GET
 	@Path("/{key_id}")
+	@Scopes({ADM,ADM_READ,ADM_ACCESSKEY,ADM_ACCESSKEY_READ})
 	public AccessKeyData getAccessKey(@PathParam("key_id") @Valid AccessKeyId accessKeyId){
 		return service.getAccessKey(accessKeyId);
 	}
@@ -96,9 +101,7 @@ public class AccessKeyResource {
 	
 	@PUT
 	@Path("/{key_id}/description")
-	@RolesAllowed({ADMINISTRATOR,SYSTEM})
 	@Consumes(TEXT_PLAIN)
-	@Produces(APPLICATION_JSON)
 	public Messages updateAccessKeyDescription(@PathParam("key_id") @Valid AccessKeyId accessKeyId,
 											   String description){
 		service.updateAccessKey(accessKeyId, 
@@ -107,7 +110,6 @@ public class AccessKeyResource {
 	}
 	
 	@POST
-	@RolesAllowed({ADMINISTRATOR,SYSTEM})
 	public Response createNewAccessKey(@Valid AccessKeyData accessKeyData) {
 		CreateAccessKeyFlow flow = new CreateAccessKeyFlow(service, messages);
 		String accessKey = flow.tryCreateAccessKey(accessKeyData);
@@ -124,7 +126,6 @@ public class AccessKeyResource {
 	
 	@DELETE
 	@Path("/{key_id}")
-	@RolesAllowed({ADMINISTRATOR,SYSTEM})
 	public Response removeAccessKey(@PathParam("key_id") @Valid AccessKeyId accessKeyId) {
 		service.removeAccessKey(accessKeyId);
 		if(messages.isEmpty()) {
@@ -135,7 +136,6 @@ public class AccessKeyResource {
 	
 	@POST
 	@Path("/_validate")	
-	@RolesAllowed({ADMINISTRATOR,SYSTEM})
 	@Consumes(TEXT_PLAIN)
 	public AccessKeyData validate(String accessToken) {
 		ApiAccessKey key = encoder.decode(accessToken);

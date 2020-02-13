@@ -18,5 +18,5 @@ package io.leitstand.security.auth.accesskey;
 public interface ApiAccessKeyDecoder {
 
 	ApiAccessKey decode(String key);
-
+	boolean isApiAccessKey(String key);
 }

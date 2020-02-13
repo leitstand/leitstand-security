@@ -15,17 +15,17 @@
  */
 package io.leitstand.security.sso.oidc;
 
+import static io.jsonwebtoken.Jwts.parserBuilder;
 import static io.leitstand.commons.model.BuilderUtil.assertNotInvalidated;
-import static io.leitstand.commons.model.StringUtil.isNonEmptyString;
-import static java.util.Collections.emptyMap;
 
 import java.net.URI;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.security.enterprise.credential.Password;
 
-import io.leitstand.commons.model.StringUtil;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
+import io.jsonwebtoken.JwtParser;
+import io.jsonwebtoken.SigningKeyResolver;
 import io.leitstand.commons.model.ValueObject;
 import io.leitstand.security.auth.UserName;
 
@@ -70,18 +70,6 @@ public class OidcConfig extends ValueObject{
 			return this;
 		}
 
-		public Builder withRolesClaim(String rolesClaim) {
-			assertNotInvalidated(getClass(), config);
-			config.rolesClaim = rolesClaim;
-			return this;
-		}
-		
-		public Builder withRoleMapping(Map<String,String> roleMapping) {
-			assertNotInvalidated(getClass(), config);
-			config.roleMapping = new HashMap<>(roleMapping);
-			return this;
-		}
-		
 		public Builder withClientId(UserName clientId) {
 			assertNotInvalidated(getClass(), config);
 			config.clientId = clientId;
@@ -91,6 +79,12 @@ public class OidcConfig extends ValueObject{
 		public Builder withClientSecret(Password clientSecret) {
 			assertNotInvalidated(getClass(), config);
 			config.clientSecret = clientSecret;
+			return this;
+		}
+		
+		public Builder withSigningKeys(SigningKeyResolver keys) {
+			assertNotInvalidated(getClass(),config);
+			config.keys = keys;
 			return this;
 		}
 		
@@ -108,12 +102,11 @@ public class OidcConfig extends ValueObject{
 	private URI authorizationEndpoint;
 	private URI userInfoEndpoint;
 	private URI tokenEndpoint;
-	private String rolesClaim;
-	private Map<String,String> roleMapping = emptyMap();
 	private UserName clientId;
 	private Password clientSecret;
 	private long connectTimeout;
 	private long readTimeout;
+	private SigningKeyResolver keys;
 	
 	public URI getAuthorizationEndpoint() {
 		return authorizationEndpoint;
@@ -142,19 +135,15 @@ public class OidcConfig extends ValueObject{
 	public long getReadTimeout() {
 		return readTimeout;
 	}
-	
-	public String getRolesClaim() {
-		return rolesClaim;
-	}
-	
-	public String mapRole(String role) {
-		return roleMapping.get(role);
-	}
 
-	public boolean isCustomRolesClaimEnabled() {
-		return isNonEmptyString(rolesClaim);
+	public SigningKeyResolver getKeys() {
+		return keys;
 	}
 	
-	
-	
+	public Jws<Claims> parse(String jwsToken){
+		JwtParser parser = parserBuilder()
+						   .setSigningKeyResolver(getKeys())
+						   .build();
+		return parser.parseClaimsJws(jwsToken);
+	}
 }

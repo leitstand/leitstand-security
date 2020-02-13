@@ -45,6 +45,24 @@ export class Roles extends Resource {
 
 }
 
+export class Scopes extends Resource {
+
+	load() {
+		return this.json("/api/v1/scopes")
+				   .GET();
+	}
+
+}
+
+export class Role extends Resource {
+
+	load(params) {
+		return this.json("/api/v1/userroles/{{role}}",params)
+				   .GET();
+	}
+
+}
+
 export class User extends Resource {
 	
 	constructor(cfg){
