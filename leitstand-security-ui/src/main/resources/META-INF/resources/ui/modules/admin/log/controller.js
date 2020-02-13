@@ -13,9 +13,6 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-/*
- *  (c) RtBrick, Inc - All rights reserved, 2015 - 2017
- */
 import {Controller,Menu} from '/ui/js/ui.js';
 import {Records,Record} from './log.js';
 
