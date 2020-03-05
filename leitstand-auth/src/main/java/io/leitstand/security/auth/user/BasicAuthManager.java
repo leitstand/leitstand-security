@@ -17,6 +17,7 @@ package io.leitstand.security.auth.user;
 
 import static io.leitstand.security.auth.UserId.userId;
 import static io.leitstand.security.auth.UserName.userName;
+import static io.leitstand.security.auth.http.Authorization.authorization;
 import static javax.security.enterprise.identitystore.CredentialValidationResult.INVALID_RESULT;
 import static javax.security.enterprise.identitystore.CredentialValidationResult.NOT_VALIDATED_RESULT;
 import static javax.security.enterprise.identitystore.CredentialValidationResult.Status.VALID;
@@ -66,7 +67,7 @@ public class BasicAuthManager implements AccessTokenManager{
 	public CredentialValidationResult validateAccessToken(HttpServletRequest request, 
 														  HttpServletResponse response) {
 		
-		Authorization auth = Authorization.valueOf(request);
+		Authorization auth = authorization(request);
 		if(auth != null && auth.isBasic()) {
 			if(!config.isBasicAuthEnabled()) {
 				userContext.seal();

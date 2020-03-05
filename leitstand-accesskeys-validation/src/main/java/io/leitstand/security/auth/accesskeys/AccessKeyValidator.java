@@ -101,7 +101,7 @@ public class AccessKeyValidator {
 	 * @return <code>true</code> if the API access key is authenticated to execute the request, <code>false</code> if not.
 	 */
 	public boolean isValid(HttpServletRequest request,
-						   	 ApiAccessKey key) {
+						   ApiAccessKey key) {
 		if(isRevoked(key)) {
 			return false;
 		}

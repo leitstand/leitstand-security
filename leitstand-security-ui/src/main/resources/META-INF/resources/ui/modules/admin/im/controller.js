@@ -39,7 +39,7 @@ let usersController = function() {
 		resource:users,
 		viewModel:function(users){
 			return {"users":users,
-					"filter":this.location().param("filter")};
+					"filter":this.location.param("filter")};
 		},
 		buttons:{
 			"filter":function(){
@@ -77,16 +77,16 @@ let userController = function() {
 		},
 		buttons:{
 			"save-settings":function(){
-				user.store(this.location().params(),
+				user.store(this.location.params,
 						   this.getViewModel("user"));
 			},
 			"passwd":function(){
-				user.resetPassword(this.location().params(),
+				user.resetPassword(this.location.params,
 								   {"new_password":this.input("new_password").value(),
 								   	"confirmed_password":this.input("confirm_password").value()});
 			},
 			"remove":function(){
-				user.remove(this.location().params());
+				user.remove(this.location.params);
 			}
 		},
 		onRemoved : function(){

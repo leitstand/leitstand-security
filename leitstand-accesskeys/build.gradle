@@ -9,7 +9,6 @@ dependencies {
     compile project(':leitstand-crypto')
     compile project(':leitstand-accesskeys-validation')
     compile 'io.leitstand:leitstand-commons:' + findProperty("versions.leitstand-commons")
-    compile 'io.leitstand:leitstand-etc:' + findProperty("versions.leitstand-commons")
     compileOnly 'javax:javaee-api:8.0'
 
 

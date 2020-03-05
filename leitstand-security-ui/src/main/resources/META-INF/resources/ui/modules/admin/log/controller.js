@@ -23,11 +23,11 @@ let recordsController = function() {
 		viewModel:function(records){
 			let viewModel = {};
 			viewModel.records = records;
-			viewModel.query = this.location().params();
+			viewModel.query = this.location.params;
 			viewModel.default_from_date = viewModel.query.from ? new Date(viewModel.query.from) : new Date();
 			viewModel.default_to_date = viewModel.query.to ? new Date(viewModel.query.to) : viewModel.default_from_date;
-			viewModel.from = !!this.location().param('from');
-			viewModel.to = !!this.location().param('to');
+			viewModel.from = !!this.location.param('from');
+			viewModel.to = !!this.location.param('to');
 			return viewModel;
 		},
 		buttons:{

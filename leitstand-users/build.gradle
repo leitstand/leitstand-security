@@ -6,7 +6,6 @@ plugins {
 dependencies {
     compile project(':leitstand-auth')
     compile 'io.leitstand:leitstand-commons:' + findProperty("versions.leitstand-commons")
-    compile 'io.leitstand:leitstand-etc:' + findProperty("versions.leitstand-commons")
     compileOnly 'javax:javaee-api:8.0'
 
     testCompile 'junit:junit:4.12'
