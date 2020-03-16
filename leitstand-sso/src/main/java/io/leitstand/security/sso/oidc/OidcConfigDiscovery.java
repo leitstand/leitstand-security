@@ -16,16 +16,19 @@
 package io.leitstand.security.sso.oidc;
 
 import static io.leitstand.security.auth.http.BasicAuthentication.basicAuthentication;
+import static io.leitstand.security.sso.oidc.ReasonCode.OID0005E_CERTIFICATE_CHAIN_ERROR;
+import static java.lang.String.format;
+import static java.util.Base64.getDecoder;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static javax.ws.rs.client.ClientBuilder.newBuilder;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
 import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.net.URI;
 import java.security.Key;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -35,7 +38,6 @@ import javax.json.JsonObject;
 import javax.security.enterprise.credential.Password;
 import javax.ws.rs.client.Client;
 
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.SigningKeyResolver;
 import io.leitstand.commons.jsonb.JsonbDefaults;
 import io.leitstand.security.auth.UserName;
@@ -114,14 +116,19 @@ public class OidcConfigDiscovery {
 			Map<String,Key> keyById = new HashMap<>();
 			for(int i=0; i < keys.size(); i++) {
 				JsonObject key = keys.getJsonObject(i);
-				SignatureAlgorithm algorithm = SignatureAlgorithm.valueOf(key.getString("alg"));
-				X509Certificate crt = (X509Certificate) cf.generateCertificate(new ByteArrayInputStream(Base64.getDecoder().decode(key.getJsonArray("x5c").getString(0))));
-				keyById.put(key.getString("kid"), crt.getPublicKey());
+				try(InputStream in = new ByteArrayInputStream(getDecoder().decode(key.getJsonArray("x5c").getString(0)))){
+					X509Certificate crt = (X509Certificate) cf.generateCertificate(in);
+					keyById.put(key.getString("kid"), crt.getPublicKey());
+				}
 			}
 			
-			this.keyResolver = new OidcSigningKeyResolver(keyById);
+			this.keyResolver = new OidcSigningKeyResolver()
+							   .keysByKeyId(keyById);
 		} catch (Exception e) {
-			LOG.severe("Cannot decode key chain "+e.getMessage());
+			LOG.severe(format("%s: Cannot decode key chain: %s", 
+							  OID0005E_CERTIFICATE_CHAIN_ERROR.getReasonCode(), 
+							  e.getMessage()));
+			throw new OidcConfigException(e, OID0005E_CERTIFICATE_CHAIN_ERROR);
 		}
 		
 		return this;

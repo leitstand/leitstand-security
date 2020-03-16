@@ -136,7 +136,7 @@ public class MasterSecret {
 	
 	/**
 	 * Decrypts the specified cipher text.
-	 * @param ciphertext - the cipher text to be decrypted
+	 * @param ciphertext the cipher text to be decrypted
 	 * @return the plain text
 	 * @throws MasterSecretException if decryption fails
 	 */

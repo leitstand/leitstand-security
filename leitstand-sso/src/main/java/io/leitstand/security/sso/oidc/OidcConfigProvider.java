@@ -24,13 +24,17 @@ import static io.leitstand.commons.model.StringUtil.isNonEmptyString;
 import static io.leitstand.security.auth.UserName.userName;
 import static io.leitstand.security.auth.http.LoginConfiguration.newLoginConfiguration;
 import static io.leitstand.security.sso.oidc.OidcConfig.newOpenIdConfig;
+import static io.leitstand.security.sso.oidc.ReasonCode.OID0005E_CERTIFICATE_CHAIN_ERROR;
 import static java.lang.String.format;
+import static java.security.cert.CertificateFactory.getInstance;
 import static java.util.Base64.getDecoder;
 import static java.util.Base64.getUrlDecoder;
+import static java.util.logging.Level.FINE;
 
 import java.io.ByteArrayInputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.Key;
 import java.security.PublicKey;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
@@ -38,18 +42,19 @@ import java.security.cert.X509Certificate;
 import java.util.Properties;
 import java.util.logging.Logger;
 
+import javax.crypto.spec.SecretKeySpec;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import javax.security.enterprise.credential.Password;
 
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.SigningKeyResolver;
 import io.leitstand.commons.StartupListener;
 import io.leitstand.commons.etc.Environment;
 import io.leitstand.security.auth.UserName;
 import io.leitstand.security.auth.http.LoginConfigurationProvider;
 import io.leitstand.security.crypto.MasterSecret;
-import io.leitstand.security.crypto.Secret;
 
 @ApplicationScoped
 public class OidcConfigProvider implements StartupListener {
@@ -82,12 +87,15 @@ public class OidcConfigProvider implements StartupListener {
 	
 	static PublicKey publicKey(byte[] cert) {
 		try {
-			CertificateFactory cf = CertificateFactory.getInstance("X509");
+			CertificateFactory cf = getInstance("X509");
 			X509Certificate crt = (X509Certificate) cf.generateCertificate(new ByteArrayInputStream(getDecoder().decode(cert)));
 			return crt.getPublicKey();
 		} catch (CertificateException e) {
-			// TODO Log
-			return null;
+			LOG.severe(format("%s: Cannot process certificate. Reason; %s", 
+							  OID0005E_CERTIFICATE_CHAIN_ERROR.getReasonCode(),
+							  e.getMessage()));
+			LOG.log(FINE,e.getMessage(),e);
+			throw new OidcConfigException(e, OID0005E_CERTIFICATE_CHAIN_ERROR, e.getMessage());
 		}
 	}
 	
@@ -120,10 +128,7 @@ public class OidcConfigProvider implements StartupListener {
 		String authorizationEndpoint = readOidcProperty(OIDC_AUTHORIZATION_ENDPOINT,properties);
 		String tokenEndpoint		 = readOidcProperty(OIDC_TOKEN_ENDPOINT,properties);
 		String userInfoEndpoint		 = readOidcProperty(OIDC_USERINFO_ENDPOINT, properties);
-//		Secret tokenSecret			 = readTokenSecret(properties);
-//		PublicKey tokenKey			 = publicKey(readOidcProperty(OIDC_TOKEN_CERT,properties));
-//		String algorithm			 = readOidcProperty(OIDC_JWS_ALGORITHM, properties);
-		SigningKeyResolver keys = null;
+		SigningKeyResolver keys 	 = readKeys(properties);
 		
 		String configEndpoint = readOidcProperty(OIDC_CONFIGURATION_ENDPOINT,properties);
 		if(isNonEmptyString(configEndpoint)) {
@@ -181,6 +186,16 @@ public class OidcConfigProvider implements StartupListener {
 		
 	}
 
+	private SigningKeyResolver readKeys(Properties properties) {
+		Key tokenSecret	   = readTokenSecret(properties);
+		Key tokenPublicKey = publicKey(readOidcProperty(OIDC_TOKEN_X5C,properties));
+		
+		return new OidcSigningKeyResolver()
+			   .tokenPublicKey(tokenPublicKey)
+			   .tokenSecret(tokenSecret);
+	}
+
+
 	static String readOidcProperty(String propertyName, Properties properties) {
 		return optional(getSystemProperty(propertyName,properties.getProperty(propertyName)),
 						String::trim);
@@ -211,14 +226,15 @@ public class OidcConfigProvider implements StartupListener {
 		return null;
 	}
 	
-	Secret readTokenSecret(Properties properties) {
-		String tokenSecret   = getSystemProperty(OIDC_TOKEN_SECRET,properties.getProperty(OIDC_TOKEN_SECRET));
+	Key readTokenSecret(Properties properties) {
+		String tokenSecret = getSystemProperty(OIDC_TOKEN_SECRET,properties.getProperty(OIDC_TOKEN_SECRET));
 		if(isNonEmptyString(tokenSecret)) {
+			String algorithm   = getSystemProperty(OIDC_JWS_ALGORITHM,properties.getProperty(OIDC_JWS_ALGORITHM));
 			try {
-				return new Secret(masterSecret.decrypt(getDecoder().decode(tokenSecret)));
+				return new SecretKeySpec(masterSecret.decrypt(getDecoder().decode(tokenSecret)),SignatureAlgorithm.valueOf(algorithm).getJcaName());
 			} catch (Exception e) {
 				LOG.warning(() -> format("Cannot decrypt value of %s. Use client secret as specified (assuming secret was specified in plain text). Encrypted secrets must be Base64 encoded.",OIDC_CLIENT_SECRET));
-				return new Secret(getDecoder().decode(tokenSecret));
+				return new SecretKeySpec(getDecoder().decode(tokenSecret),SignatureAlgorithm.valueOf(algorithm).getJcaName());
 			}
 		}
 		return null;

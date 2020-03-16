@@ -20,20 +20,42 @@ import java.util.Map;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwsHeader;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.SigningKeyResolverAdapter;
 
  class OidcSigningKeyResolver extends SigningKeyResolverAdapter{
 
 	private Map<String,Key> keys;
+	private Key tokenSecret;
+	private Key tokenPublicKey;
 	
-	OidcSigningKeyResolver(Map<String,Key> keys){
+	OidcSigningKeyResolver keysByKeyId(Map<String,Key> keys) {
 		this.keys = keys;
+		return this;
+	}
+	
+	OidcSigningKeyResolver tokenSecret(Key key) {
+		this.tokenSecret = key;
+		return this;
+	}
+	
+	OidcSigningKeyResolver tokenPublicKey(Key key) {
+		this.tokenPublicKey = key;
+		return this;
 	}
 	
 	@Override
-	public Key resolveSigningKey(JwsHeader header, Claims claims) {
+	public Key resolveSigningKey(@SuppressWarnings("rawtypes") JwsHeader header, Claims claims) {
 		String kid = header.getKeyId();
-		return keys.get(kid);		
+		Key key = keys.get(kid);	
+		if(key != null) {
+			return key;
+		}
+		SignatureAlgorithm alg = SignatureAlgorithm.valueOf(header.getAlgorithm());
+		if(alg.isRsa()) {
+			return tokenPublicKey;
+		}
+		return tokenSecret;
 	}
 
 
