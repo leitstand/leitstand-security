@@ -18,9 +18,11 @@ The table below summarizes the _Leitstand OpenID Connect (OIDC) settings_:
 | OIDC\_USERINFO\_ENDPOINT                  | OpenID user info URL to be used if no configuration endpoint exists.      											 |
 | OIDC\_TOKEN\_X5C						    | Base64 URL-encoded X509 certificate chain to verify JWS tokens if the certificate chain cannot be auto-discovered. |
 | OIDC\_TOKEN\_SECRET						| Token secret to verify a JWS if the secret cannot be auto-discovered.                                              |
+| OIDC\_JWS\_ALGORITHM                      | The token signature algorithm (e.g. HS256) |
 
 The OIDC\_TOKEN\_X5C and the OIDC\_TOKEN\_SECRET can be specified at the same time. 
-Leitstand selects the proper settings depending on the algorithm declared in the JWS header.
+The OIDC\_TOKEN\_SECRET requires the OIDC\_JWS\_ALGORITHM property to be set to create the token key.
+Leitstand selects the proper settings depending on the algorithm specified in the JWS header.
 
 The settings are read from the `<LEITSTAND_ETC_ROOT>/sso.properties` file or from environment variables.
 The environment variables override the properties file in case of a conflicting configuration.
