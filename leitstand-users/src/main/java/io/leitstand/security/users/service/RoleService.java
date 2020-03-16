@@ -18,6 +18,10 @@ package io.leitstand.security.users.service;
 import java.util.List;
 
 public interface RoleService {
-
-	public List<RoleData> getRoles();
+	List<RoleSettings> getRoles();
+	RoleSettings getRole(RoleId roleId);
+	RoleSettings getRole(RoleName roleName);
+	boolean storeRole(RoleSettings settings);
+	void removeRole(RoleId roleId);
+	void removeRole(RoleName roleName);	
 }

@@ -23,7 +23,7 @@ import javax.persistence.PersistenceUnit;
 import javax.transaction.TransactionScoped;
 
 import io.leitstand.commons.model.Repository;
-import io.leitstand.security.accesskeys.auth.AccessKeys;
+import io.leitstand.security.auth.accesskeys.AccessKeys;
 
 /**
  * The producer for the repository of the built-in identity management module.

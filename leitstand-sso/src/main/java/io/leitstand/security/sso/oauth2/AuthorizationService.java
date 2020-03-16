@@ -17,8 +17,8 @@ package io.leitstand.security.sso.oauth2;
 
 import static io.leitstand.commons.messages.MessageFactory.createMessage;
 import static io.leitstand.commons.model.StringUtil.isNonEmptyString;
+import static io.leitstand.security.auth.UserName.userName;
 import static io.leitstand.security.auth.accesskey.ApiAccessKey.newApiAccessKey;
-import static io.leitstand.security.sso.oauth2.AuthorizationCode.newAuthorizationCode;
 import static io.leitstand.security.sso.oauth2.Oauth2AccessToken.newOauth2AccessToken;
 import static io.leitstand.security.sso.oauth2.ReasonCode.OAH0001E_UNSUPPORTED_RESPONSE_TYPE;
 import static io.leitstand.security.sso.oauth2.ReasonCode.OAH0002E_CLIENT_ID_MISMATCH;
@@ -32,9 +32,9 @@ import static javax.ws.rs.core.Response.temporaryRedirect;
 import static javax.ws.rs.core.Response.Status.FORBIDDEN;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.logging.Logger;
 
-import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
@@ -47,18 +47,23 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
+import io.jsonwebtoken.Jwts;
 import io.leitstand.commons.messages.Messages;
-import io.leitstand.security.auth.UserName;
+import io.leitstand.commons.rs.Public;
+import io.leitstand.commons.rs.Resource;
 import io.leitstand.security.auth.accesskey.ApiAccessKey;
-import io.leitstand.security.auth.jwt.JsonWebTokenDecoder;
-import io.leitstand.security.auth.jwt.JsonWebTokenEncoder;
+import io.leitstand.security.auth.accesskey.ApiAccessKeyEncoder;
+import io.leitstand.security.auth.standalone.StandaloneLoginConfig;
 import io.leitstand.security.auth.user.UserInfo;
 import io.leitstand.security.auth.user.UserRegistry;
 
 /**
  * The OAuth authorization server implementation.
  */
-@RequestScoped
+@Public
+@Resource
 @Path("/oauth2")
 public class AuthorizationService {
 	
@@ -74,37 +79,20 @@ public class AuthorizationService {
 	private static final String OAUTH2_ERROR_UNAUTHENTICATED = "unauthenticated";
 	private static final String OAUTH2_ERROR_UNSUPPORTED_RESPONSE_TYPE = "unsupported_response_type";
 	
-	private JsonWebTokenEncoder encoder;
-	
-	private JsonWebTokenDecoder decoder;
-	
+	@Inject
 	private Messages messages;
 	
+	@Inject
 	private UserRegistry users; 
 	
-	/**
-	 * No-argument constructor to create CDI proxy instances.
-	 */
-	public AuthorizationService() {
-		// JPA Constructor
-	}
-	
-	/**
-	 * Create a <code>AuthorizationServicey</code>.
-	 * @param encoder the JWT encoder
-	 * @param decoder the JWT decoder
-	 * @param messages the status and error messages container
-	 */
 	@Inject
-	public AuthorizationService(JsonWebTokenEncoder encoder, 
-							 	JsonWebTokenDecoder decoder, 
-							 	UserRegistry users,
-								Messages messages) {
-		this.encoder = encoder;
-		this.decoder = decoder;
-		this.messages = messages;
-		this.users = users;
-	}
+	private StandaloneLoginConfig config;
+	
+	@Inject
+	private ApiAccessKeyEncoder encoder;
+	
+	
+
 	
 	/**
 	 * Creates an authorization code to authorize the authenticated user to access the specified resource and eventually redirects the user to the resource.
@@ -138,14 +126,13 @@ public class AuthorizationService {
 		}
 		
 		if(OAUTH2_CODE.equals(responseType)){
-			String code64 = encoder.encode(newAuthorizationCode()
-										   .withClientId(clientId)
-										   .withUserName(new UserName(context.getUserPrincipal().getName()))
-										   .build());
 			
+			String code = config.signJwt(Jwts.builder()
+										  	 .setSubject(context.getUserPrincipal().getName())
+										  	 .setAudience(clientId)
+										  	 .setIssuedAt(new Date()));
 
-
-			target.addQueryParam(OAUTH2_CODE,code64);
+			target.addQueryParam(OAUTH2_CODE,code);
 			if(isNonEmptyString(state)) {
 				target.addQueryParam(OAUTH2_STATE,state);
 			}
@@ -175,17 +162,15 @@ public class AuthorizationService {
 	@Consumes(APPLICATION_FORM_URLENCODED)
 	@Produces(APPLICATION_JSON)
 	public Response getAccessToken(@Context SecurityContext context,
-								   @FormParam("grant_type") GrantType grantType,
+								   @FormParam("grant_type") String grantType,
 								   @FormParam(OAUTH2_CODE) String code) {
 		
-		AuthorizationCode authCode = decoder.decode(AuthorizationCode.class, 
-													AuthorizationCode.Payload.class, 
-													code);
+		Jws<Claims> jws = config.decodeJws(code);
 		
 		
-		if(context.getUserPrincipal().getName().equals(authCode.getClientId())) {
+		if(context.getUserPrincipal().getName().equals(jws.getBody().getAudience())) {
 			
-			UserInfo userInfo = users.getUserInfo(authCode.getUserName());
+			UserInfo userInfo = users.getUserInfo(userName(jws.getBody().getSubject()));
 			
 			if(userInfo == null) {
 				return status(FORBIDDEN).entity(messages).build();
@@ -210,7 +195,7 @@ public class AuthorizationService {
 						         OAH0002E_CLIENT_ID_MISMATCH.getReasonCode()));
 		LOG.fine(() -> format("client_id parameter (%s) does not match expected value (%s)",
 							  context.getUserPrincipal().getName(),
-							  authCode.getClientId()));
+							  jws.getBody().getAudience()));
 		messages.add(createMessage(OAH0002E_CLIENT_ID_MISMATCH, 
 								   context.getUserPrincipal().getName()));
 		return status(FORBIDDEN).entity(messages).build();

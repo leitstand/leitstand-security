@@ -21,7 +21,6 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
 import java.util.logging.Logger;
 
-import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -33,11 +32,14 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.SecurityContext;
 
+import io.leitstand.commons.rs.Public;
+import io.leitstand.commons.rs.Resource;
 import io.leitstand.security.auth.http.LoginConfiguration;
 import io.leitstand.security.auth.user.UserInfo;
 import io.leitstand.security.auth.user.UserRegistry;
 
-@RequestScoped
+@Public
+@Resource
 @Path("/login")
 @Consumes(APPLICATION_JSON)
 @Produces(APPLICATION_JSON)

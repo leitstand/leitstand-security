@@ -17,6 +17,7 @@ package io.leitstand.security.users.auth;
 
 import static io.leitstand.security.auth.UserName.userName;
 import static io.leitstand.security.auth.user.UserInfo.newUserInfo;
+import static java.util.Collections.emptySet;
 import static javax.security.enterprise.identitystore.CredentialValidationResult.INVALID_RESULT;
 
 import javax.enterprise.context.Dependent;
@@ -44,7 +45,7 @@ public class DefaultUserRegistry implements UserRegistry{
 			UserSettings user = users.getUser(userName);
 			return newUserInfo()
 				   .withUserName(user.getUserName())
-				   .withRoles(user.getRoles())
+				   .withScopes(user.getScopes())
 				   .withAccessTokenTtl(user.getAccessTokenTtl(), 
 						   		   	   user.getAccessTokenTtlUnit())
 				   .build();
@@ -58,8 +59,12 @@ public class DefaultUserRegistry implements UserRegistry{
 		UserName userName = userName(credentials.getCaller());
 		Password passwd = credentials.getPassword(); 
 		if(users.isValidPassword(userName,passwd)){
-			UserInfo user = getUserInfo(userName);
-			return new CredentialValidationResult(userName.toString(),user.getRoles());
+			UserSettings user = users.getUser(userName);
+			return new CredentialValidationResult(getClass().getName(), 
+												  userName.toString(),
+												  null,
+												  user.getUserId().toString(),
+												  emptySet());
 		}
 		return INVALID_RESULT;
 	}

@@ -15,10 +15,15 @@
  */
 package io.leitstand.security.auth.http;
 
+import static io.leitstand.commons.model.BuilderUtil.assertNotInvalidated;
+
 import java.net.URI;
 
+import javax.enterprise.inject.Typed;
+
 import io.leitstand.commons.model.ValueObject;
-import static io.leitstand.commons.model.BuilderUtil.*;
+
+@Typed() // Delegate creation to producer
 public class LoginConfiguration extends ValueObject {
 	
 	public static LoginConfiguration newDefaultLoginConfiguration() {
@@ -39,6 +44,12 @@ public class LoginConfiguration extends ValueObject {
 		public Builder withOidcEnabled(boolean oidcEnabled) {
 			assertNotInvalidated(getClass(),config);
 			config.oidcEnabled = oidcEnabled;
+			return this;
+		}
+		
+		public Builder withCookieName(String cookieName) {
+			assertNotInvalidated(getClass(),config);
+			config.cookieName = cookieName;
 			return this;
 		}
 	
@@ -72,6 +83,7 @@ public class LoginConfiguration extends ValueObject {
 	private boolean oidcEnabled;
 	private String oidcClientId;
 	private URI loginView;
+	private String cookieName;
 	
 	public boolean isOidcEnabled() {
 		return oidcEnabled;
@@ -83,6 +95,10 @@ public class LoginConfiguration extends ValueObject {
 	
 	public URI getLoginView() {
 		return loginView;
+	}
+	
+	public String getCookieName() {
+		return cookieName;
 	}
 	
 }

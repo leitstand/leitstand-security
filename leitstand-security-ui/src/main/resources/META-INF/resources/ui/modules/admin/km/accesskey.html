@@ -21,10 +21,10 @@
 	<ui-title>Access Key</ui-title>
 	<ui-subtitle>Manage settings of access key {{key_name}}</ui-subtitle>
 </ui-view-header>
-<ui-form rolesAllowed="Administrator">
+<ui-form scopesAllowed="adm adm.accesskey">
 	<ui-group>
 		<ui-label>General Settings</ui-label>
-		<ui-input name="key_name">
+		<ui-input name="key_name" disabled readonly>
 			<ui-label>Key Name</ui-label>
 			<ui-note>A unique key name that also forms the user login ID for all requestes authenticated by this key</ui-note>
 		</ui-input>
@@ -34,61 +34,91 @@
 		</ui-textarea>
 	</ui-group>
 	<ui-group>
-		<ui-label>Methods</ui-label>
-		<ui-note>Restrict access to certain HTTP methods. 
-				 Access is granted for all HTTP methods by default, 
-				 if not HTTP method restriction was selected when the access key has been issued.</ui-note>
-		<ui-checkbox name="method" value="GET" disabled readonly>
-			<ui-label>HTTP GET</ui-label>
-			<ui-note>Access key allows to read existing resources</ui-note>
+		<ui-label>Scopes</ui-label>
+		<ui-note>Restrict access to certain resource scopes.
+				 Umbrella scopes imply access to the underlying scopes.  </ui-note>	
+		<ui-checkbox name="scopes" value="ivt.read" disabled readonly>
+			<ui-label>ivt.read</ui-label>
+			<ui-note>Readonly inventory access.</ui-note>
 		</ui-checkbox>
-		<ui-checkbox name="method" value="PUT" disabled readonly>
-			<ui-label>HTTP PUT</ui-label>
-			<ui-note>Access key allows to store resources</ui-note>
+		<ui-checkbox name="scopes" value="ivt" disabled readonly>
+			<ui-label>ivt</ui-label>
+			<ui-note>Full inventory access.</ui-note>
 		</ui-checkbox>
-		<ui-checkbox name="method" value="POST" disabled readonly>
-			<ui-label>HTTP POST</ui-label>
-			<ui-note>Access key allows to invoke operations on existing resources</ui-note>
+		<ui-checkbox name="scopes" value="ivt.element" disabled readonly>
+			<ui-label>ivt.element</ui-label>
+			<ui-note>Manage element inventory records.</ui-note>
 		</ui-checkbox>
-		<ui-checkbox name="method" value="DELETE" disabled readonly>
-			<ui-label>HTTP DELTE</ui-label>
-			<ui-note>Access key allows to remove existing resources</ui-note>
+		<ui-checkbox name="scopes" value="ivt.element.settings" disabled readonly>
+			<ui-label>ivt.element.settings</ui-label>
+			<ui-note>Manage element settings including element role and platform information</ui-note>
 		</ui-checkbox>
-	</ui-group>
-	<ui-group>
-		<ui-label>Paths</ui-label>
-		<ui-note>Restrict access to certain resource types.
-				 Access is granted for all resource types by default, 
-				 if no resource restriction was selected when the access key has been issued.  </ui-note>	
-		<ui-checkbox name="path" value="/api/v1/images/.*" disabled readonly>
-			<ui-label>Images</ui-label>
-			<ui-note>Access key allows to access image resources located under <code>/api/v1/images</code>
+		<ui-checkbox name="scopes" value="ivt.element.dns" disabled readonly>
+			<ui-label>ivt.element.dns</ui-label>
+			<ui-note>Manage element DNS records and DNS zones</ui-note>
 		</ui-checkbox>
-		<ui-checkbox name="path" value="/api/v1/pods/.*" disabled readonly>
-			<ui-label>Pods</ui-label>
-			<ui-note>Access key allows to access pod resources located under <code>/api/v1/pods</code>
+		<ui-checkbox name="scopes" value="ivt.element.config" disabled readonly>
+			<ui-label>ivt.element.config</ui-label>
+			<ui-note>Manage element configuration and environment variables</ui-note>
 		</ui-checkbox>
-		<ui-checkbox name="path" value="/api/v1/elements/.*" disabled readonly>
-			<ui-label>Elements</ui-label>
-			<ui-note>Access key allows to access element resources located under <code>/api/v1/elements</code>
+		<ui-checkbox name="scopes" value="ivt.element.module" disabled readonly>
+			<ui-label>ivt.element.module</ui-label>
+			<ui-note>Manage element hardware modules.</ui-note>
 		</ui-checkbox>
-		<ui-checkbox name="path" value="/api/v1/jobs/.*" disabled readonly>
-			<ui-label>Jobs</ui-label>
-			<ui-note>Access key allows to access job resources located under <code>/api/v1/jobs</code>
+		<ui-checkbox name="scopes" value="ivt.group" disabled readonly>
+			<ui-label>ivt.group</ui-label>
+			<ui-note>Manage element groups.</ui-note>
 		</ui-checkbox>
-		<ui-checkbox name="path" value="/api/v1/metrics/.*" disabled readonly>
-			<ui-label>Metrics</ui-label>
-			<ui-note>Access key allows to access metric resources located under <code>/api/v1/metrics</code>
+	    <ui-checkbox name="scopes" value="ivt.group.settings" disabled readonly>
+			<ui-label>ivt.group.settings</ui-label>
+			<ui-note>Manage element group settings.</ui-note>
 		</ui-checkbox>
-		<ui-checkbox name="path" value="/api/v1/users/.*" disabled readonly>
-			<ui-label>Users</ui-label>
-			<ui-note>Access key allows to access user resources located under <code>/api/v1/users</code>
+		<ui-checkbox name="scopes" value="ivt.metric" disabled readonly>
+			<ui-label>ivt.metric</ui-label>
+			<ui-note>Manage metric definitions and alert rules.</ui-note>
 		</ui-checkbox>
-		<ui-checkbox name="path" value="/api/v1/accesskeys/.*" disabled readonly>
-			<ui-label>Access Keys</ui-label>
-			<ui-note>Access key allows to access access key resources located under <code>/api/v1/accesskeys</code>
+		<ui-checkbox name="scopes" value="ivt.image" disabled readonly>
+			<ui-label>ivt.metric</ui-label>
+			<ui-note>Manage software images.</ui-note>
+		</ui-checkbox>
+		<ui-checkbox name="scopes" value="job" disabled readonly>
+			<ui-label>job</ui-label>
+			<ui-note>Full access to all scheduled jobs.</ui-note>
+		</ui-checkbox>
+		<ui-checkbox name="scopes" value="job.read" disabled readonly>
+			<ui-label>job.read</ui-label>
+			<ui-note>Readonly access to all scheduled jobs.</ui-note>
+		</ui-checkbox>
+		<ui-checkbox name="scopes" value="job.task" disabled readonly>
+			<ui-label>job.task</ui-label>
+			<ui-note>Manage tasks of a scheduled job.</ui-note>
+		</ui-checkbox>
+		<ui-checkbox name="scopes" value="adm" disabled readonly>
+			<ui-label>adm</ui-label>
+			<ui-note>Full access to the Leitstand admin API</ui-note>
+		</ui-checkbox>
+		<ui-checkbox name="scopes" value="adm.read" disabled readonly>
+			<ui-label>adm.read</ui-label>
+			<ui-note>Readonly access to the Leitstand admin API</ui-note>
+		</ui-checkbox>
+		<ui-checkbox name="scopes" value="adm.webhook" disabled readonly>
+			<ui-label>adm.webhook</ui-label>
+			<ui-note>Manage webhook settings including adding and removing webhooks.</ui-note>
+		</ui-checkbox>
+		<ui-checkbox name="scopes" value="adm.webhook" disabled readonly>
+			<ui-label>adm.webhook.read</ui-label>
+			<ui-note>Read webhook settings</ui-note>
+		</ui-checkbox>		
+		<ui-checkbox name="scopes" value="adm.accesskey" disabled readonly>
+			<ui-label>adm.accesskey</ui-label>
+			<ui-note>Manage access keys.</ui-note>
+		</ui-checkbox>		
+		<ui-checkbox name="scopes" value="adm.user" disabled readonly>
+			<ui-label>adm.user</ui-label>
+			<ui-note>Manage users and roles.</ui-note>
 		</ui-checkbox>
 	</ui-group>	
+	
 	<ui-actions>
 		<ui-button id="save" name="save" primary title="Save access key settings">Save settings</ui-button>
 		<ui-button href="confirm-revoke.html?key={{key_id}}" danger title="Revoke access key">Revoke access key</ui-button>

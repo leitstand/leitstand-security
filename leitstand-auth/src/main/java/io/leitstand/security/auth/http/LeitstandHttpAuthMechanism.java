@@ -142,8 +142,7 @@ public class LeitstandHttpAuthMechanism implements HttpAuthenticationMechanism{
 		for(AccessTokenManager manager : accessTokenManagers) {
 			if(manager.issueAccessToken(request, 
 										response, 
-										userName(result.getCallerPrincipal()),
-										result.getCallerGroups())) {
+										userName(result.getCallerPrincipal()))) {
 				break;
 			}
 		}

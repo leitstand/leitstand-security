@@ -44,8 +44,7 @@ public class RenewAccessKeyFlow {
 										 .withAccessKeyName(accessKey.getAccessKeyName())
 										 .withDateCreated(new Date())
 										 .withDescription(accessKey.getDescription())
-										 .withMethods(accessKey.getMethods())
-										 .withPaths(accessKey.getPaths())
+										 .withScopes(accessKey.getScopes())
 										 .build();
 		newAccessToken = service.createAccessKey(renewedAccessKey);
 	}

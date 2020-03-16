@@ -17,13 +17,16 @@ package io.leitstand.security.login.log.rs;
 
 import static io.leitstand.commons.rs.ResourceUtil.tryParseDate;
 import static io.leitstand.commons.rs.ResourceUtil.tryParseInt;
+import static io.leitstand.security.login.log.rs.Scopes.ADM;
+import static io.leitstand.security.login.log.rs.Scopes.ADM_LOG;
+import static io.leitstand.security.login.log.rs.Scopes.ADM_READ;
 import static io.leitstand.security.login.log.service.UserLoginAuditLogQuery.newUserLoginAuditLogQuery;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
 import java.util.List;
 
-import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -31,6 +34,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 
+import io.leitstand.commons.rs.Resource;
+import io.leitstand.security.auth.Scopes;
 import io.leitstand.security.login.log.service.UserLoginAuditLogQuery;
 import io.leitstand.security.login.log.service.UserLoginAuditLogRecordData;
 import io.leitstand.security.login.log.service.UserLoginAuditLogService;
@@ -38,8 +43,10 @@ import io.leitstand.security.login.log.service.UserLoginAuditLogService;
 /**
  * The REST resource to query user login audit log records.
  */
-@RequestScoped
+@Resource
+@Scopes({ADM,ADM_READ,ADM_LOG})
 @Path("/login")
+@Consumes(APPLICATION_JSON)
 @Produces(APPLICATION_JSON)
 public class UserLoginAuditLogResource {
 

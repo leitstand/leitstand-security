@@ -6,48 +6,27 @@ Leitstand Single Sign-On (SSO) relies on the [OpenID Authentication Flow](https:
 
 The table below summarizes the _Leitstand OpenID Connect (OIDC) settings_:
 
-| Property                                  | Description                                               |
-|:------------------------------------------|:----------------------------------------------------------|
-| OIDC\_AUTHORIZATION\_ENDPOINT             | Authorization service URL.                                |
-| OIDC\_TOKEN\_ENDPOINT                     | Token service URL.                                        |
-| OIDC\_USERINFO\_ENDPOINT                  | OpenID user info URL.                                     |
-| OIDC\_CLIENT\_ID                          | Client ID to authenticate token request.                  |
-| OIDC\_CLIENT\_SECRET                      | Client secret to authenticate token request.              |
-| OIDC\_READ\_TIMEOUT                       | Read timeout in milliseconds (Defaults to 10000).         |
-| OIDC\_CONNECT\_TIMEOUT	                | Connect timeout in milliseconds (Defaults to 10000).          |
-| OIDC\_ROLES\_CLAIM                        | Name of an optional custom roles claim.                   |
-| OIDC\_ROLE\_<OIDC_ROLE> 					| Maps the <OIDC_ROLE> to the role with the specified name. |
+| Property                                  | Description                                                                                                        |
+|:------------------------------------------|:-------------------------------------------------------------------------------------------------------------------|
+| OIDC\_CLIENT\_ID                          | Client ID to authenticate against the authorization service.                                                       |
+| OIDC\_CLIENT\_SECRET                      | Client secret to authenticate against the authorization service.                                                   |
+| OIDC\_CONNECT\_TIMEOUT	                    | Connect timeout in milliseconds (Defaults to 10000).                                                               |
+| OIDC\_READ\_TIMEOUT                       | Read timeout in milliseconds (Defaults to 10000).         				                                             |
+| OIDC\_CONFIGURATION\_ENDPOINT				| URL to discover service endpoints and key information.                                                             |
+| OIDC\_AUTHORIZATION\_ENDPOINT             | Authorization service URL to be used if no configuration endpoint exists.                                          |
+| OIDC\_TOKEN\_ENDPOINT                     | Token service URL to be used if no configuration endpoint exists.                                                  |
+| OIDC\_USERINFO\_ENDPOINT                  | OpenID user info URL to be used if no configuration endpoint exists.      											 |
+| OIDC\_TOKEN\_X5C						    | Base64 URL-encoded X509 certificate chain to verify JWS tokens if the certificate chain cannot be auto-discovered. |
+| OIDC\_TOKEN\_SECRET						| Token secret to verify a JWS if the secret cannot be auto-discovered.                                              |
+| OIDC\_JWS\_ALGORITHM                      | The token signature algorithm (e.g. HS256) |
+
+The OIDC\_TOKEN\_X5C and the OIDC\_TOKEN\_SECRET can be specified at the same time. 
+The OIDC\_TOKEN\_SECRET requires the OIDC\_JWS\_ALGORITHM property to be set to create the token key.
+Leitstand selects the proper settings depending on the algorithm specified in the JWS header.
 
 The settings are read from the `<LEITSTAND_ETC_ROOT>/sso.properties` file or from environment variables.
 The environment variables override the properties file in case of a conflicting configuration.
 
-The client secret can be protected by the [Leitstand Master Secret](../leitstand-crypto/README.md).
+The client secret and the token secret can be protected by the [Leitstand Master Secret](../leitstand-crypto/README.md).
 
-The standard _OpenID User Profile_ does not include a _roles_ claim, 
-whereas some of the OpenID identity providers supply a custom claim to transmit the user's roles as part of the user information.
-The `OIDC_ROLES_CLAIM` property sets the name of a custom roles claim.
-The role mapping allows to map a received role to a Leitstand role. 
-If a custom roles claim is set, Leitstand reads all roles from the user info for which a mapping exists.
-
-The user's roles are configured in Leitstand if the identity providers lacks a custom roles claim support.
-
-See the [keycloak example configuration](./doc/keycloak.md) for a full OpenID Identity Provider connection setup.
-
- 
-
-
-
-
-
- 
-
-
-
-
-
-
-
-
-
-
-
+See the [keycloak example configuration](./doc/keycloak.md) for a full OpenID Identity Provider and OAuth-based authorization setup.

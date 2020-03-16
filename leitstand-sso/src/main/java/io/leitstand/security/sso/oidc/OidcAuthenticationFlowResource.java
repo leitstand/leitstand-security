@@ -15,28 +15,39 @@
  */
 package io.leitstand.security.sso.oidc;
 
+import static io.leitstand.commons.etc.Environment.getSystemProperty;
 import static io.leitstand.security.sso.oidc.ReasonCode.OID0003I_SESSION_CREATED;
 import static java.lang.String.format;
 import static java.net.URLDecoder.decode;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static javax.ws.rs.core.Response.ok;
 
 import java.io.UnsupportedEncodingException;
-import java.util.Set;
 import java.util.logging.Logger;
 
-import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.core.Context;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.NewCookie;
+import javax.ws.rs.core.Response;
 
-import io.leitstand.security.auth.http.CookieManager;
+import io.leitstand.commons.rs.Public;
+import io.leitstand.commons.rs.Resource;
 import io.leitstand.security.sso.oauth2.Oauth2AccessToken;
+import io.leitstand.security.sso.oauth2.RefreshTokenStore;
 
-@RequestScoped
+@Public
+@Resource
 @Path("/login/oidc/")
+@Consumes(APPLICATION_JSON)
+@Produces(APPLICATION_JSON)
 public class OidcAuthenticationFlowResource {
+	
+	private static final String ID_COOKIE  = getSystemProperty("LEITSTAND_ID_TOKEN","LEITSTAND_ID");
+	private static final String JWS_COOKIE = getSystemProperty("LEITSTAND_ACCESS_TOKEN_COOKIE_NAME","LEITSTAND_ACCESS");
 	
 	private static final Logger LOG = Logger.getLogger(OidcAuthenticationFlowResource.class.getName());
 
@@ -44,37 +55,42 @@ public class OidcAuthenticationFlowResource {
 	private OidcClient oidc;
 	
 	@Inject
-	private CookieManager cookieManager;
+	private OidcUserService users;
 	
 	@Inject
-	private OidcUserService users;
+	private RefreshTokenStore refreshTokens;
 	
 	@POST
 	@Path("/_authentication_flow")
-	public UserInfo authenticate(@Context HttpServletRequest request, 
-								 @Context HttpServletResponse response) throws UnsupportedEncodingException{
+	public Response authenticate(@QueryParam("code") String code, 
+								 @QueryParam("redirect_uri") String redirectUri) throws UnsupportedEncodingException{
 		
 		// Obtain an access token
-
-		Oauth2AccessToken accessToken = oidc.getAccessToken(request.getParameter("code"),
-															decode(request.getParameter("redirect_uri"),"UTF-8"));
+		Oauth2AccessToken accessToken = oidc.getAccessToken(code, decode(redirectUri,"UTF-8"));
 	
+		
 		// Load user info
-		UserInfo userInfo = oidc.getUserInfo(accessToken);
+		OidcUserInfo userInfo = oidc.getUserInfo(accessToken);
 		
-		// Store user and read the assigned roles.
-		Set<String> assignedRoles = users.storeUser(userInfo);
+		// Store user for auditing
+		users.storeUser(userInfo);
 		
-		// Issue access token to authenticate subsequent requests
-		cookieManager.issueAccessToken(request, 
-									   response, 
-									   userInfo.getUserName(),
-									   assignedRoles);
+		// Store refresh token.
+		refreshTokens.storeRefreshToken(userInfo.getSub(),accessToken.getRefreshToken());
+		
 		LOG.fine(() -> format("%s: Created session for user %s",
 							  OID0003I_SESSION_CREATED.getReasonCode(),
 							  userInfo.getUserName()));
+
+		return ok(userInfo)
+			   .cookie(cookie(ID_COOKIE,accessToken.getIdToken(),accessToken.getExpiresIn()))
+			   .cookie(cookie(JWS_COOKIE,accessToken.getAccessToken(),accessToken.getExpiresIn()))
+			   .build();
 		
-		return userInfo;
+	}
+	
+	private NewCookie cookie(String name, String value, int maxAge) {
+		return new NewCookie(name,value,"/",null,null,maxAge,false,true);
 	}
 		
 }

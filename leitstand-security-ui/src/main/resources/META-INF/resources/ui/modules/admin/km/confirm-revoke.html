@@ -21,6 +21,6 @@ Revoking an access key <strong>cannot be undone!</strong>
 Once being revoked, the access key owner is not allowed to access RBMS any longer.
 </ui-note>
 </ui-message>
-<ui-approve name="revoke" danger rolesAllowed="Administrator">Confirm</ui-approve>
+<ui-approve name="revoke" danger scopesAllowed="adm adm.accesskeys">Confirm</ui-approve>
 <ui-decline href="accesskey.html?key={{key_id}}">Cancel</ui-decline>
 </ui-confirm>

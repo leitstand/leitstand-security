@@ -16,30 +16,32 @@
 package io.leitstand.security.sso.oidc;
 
 import static io.leitstand.security.auth.UserName.userName;
-import static io.leitstand.security.sso.oidc.UserInfo.newUserInfo;
+import static io.leitstand.security.sso.oidc.OidcUserInfo.newUserInfo;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
-import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.SecurityContext;
 
+import io.leitstand.commons.rs.Resource;
 import io.leitstand.security.users.service.UserService;
 import io.leitstand.security.users.service.UserSettings;
 
-@RequestScoped
+@Resource
 @Path("/oidc/userinfo")
+@Consumes(APPLICATION_JSON)
+@Produces(APPLICATION_JSON)
 public class UserInfoResource {
 
 	@Inject
 	private UserService users;
 	
 	@GET
-	@Produces(APPLICATION_JSON)
-	public UserInfo getUserInfo(@Context SecurityContext context) {
+	public OidcUserInfo getUserInfo(@Context SecurityContext context) {
 		
 		UserSettings user = users.getUser(userName(context.getUserPrincipal()));
 		

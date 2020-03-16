@@ -93,6 +93,10 @@ public class Secret implements Serializable{
 		return Base64.getEncoder().encodeToString(value);
 	}
 	
+	public int bitlength() {
+		return value.length*8;
+	}
+	
 	/**
 	 * Overwrites the secret with null values to remove it from memory.
 	 */

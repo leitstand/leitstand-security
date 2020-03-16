@@ -18,14 +18,15 @@ package io.leitstand.security.users.rs;
 import static io.leitstand.commons.model.ObjectUtil.isDifferent;
 import static io.leitstand.commons.model.Patterns.UUID_PATTERN;
 import static io.leitstand.commons.rs.ReasonCode.VAL0003E_IMMUTABLE_ATTRIBUTE;
-import static io.leitstand.security.auth.Role.ADMINISTRATOR;
-import static io.leitstand.security.auth.Role.SYSTEM;
+import static io.leitstand.security.users.rs.Scopes.ADM;
+import static io.leitstand.security.users.rs.Scopes.ADM_READ;
+import static io.leitstand.security.users.rs.Scopes.ADM_USER;
+import static io.leitstand.security.users.rs.Scopes.ADM_USER_READ;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
-import javax.annotation.security.RolesAllowed;
-import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.validation.Valid;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -36,17 +37,19 @@ import javax.ws.rs.Produces;
 
 import io.leitstand.commons.ConflictException;
 import io.leitstand.commons.messages.Messages;
+import io.leitstand.commons.rs.Resource;
+import io.leitstand.security.auth.Scopes;
 import io.leitstand.security.auth.UserId;
 import io.leitstand.security.auth.UserName;
 import io.leitstand.security.users.service.UserService;
 import io.leitstand.security.users.service.UserSettings;
 
-//TODO Name clashes
 /**
  * The REST API resource to manage a user account.
  */
-@RequestScoped
+@Resource
 @Path("/users")
+@Consumes(APPLICATION_JSON)
 @Produces(APPLICATION_JSON)
 public class UserResource {
 	
@@ -75,7 +78,7 @@ public class UserResource {
 	 */
 	@GET
 	@Path("/{user}")
-	@RolesAllowed({ADMINISTRATOR,SYSTEM})
+	@Scopes({ADM, ADM_USER, ADM_READ, ADM_USER_READ})
 	public UserSettings getUserSettings(@Valid @PathParam("user") UserName userName) {
 		return service.getUser(userName);
 	}
@@ -87,7 +90,7 @@ public class UserResource {
 	 */
 	@GET
 	@Path("/{user:"+UUID_PATTERN+"}")
-	@RolesAllowed({ADMINISTRATOR,SYSTEM})
+	@Scopes({ADM, ADM_USER, ADM_READ, ADM_USER_READ})
 	public UserSettings getUserSettings(@PathParam("user") UserId userId) {
 		return service.getUser(userId);
 	}
@@ -104,7 +107,7 @@ public class UserResource {
 	 */
 	@PUT
 	@Path("/{user:"+UUID_PATTERN+"}")
-	@RolesAllowed({ADMINISTRATOR,SYSTEM})
+	@Scopes({ADM, ADM_USER})
 	public Messages storeUserSettings(@PathParam("user") UserId userId, 
 									  @Valid UserSettings settings) {
 		
@@ -126,7 +129,7 @@ public class UserResource {
 	 */
 	@POST
 	@Path("/{user:"+UUID_PATTERN+"}/_passwd")
-	@RolesAllowed({ADMINISTRATOR,SYSTEM})
+	@Scopes({ADM, ADM_USER})
 	public Messages storePassword(@Valid @PathParam("user") UserId userId, 
 							      @Valid ChangePasswordRequest passwd) {
 		service.setPassword(userId, 
@@ -145,7 +148,7 @@ public class UserResource {
 	 */
 	@POST
 	@Path("/{user}/_passwd")
-	@RolesAllowed({ADMINISTRATOR,SYSTEM})
+	@Scopes({ADM, ADM_USER})
 	public Messages storePassword(@Valid @PathParam("user") UserName userName, 
 							      @Valid ChangePasswordRequest passwd) {
 		service.setPassword(userName, 
@@ -165,7 +168,7 @@ public class UserResource {
 	 */
 	@POST
 	@Path("/{user:"+UUID_PATTERN+"}/_reset")
-	@RolesAllowed({ADMINISTRATOR,SYSTEM})
+	@Scopes({ADM, ADM_USER})
 	public Messages reset(@PathParam("user") UserId userId, 
 						  @Valid ResetPasswordRequest passwd) {
 		service.resetPassword(userId, 
@@ -184,7 +187,7 @@ public class UserResource {
 	 */
 	@POST
 	@Path("/{user}/_reset")
-	@RolesAllowed({ADMINISTRATOR,SYSTEM})
+	@Scopes({ADM, ADM_USER})
 	public Messages reset(@Valid @PathParam("user") UserName userName, 
 						  @Valid ResetPasswordRequest passwd) {
 		service.resetPassword(userName, 
@@ -201,7 +204,7 @@ public class UserResource {
 	 */
 	@DELETE
 	@Path("/{user:"+UUID_PATTERN+"}")
-	@RolesAllowed({ADMINISTRATOR,SYSTEM})
+	@Scopes({ADM, ADM_USER})
 	public Messages removeUser(@PathParam("user") UserId userId) {
 		service.removeUser(userId);
 		return messages;
@@ -216,7 +219,7 @@ public class UserResource {
 	 */
 	@DELETE
 	@Path("/{user}")
-	@RolesAllowed({ADMINISTRATOR,SYSTEM})
+	@Scopes({ADM, ADM_USER})
 	public Messages removeUser(@Valid @PathParam("user") UserName userName) {
 		service.removeUser(userName);
 		return messages;

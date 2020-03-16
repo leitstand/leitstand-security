@@ -75,18 +75,11 @@ public class AccessKey extends AbstractEntity{
 	
 	@ElementCollection
 	@CollectionTable(schema="auth", 
-					 name="accesskey_method", 
+					 name="accesskey_scope", 
 					 joinColumns=@JoinColumn(name="accesskey_id", referencedColumnName="id"))
-	@Column(name="method")
-	private Set<String> methods;
+	@Column(name="scope")
+	private Set<String> scopes;
 
-	@ElementCollection
-	@CollectionTable(schema="auth", 
-			 name="accesskey_path", 
-			 joinColumns=@JoinColumn(name="accesskey_id", referencedColumnName="id"))
-	@Column(name="path")
-	private Set<String> paths;
-	
 	protected AccessKey() {
 		// JPA constructor
 	}
@@ -95,8 +88,7 @@ public class AccessKey extends AbstractEntity{
 					 AccessKeyName accessKeyName) {
 		this.uuid = accessKeyId;
 		this.name = accessKeyName;
-		this.methods = new TreeSet<>();
-		this.paths = new TreeSet<>();
+		this.scopes = new TreeSet<>();
 	}
 	
 
@@ -104,20 +96,12 @@ public class AccessKey extends AbstractEntity{
 		return uuid;
 	}
 	
-	public void addMethod(String method) {
-		this.methods.add(method);
+	public Set<String> getScopes() {
+		return unmodifiableSet(scopes);
 	}
 	
-	public void addPath(String path) {
-		this.paths.add(path);
-	}
-	
-	public Set<String> getPaths() {
-		return unmodifiableSet(paths);
-	}
-
-	public Set<String> getMethods() {
-		return unmodifiableSet(methods);
+	public void setScopes(Set<String> scopes) {
+		this.scopes = new TreeSet<>(scopes);
 	}
 
 	public AccessKeyName getAccessKeyName() {

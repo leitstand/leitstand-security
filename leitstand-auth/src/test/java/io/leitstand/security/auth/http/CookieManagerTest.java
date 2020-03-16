@@ -15,23 +15,26 @@
  */
 package io.leitstand.security.auth.http;
 
+import static io.leitstand.commons.model.ObjectUtil.asSet;
 import static io.leitstand.security.auth.UserName.userName;
-import static io.leitstand.security.auth.http.AccessToken.newAccessToken;
 import static io.leitstand.security.auth.http.HttpServletRequestMother.cookieAuthenticationRequest;
 import static io.leitstand.security.auth.user.UserInfo.newUserInfo;
-import static java.lang.Boolean.FALSE;
-import static java.lang.Boolean.TRUE;
+import static java.lang.System.currentTimeMillis;
 import static java.time.Duration.ofMinutes;
 import static javax.security.enterprise.identitystore.CredentialValidationResult.INVALID_RESULT;
 import static javax.security.enterprise.identitystore.CredentialValidationResult.NOT_VALIDATED_RESULT;
+import static javax.security.enterprise.identitystore.CredentialValidationResult.Status.INVALID;
 import static javax.security.enterprise.identitystore.CredentialValidationResult.Status.VALID;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentCaptor.forClass;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
+
+import java.util.Date;
+import java.util.Set;
 
 import javax.security.enterprise.identitystore.CredentialValidationResult;
 import javax.servlet.http.Cookie;
@@ -41,31 +44,32 @@ import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import io.leitstand.security.auth.jwt.JsonWebTokenConfig;
-import io.leitstand.security.auth.jwt.JsonWebTokenDecoder;
-import io.leitstand.security.auth.jwt.JsonWebTokenEncoder;
-import io.leitstand.security.auth.jwt.JsonWebTokenSignatureException;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
+import io.jsonwebtoken.security.SignatureException;
+import io.leitstand.security.auth.standalone.StandaloneLoginConfig;
+import io.leitstand.security.auth.user.CookieManager;
 import io.leitstand.security.auth.user.UserRegistry;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CookieManagerTest {
 
+	static Set<String> scopes(String... scopes){
+		return asSet(scopes);
+	}
+	
 	@Mock
 	private UserRegistry users;
 	
 	@Mock
-	private JsonWebTokenEncoder encoder;
+	private UserContextProvider userContext;
 	
 	@Mock
-	private JsonWebTokenDecoder decoder;
-	
-	@Mock
-	private JsonWebTokenConfig config;
+	private StandaloneLoginConfig loginConfig;
 	
 	@InjectMocks
 	private CookieManager manager = new CookieManager();
@@ -74,125 +78,121 @@ public class CookieManagerTest {
 	
 	@Before
 	public void setTokenConfig() {
-		when(config.getTimeToLive()).thenReturn(ofMinutes(60));
-		when(config.getRefreshInterval()).thenReturn(ofMinutes(1));
+		when(loginConfig.getTimeToLive()).thenReturn(ofMinutes(60));
+		when(loginConfig.getRefreshInterval()).thenReturn(ofMinutes(1));
 	}
 	
 	@Test
 	public void not_validated_when_no_cookies_are_present() {
+		when(loginConfig.isJwsEnabled()).thenReturn(true);
 		CredentialValidationResult result = manager.validateAccessToken(mock(HttpServletRequest.class), 
 							 											response);
 		assertEquals(NOT_VALIDATED_RESULT, result);
-		verifyZeroInteractions(users,
-							   encoder,
-							   decoder,
-							   config);
+		verifyZeroInteractions(users);
 	}
 	
 	@Test
 	public void not_validated_when_no_JWT_cookie_is_present() {
+		when(loginConfig.isJwsEnabled()).thenReturn(true);
 		HttpServletRequest request = mock(HttpServletRequest.class);
 		when(request.getCookies()).thenReturn(new Cookie[0]);
 		
 		CredentialValidationResult result = manager.validateAccessToken(request, 
 																		response);
 		assertEquals(NOT_VALIDATED_RESULT, result);
-		verifyZeroInteractions(users,
-				   			   encoder,
-				   			   decoder,
-				   			   config);
+		verifyZeroInteractions(users);
 	}
 	
 	@Test
-	public void grant_access_when_access_token_is_valid() {
-		AccessToken token = newAccessToken()
-							.withUserName(userName("unittest"))
-							.withRoles("a","b")
-							.build();
-		when(decoder.decode(AccessToken.class, AccessToken.Payload.class, "TOKEN")).thenReturn(token);
+	public void deny_access_when_access_token_is_valid_but_does_not_include_requested_scope() {
+		when(loginConfig.isJwsEnabled()).thenReturn(true);
+		Claims claims = mock(Claims.class);
+		when(claims.get("scope",String.class)).thenReturn("a b");
+		when(claims.get("preferred_username",String.class)).thenReturn("unittest");
+		
+		Jws<Claims> jws = mock(Jws.class);
+		when(jws.getBody()).thenReturn(claims);
+		
+		when(loginConfig.decodeJws("TOKEN")).thenReturn(jws);
+		
 		CredentialValidationResult result = manager.validateAccessToken(cookieAuthenticationRequest(), 
 																 		response);
-		assertEquals(VALID, result.getStatus());
-		assertEquals("unittest",result.getCallerPrincipal().getName());
-		assertTrue(result.getCallerGroups().contains("a"));
-		assertTrue(result.getCallerGroups().contains("b"));
-		verifyZeroInteractions(users,
-							   encoder);
+		assertEquals(INVALID, result.getStatus());
+		assertTrue(result.getCallerGroups().isEmpty());
+		verifyZeroInteractions(users);
 	}
 	
+	
 	@Test
-	public void renew_cookie_when_cookie_is_expired(){
-		AccessToken token = spy(newAccessToken()
-								.withUserName(userName("unittest"))
-								.withRoles("a","b")
-								.build());		
-		when(token.getUserName()).thenReturn(userName("unittest"));
-		when(token.isExpired()).thenReturn(FALSE);
-		when(token.isExpiringWithin(config.getRefreshInterval())).thenReturn(TRUE);
-		
+	public void renew_cookie_when_valid_cookie_is_about_to_expire(){
+		when(loginConfig.isJwsEnabled()).thenReturn(true);
+		Claims claims = mock(Claims.class);
+		when(claims.getSubject()).thenReturn("unittest");
+		when(claims.get("scope",String.class)).thenReturn("a b");
+		when(claims.getExpiration()).thenReturn(new Date(currentTimeMillis()+10000));
+		Jws<Claims> jws = mock(Jws.class);
+		when(jws.getBody()).thenReturn(claims);
+		when(loginConfig.decodeJws(anyString())).thenReturn(jws);
 		when(users.getUserInfo(userName("unittest"))).thenReturn(newUserInfo()
 																 .withUserName(userName("unittest"))
 																 .build());
 		
-		ArgumentCaptor<AccessToken> newTokenCaptor = forClass(AccessToken.class);
-		
-		when(decoder.decode(AccessToken.class, AccessToken.Payload.class, "TOKEN")).thenReturn(token);
-		when(encoder.encode(newTokenCaptor.capture())).thenReturn("NEWTOKEN");
 		
 		
-		CredentialValidationResult result = manager.validateAccessToken(cookieAuthenticationRequest(), 
+	
+		HttpServletRequest request = cookieAuthenticationRequest();
+
+		CredentialValidationResult result = manager.validateAccessToken(request, 
 													 			 		response);
 		assertEquals(VALID, result.getStatus());
-		assertEquals(userName("unittest"),newTokenCaptor.getValue().getUserName());
 	}
 	
-	@Test
-	public void do_not_renew_cookie_when_cookie_is_expired_and_user_does_not_exist_anymore(){
-		AccessToken token = spy(newAccessToken()
-								.withUserName(userName("unittest"))
-								.withRoles("a","b")
-								.build());		
-		when(token.getUserName()).thenReturn(userName("unittest"));
-		when(token.isExpired()).thenReturn(TRUE);
-		
-		when(decoder.decode(AccessToken.class, AccessToken.Payload.class, "TOKEN")).thenReturn(token);
-
-		
-		
-		CredentialValidationResult result = manager.validateAccessToken(cookieAuthenticationRequest(), 
-											 			 		 	    response);
-		assertEquals(INVALID_RESULT, result);
-		verifyZeroInteractions(encoder);
-	}
 	
 	@Test
 	public void reject_access_when_cookie_is_outdated() {
-		AccessToken token = spy(newAccessToken()
-								.withUserName(userName("unittest"))
-								.withRoles("a","b")
-								.build());		
-		when(token.getUserName()).thenReturn(userName("unittest"));
-		when(token.isExpired()).thenReturn(TRUE);
+		when(loginConfig.isJwsEnabled()).thenReturn(true);
+		Claims claims = mock(Claims.class);
+		when(claims.get("scope",String.class)).thenReturn("a b");
+		when(claims.get("preferred_username",String.class)).thenReturn("unittest");
+		when(claims.getExpiration()).thenReturn(new Date(currentTimeMillis()-1000));
+		
+		Jws<Claims> jws = mock(Jws.class);
+		when(jws.getBody()).thenReturn(claims);
+		
+		when(loginConfig.decodeJws("TOKEN")).thenReturn(jws);
 
-		when(decoder.decode(AccessToken.class, AccessToken.Payload.class, "TOKEN")).thenReturn(token);
 
 		CredentialValidationResult result = manager.validateAccessToken(cookieAuthenticationRequest(), 
 							 			 		 				 		response);
 		assertEquals(INVALID_RESULT, result);	
-		verifyZeroInteractions(users,
-   			   				   encoder);
+		verifyZeroInteractions(users);
 	}
 	
 	@Test
 	public void reject_access_when_access_token_is_invalid() {
-		when(decoder.decode(AccessToken.class, AccessToken.Payload.class, "TOKEN")).thenThrow(new JsonWebTokenSignatureException("invalid token"));
+		when(loginConfig.isJwsEnabled()).thenReturn(true);
+		Claims claims = mock(Claims.class);
+		when(claims.get("scope",String.class)).thenReturn("a b");
+		when(claims.get("preferred_username",String.class)).thenReturn("unittest");
+		
+		Jws<Claims> jws = mock(Jws.class);
+		when(jws.getBody()).thenReturn(claims);
+		
+		when(loginConfig.decodeJws("TOKEN")).thenThrow(new SignatureException("unittest"));
+		
 		CredentialValidationResult result = manager.validateAccessToken(cookieAuthenticationRequest(), 
 																		response);
 		assertEquals(INVALID_RESULT, result);
-		verifyZeroInteractions(users,
-						   	   encoder);
+		verifyZeroInteractions(users);
 	}
 	
 
+	@Test
+	public void do_nothing_when_standalone_is_disabled() {
+		when(loginConfig.isJwsEnabled()).thenReturn(false);
+		
+		assertEquals(NOT_VALIDATED_RESULT, manager.validateAccessToken(cookieAuthenticationRequest(), response));
+		assertFalse(manager.issueAccessToken(cookieAuthenticationRequest(), response, userName("unittest")));
+	}
 	
 }

@@ -17,6 +17,7 @@ package io.leitstand.security.users.auth;
 
 import static io.leitstand.security.auth.UserName.userName;
 import static io.leitstand.security.users.service.ReasonCode.IDM0004E_USER_NOT_FOUND;
+import static io.leitstand.security.users.service.RoleName.roleName;
 import static io.leitstand.security.users.service.UserSettings.newUserSettings;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
@@ -63,13 +64,18 @@ public class DefaultUserRegistryTest {
 		UserName userName = userName("UnitTest");
 		UserSettings settings = newUserSettings()
 								.withUserName(userName)
-								.withRoles("Administrator","Operator")
+								.withScopes("admin","element","pod","image","metric")
 								.build();
 		when(users.getUser(userName)).thenReturn(settings);
 		UserInfo userInfo = registry.getUserInfo(userName);
 		assertEquals(userName,userInfo.getUserName());
-		assertTrue(userInfo.getRoles().contains("Operator"));
-		assertTrue(userInfo.getRoles().contains("Administrator"));
+		assertTrue(userInfo.getScopes().contains("admin"));
+		assertTrue(userInfo.getScopes().contains("element"));
+		assertTrue(userInfo.getScopes().contains("pod"));
+		assertTrue(userInfo.getScopes().contains("image"));
+		assertTrue(userInfo.getScopes().contains("metric"));
+		
+		
 	}
 	
 	@Test
@@ -81,19 +87,19 @@ public class DefaultUserRegistryTest {
 	}
 	
 	@Test
-	public void accept_login_attempt_with_invalid_credentials() {
+	public void accept_login_attempt_with_valid_credentials() {
 		UserName userName = userName("UnitTest");
 		UserSettings settings = newUserSettings()
 								.withUserName(userName)
-								.withRoles("Administrator","Operator")
+								.withRoles(roleName("Administrator"),roleName("Operator"))
 								.build();
 		Password passwd = new Password("password");
 		when(users.getUser(userName)).thenReturn(settings);		
 		when(users.isValidPassword(userName, passwd)).thenReturn(TRUE);
 		CredentialValidationResult result = registry.validateCredentials(new UsernamePasswordCredential("UnitTest", passwd));
 		assertEquals("UnitTest",result.getCallerPrincipal().getName());
-		assertTrue(result.getCallerGroups().contains("Administrator"));
-		assertTrue(result.getCallerGroups().contains("Operator"));
+		// Caller Groups is supposed to be empty because of scope-based authentication
+		assertTrue(result.getCallerGroups().isEmpty());
 	}
 	
 }

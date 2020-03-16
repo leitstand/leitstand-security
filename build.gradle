@@ -77,6 +77,12 @@ sonarqube {
     }
 }
 
+project(':leitstand-security-ui') {
+    sonarqube {
+        skipProject = true
+    }
+}
+
 subprojects {
     sonarqube {
         properties {

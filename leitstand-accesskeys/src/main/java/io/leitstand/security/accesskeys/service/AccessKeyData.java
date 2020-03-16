@@ -16,7 +16,7 @@
 package io.leitstand.security.accesskeys.service;
 
 import static io.leitstand.commons.model.BuilderUtil.assertNotInvalidated;
-import static java.util.Arrays.asList;
+import static io.leitstand.commons.model.ObjectUtil.asSet;
 import static java.util.Collections.emptySortedSet;
 import static java.util.Collections.unmodifiableSortedSet;
 
@@ -36,37 +36,23 @@ public class AccessKeyData extends AccessKeyMetaData{
 			super(new AccessKeyData());
 		}
 		
-		public Builder withPaths(String... paths) {
-			return withPaths(new TreeSet<>(asList(paths)));
+		public Builder withScopes(String... scopes) {
+			return withScopes(asSet(scopes));
 		}
 		
-		public Builder withPaths(Set<String> paths) {
+		public Builder withScopes(Set<String> methods) {
 			assertNotInvalidated(getClass(), instance);
-			instance.paths = new TreeSet<>(paths);
-			return this;
-		}
-		
-		public Builder withMethods(String... methods) {
-			return withMethods(new TreeSet<>(asList(methods)));
-		}
-		
-		public Builder withMethods(Set<String> methods) {
-			assertNotInvalidated(getClass(), instance);
-			instance.methods = new TreeSet<>(methods);
+			instance.scopes = new TreeSet<>(methods);
 			return this;
 		}
 		
 	}
 	
-	private SortedSet<String> paths = emptySortedSet();
-	private SortedSet<String> methods = emptySortedSet();	
+	private SortedSet<String> scopes = emptySortedSet();
 	
-	public SortedSet<String> getPaths() {
-		return unmodifiableSortedSet(paths);
-	}
-	
-	public SortedSet<String> getMethods() {
-		return unmodifiableSortedSet(methods);
+
+	public SortedSet<String> getScopes() {
+		return unmodifiableSortedSet(scopes);
 	}
 	
 

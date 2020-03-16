@@ -81,30 +81,9 @@ let newAccessKeyController = function() {
 			"create-accesskey":function(){
 				var submission = { "key_name" : this.input("key_name").value(),	
 						    	   "description" : this.input("description").value(),
-						    	   "methods": this.input("method").values(), 
-						    	   "paths": this.input("path").values() };
+						    	   "scopes": this.input("scope").values() };
 				
 				keys.addAccessKey(submission);
-			},
-			"select-all-methods":function(){
-				this.elements("input[name='method']").forEach(function(element){
-					element.check(true);
-				});
-			},
-			"deselect-all-methods":function(){
-				this.elements("input[name='method']").forEach(function(element){
-					element.check(false);
-				});
-			},
-			"select-all-paths":function(){
-				this.elements("input[name='path']").forEach(function(element){
-					element.check(true);
-				});
-			},
-			"deselect-all-paths":function(){
-				this.elements("input[name='path']").forEach(function(element){
-					element.check(false);
-				});
 			}
 		},
 		onCreated:function(location,token){

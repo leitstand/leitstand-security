@@ -15,8 +15,10 @@
  */
 package io.leitstand.security.users.rs;
 
-import static io.leitstand.security.auth.Role.ADMINISTRATOR;
-import static io.leitstand.security.auth.Role.SYSTEM;
+import static io.leitstand.security.users.rs.Scopes.ADM;
+import static io.leitstand.security.users.rs.Scopes.ADM_READ;
+import static io.leitstand.security.users.rs.Scopes.ADM_USER;
+import static io.leitstand.security.users.rs.Scopes.ADM_USER_READ;
 import static java.lang.String.format;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.Response.created;
@@ -24,10 +26,9 @@ import static javax.ws.rs.core.Response.created;
 import java.net.URI;
 import java.util.List;
 
-import javax.annotation.security.RolesAllowed;
-import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.validation.Valid;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -36,6 +37,8 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
 import io.leitstand.commons.messages.Messages;
+import io.leitstand.commons.rs.Resource;
+import io.leitstand.security.auth.Scopes;
 import io.leitstand.security.users.service.UserReference;
 import io.leitstand.security.users.service.UserService;
 import io.leitstand.security.users.service.UserSubmission;
@@ -43,8 +46,10 @@ import io.leitstand.security.users.service.UserSubmission;
 /**
  * The REST API resource to query for users or add new user accounts.
  */
-@RequestScoped
+@Resource
 @Path("/users")
+@Scopes({ADM, ADM_USER})
+@Consumes(APPLICATION_JSON)
 @Produces(APPLICATION_JSON)
 public class UsersResource {
 
@@ -61,8 +66,7 @@ public class UsersResource {
 	 */
 	@GET
 	@Path("/")
-	@Produces(APPLICATION_JSON)
-	@RolesAllowed({ADMINISTRATOR,SYSTEM})
+	@Scopes({ADM, ADM_USER, ADM_READ, ADM_USER_READ})
 	public List<UserReference> findUsers(@QueryParam("filter") String filter){
 		return service.findUsers(filter);
 	}
@@ -74,7 +78,6 @@ public class UsersResource {
 	 */
 	@POST
 	@Path("/")
-	@RolesAllowed({ADMINISTRATOR,SYSTEM})
 	public Response storeUserSettings(@Valid UserSubmission user) {
 		service.addUser(user);
 		return created(URI.create(format("/api/v1/users/%s",

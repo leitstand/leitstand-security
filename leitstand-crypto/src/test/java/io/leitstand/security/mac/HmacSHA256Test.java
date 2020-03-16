@@ -45,13 +45,13 @@ public class HmacSHA256Test {
 	
 	
 	@Test
-	public void accept_message_with_correct_mac(){
+	public void accept_matching_mac(){
 		assertTrue(hmacSha256(secret).isValid(message,mac));
 		
 	}
 	
 	@Test
-	public void discard_message_with_incorrect_mac(){
+	public void reject_mismatching_mac(){
 		assertFalse(hmacSha256(new Secret(toUtf8Bytes("different_secret"))).isValid(message,mac));
 
 	}

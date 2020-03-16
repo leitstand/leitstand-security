@@ -40,15 +40,14 @@ import io.leitstand.commons.EntityNotFoundException;
 import io.leitstand.commons.UniqueKeyConstraintViolationException;
 import io.leitstand.commons.model.Repository;
 import io.leitstand.commons.model.Service;
-import io.leitstand.security.accesskeys.auth.AccessKeys;
 import io.leitstand.security.accesskeys.event.AccessKeyEvent;
 import io.leitstand.security.accesskeys.service.AccessKeyData;
 import io.leitstand.security.accesskeys.service.AccessKeyMetaData;
 import io.leitstand.security.accesskeys.service.AccessKeyService;
-import io.leitstand.security.auth.UserName;
 import io.leitstand.security.auth.accesskey.AccessKeyId;
 import io.leitstand.security.auth.accesskey.ApiAccessKey;
 import io.leitstand.security.auth.accesskey.ApiAccessKeyEncoder;
+import io.leitstand.security.auth.accesskeys.AccessKeys;
 
 @Service
 public class DefaultAccessKeyService implements AccessKeyService{
@@ -84,8 +83,7 @@ public class DefaultAccessKeyService implements AccessKeyService{
 			   .withAccessKeyName(key.getAccessKeyName())
 			   .withDescription(key.getDescription())
 			   .withDateCreated(key.getDateCreated())
-			   .withMethods(key.getMethods())
-			   .withPaths(key.getPaths())
+			   .withScopes(key.getScopes())
 			   .build();
 	
 	}
@@ -110,21 +108,14 @@ public class DefaultAccessKeyService implements AccessKeyService{
 		
 		key = new AccessKey(accessKeyId,accessKey.getAccessKeyName());
 		key.setDescription(accessKey.getDescription());
-		for(String method : accessKey.getMethods()) {
-			key.addMethod(method);
-		}
-		for(String path: accessKey.getPaths()) {
-			key.addPath(path);
-		}
-		
+		key.setScopes(accessKey.getScopes());
 		repository.add(key);
 		
 		ApiAccessKey token = newApiAccessKey()
 							 .withId(key.getAccessKeyId())
 							 .withUserName(userName(key.getAccessKeyName().getValue()))
 							 .withDateCreated(key.getDateCreated())
-							 .withMethods(key.getMethods())
-							 .withPaths(key.getPaths())
+							 .withScopes(key.getScopes())
 							 .build();
 		
 		events.fire(newAccessKeyEvent()

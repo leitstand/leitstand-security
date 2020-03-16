@@ -46,6 +46,13 @@ public final class SecureHashes {
 		return new SecureHashFunction(createMessageDigest("SHA-256"));
 	}
 
+	/**
+	 * Creates a function to compute SHA-512 hashes.
+	 * @return a function to compute SHA-512 hashes.
+	 */
+	public static SecureHashFunction sha512(){
+		return new SecureHashFunction(createMessageDigest("SHA-512"));
+	}
 
 	private static MessageDigest createMessageDigest(String algorithm) {
 		try{

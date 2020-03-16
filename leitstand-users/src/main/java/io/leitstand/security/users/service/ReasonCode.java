@@ -35,13 +35,22 @@ public enum ReasonCode implements Reason{
 	IDM0005E_INCORRECT_PASSWORD, 
 	/** The user role does not exist.*/
 	IDM0006E_ROLE_NOT_FOUND,
-	/** The attempted operation was rejected because athe user has no administrator privileges.*/
+	/** The attempted operation was rejected because the user has no administrator privileges.*/
 	IDM0007E_ADMIN_PRIVILEGES_REQUIRED, 
 	/** The password cannot be changed because the new password and the confirmed password mismatch.*/
 	IDM0008E_PASSWORD_MISMATCH,
-	/** The user has beem removed from the identity management system.*/
-	IDM0009I_USER_REMOVED;
-		
+	/** The user has been removed from the identity management system.*/
+	IDM0009I_USER_REMOVED,
+	/** The role has been removed from the identity management system.*/
+	IDM0010I_ROLE_REMOVED,
+	/** The role has been stored in the identity management system.*/
+	IDM0011I_ROLE_STORED,
+	/** Rejected attempt to add a system role*/
+	IDM0100E_CANNOT_ADD_SYSTEM_ROLE,
+	/** Rejected attempt to modify a system role*/
+	IDM0101E_CANNOT_UPDATE_SYSTEM_ROLE,
+	/** Rejected attempt to remove a system role*/
+	IDM0102E_CANNOT_REMOVE_SYSTEM_ROLE;
 	
 	private static final ResourceBundle MESSAGES = ResourceBundle.getBundle("UserMessages");
 	

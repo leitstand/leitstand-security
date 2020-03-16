@@ -16,14 +16,11 @@
 package io.leitstand.security.sso.oidc;
 
 import static io.leitstand.commons.messages.MessageFactory.createMessage;
-import static io.leitstand.security.users.model.Role.findRoleByName;
+import static io.leitstand.security.auth.UserId.userId;
 import static io.leitstand.security.users.model.User.findUserByName;
 import static io.leitstand.security.users.service.ReasonCode.IDM0001I_USER_STORED;
 import static java.lang.String.format;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -31,10 +28,8 @@ import javax.inject.Inject;
 import io.leitstand.commons.messages.Messages;
 import io.leitstand.commons.model.Repository;
 import io.leitstand.commons.model.Service;
-import io.leitstand.security.auth.UserId;
 import io.leitstand.security.auth.UserName;
 import io.leitstand.security.users.model.IdentityManagement;
-import io.leitstand.security.users.model.Role;
 import io.leitstand.security.users.model.User;
 
 @Service
@@ -49,47 +44,25 @@ public class OidcUserService {
 	@IdentityManagement
 	private Repository repository;
 	
-	@Inject
-	private OidcConfig config;
 	
-	
-	public Set<String> storeUser(UserInfo userInfo) {
+	public void storeUser(OidcUserInfo userInfo) {
 		UserName userName = userInfo.getUserName();
 		User user = repository.execute(findUserByName(userName));
 		if(user == null) {
-			user = new User(userName);
+			user = new User(userId(userInfo.getSub())  ,userName);
 			repository.add(user);
 		}
 		user.setGivenName(userInfo.getGivenName());
 		user.setFamilyName(userInfo.getFamilyName());
 		user.setEmailAddress(userInfo.getEmail());
 		
-		UserId userId = user.getUserId();
-		LOG.fine(() -> format("%s: User %s (%s) stored.",
+		LOG.fine(() -> format("%s: User %s stored.",
 					          IDM0001I_USER_STORED.getReasonCode(),
-					          userName, 
-					          userId));
+					          userName));
 		messages.add(createMessage(IDM0001I_USER_STORED, 
-				     userId,
+					 user.getUserId(),
 				     userName));
 
-		if(config.isCustomRolesClaimEnabled() && userInfo.getRoles() != null) {
-			user.setRoles(loadRoles(userInfo.getRoles()));
-		}
-		return user.getRoleNames();
 	}
-	
-	private List<Role> loadRoles(Set<String> roleNames) {
-		List<Role> roles = new LinkedList<>();
-		for(String roleName : roleNames) {
-			Role role = repository.execute(findRoleByName(roleName));
-			if(role == null) {
-				continue;
-			}
-			roles.add(role);
-		}
-		return roles;
-	}
-
 	
 }

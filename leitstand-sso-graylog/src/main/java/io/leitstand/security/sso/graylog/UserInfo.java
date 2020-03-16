@@ -76,6 +76,7 @@ public class UserInfo extends ValueObject{
 				this.userInfo = null;
 			}
 		}
+
 	}
 	
 	private String name;

@@ -52,6 +52,7 @@ import io.leitstand.security.auth.UserName;
 import io.leitstand.security.auth.jpa.UserNameConverter;
 import io.leitstand.security.users.jpa.EmailAddressConverter;
 import io.leitstand.security.users.service.EmailAddress;
+import io.leitstand.security.users.service.RoleName;
 
 /**
  * A user account.
@@ -129,7 +130,7 @@ public class User extends AbstractEntity {
 			   joinColumns= @JoinColumn(name="userdata_id", referencedColumnName="id"),
 			   inverseJoinColumns=@JoinColumn(name="userrole_id",referencedColumnName="id"))
 	@MapKey(name="name")
-	private Map<String,Role> roles;
+	private Map<RoleName,Role> roles;
 	
 	/**
 	 * JPA constructor
@@ -260,7 +261,7 @@ public class User extends AbstractEntity {
 	 * Returns the names of all associated roles.
 	 * @return an unmodifiable set of the names of all associated roles.
 	 */
-	public Set<String> getRoleNames(){
+	public Set<RoleName> getRoleNames(){
 		return unmodifiableSet(roles.keySet());
 	}
 	
@@ -302,12 +303,12 @@ public class User extends AbstractEntity {
 		
 		// Remove all revoked roles
 		for(Role revoked : revRoles) {
-			this.roles.remove(revoked.getName());
+			this.roles.remove(revoked.getRoleName());
 		}
 		
 		// Add all roles not yet been assigned to the user.
 		for(Role newRole : newRoles) {
-			this.roles.put(newRole.getName(),newRole);
+			this.roles.put(newRole.getRoleName(),newRole);
 		}
 	}
 
@@ -316,8 +317,22 @@ public class User extends AbstractEntity {
 	 * @param name the role to be checked
 	 * @return <code>true</code> if the user has the given role, <code>false</code> otherwise.
 	 */
-	public boolean isUserInRole(String name) {
+	public boolean isUserInRole(RoleName name) {
 		return roles.containsKey(name);
+	}
+	
+	/**
+	 * Checks whether this user is allowed to access the specified scope.
+	 * @param scope the scope name
+	 * @return <code>true</code> when the user is allowed to access the specified scope.
+	 */
+	public boolean canAccessScope(String scope) {
+		for(Role role : roles.values()) {
+			if(role.includesScope(scope)) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	/**
@@ -349,6 +364,14 @@ public class User extends AbstractEntity {
 	public void setAccessTokenTtl(long duration, TimeUnit unit) {
 		this.tokenTtl = (int) duration;
 		this.tokenTtlUnit = unit;
+	}
+
+	public Set<String> getScopes() {
+		Set<String> scopes = new TreeSet<>();
+		for(Role role : roles.values()) {
+			scopes.addAll(role.getScopes());
+		}
+		return unmodifiableSet(scopes);
 	}
 	
 	
