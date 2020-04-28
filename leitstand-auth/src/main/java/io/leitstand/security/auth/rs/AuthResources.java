@@ -28,7 +28,8 @@ public class AuthResources implements ApiResourceProvider{
 
 	@Override
 	public Set<Class<?>> getResources() {
-		return asSet(LoginResource.class);
+		return asSet(LoginResource.class,
+				     ScopesResource.class);
 	}
 
 }
