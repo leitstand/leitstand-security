@@ -1,0 +1,28 @@
+name: accesskey management
+provider: rtbrick.com
+description: Accesskey management UI contribution for the Leitstand administration console.
+extensions:
+- extend:
+    module: admin
+    menu: main
+    after: webhooks
+#    before: users
+  items:
+  - item: accesskeys
+    label: Access Keys
+    title: View and manage access keys
+    view: accesskeys.html
+    scopesAllowed: 
+    - adm 
+    - adm.read
+    - adm.accesskey
+    - adm.accesskey.read
+  - item: accesskeys_validation
+    label: Access Key Validator
+    title: Validate an API access token
+    view: validator.html
+    scopesAllowed: 
+    - adm 
+    - adm.read
+    - adm.accesskey
+    - adm.accesskey.read

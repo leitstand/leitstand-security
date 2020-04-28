@@ -1,0 +1,13 @@
+name: accesskey management
+provider: rtbrick.com
+description: Accesskey management UI contribution for the Leitstand administration console.
+extensions:
+- extend:
+    module: admin
+    menu: users
+    after: roles
+  items:
+  - item: audit
+    label: Login Audit
+    title: Show user login audit log
+    view: log/records.html
