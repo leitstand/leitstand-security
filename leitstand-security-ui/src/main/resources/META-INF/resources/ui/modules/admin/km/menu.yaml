@@ -6,7 +6,7 @@ extensions:
     module: admin
     menu: main
     after: webhooks
-#    before: users
+    before: users
   items:
   - item: accesskeys
     label: Access Keys
