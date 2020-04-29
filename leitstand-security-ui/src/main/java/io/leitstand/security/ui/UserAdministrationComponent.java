@@ -8,6 +8,7 @@ import static java.lang.Thread.currentThread;
 import java.io.IOException;
 import java.util.logging.Logger;
 
+import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.Produces;
 
 import io.leitstand.ui.model.Contribution;
@@ -18,18 +19,19 @@ import io.leitstand.ui.model.ModuleDescriptorException;
  * <p>
  * Loads the user management UI component contribution for the Leitstand administration console.
  */
+@Dependent
 public class UserAdministrationComponent {
 
 	private static final Logger LOG = Logger.getLogger(UserAdministrationComponent.class.getName());
 	
 	@Produces
-	public Contribution getWebhookAdminComponent() {
+	public Contribution getUserAdminComponent() {
 		
 		try {
 			return loadContribution(currentThread()
 									.getContextClassLoader()
-									.getResource("/META-INF/resources/ui/modules/admin/um/menu.yaml"))
-				   .withBaseUri("um")
+									.getResource("/META-INF/resources/ui/modules/admin/im/menu.yaml"))
+				   .withBaseUri("im")
 				   .build();
 		} catch (IOException e) {
 			LOG.warning(() -> format("%s: Cannot load user management UI: %s", 
@@ -37,7 +39,7 @@ public class UserAdministrationComponent {
 									 e.getMessage()));
 			throw new ModuleDescriptorException(e,
 												UIM0002E_CANNOT_PROCESS_MODULE_EXTENSION,
-												"um");
+												"im");
 		}
 		
 	}

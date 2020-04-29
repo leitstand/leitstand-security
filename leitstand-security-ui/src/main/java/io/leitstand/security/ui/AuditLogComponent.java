@@ -8,19 +8,21 @@ import static java.lang.Thread.currentThread;
 import java.io.IOException;
 import java.util.logging.Logger;
 
+import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.Produces;
 
 import io.leitstand.ui.model.Contribution;
 import io.leitstand.ui.model.ModuleDescriptorException;
 
 /**
- * User management UI component.
+ * User audit log UI component.
  * <p>
- * Loads the user management UI component contribution for the Leitstand administration console.
+ * Loads the user audit log UI component contribution for the Leitstand administration console.
  */
-public class UserAdministrationComponent2 {
+@Dependent
+public class AuditLogComponent {
 
-	private static final Logger LOG = Logger.getLogger(UserAdministrationComponent2.class.getName());
+	private static final Logger LOG = Logger.getLogger(AuditLogComponent.class.getName());
 	
 	@Produces
 	public Contribution getWebhookAdminComponent() {
@@ -28,16 +30,16 @@ public class UserAdministrationComponent2 {
 		try {
 			return loadContribution(currentThread()
 									.getContextClassLoader()
-									.getResource("/META-INF/resources/ui/modules/admin/um/menu.yaml"))
+									.getResource("/META-INF/resources/ui/modules/admin/log/menu.yaml"))
 				   .withBaseUri("um")
 				   .build();
 		} catch (IOException e) {
-			LOG.warning(() -> format("%s: Cannot load user management UI: %s", 
+			LOG.warning(() -> format("%s: Cannot load audit log UI: %s", 
 									 UIM0002E_CANNOT_PROCESS_MODULE_EXTENSION.getReasonCode(), 
 									 e.getMessage()));
 			throw new ModuleDescriptorException(e,
 												UIM0002E_CANNOT_PROCESS_MODULE_EXTENSION,
-												"um");
+												"log");
 		}
 		
 	}
