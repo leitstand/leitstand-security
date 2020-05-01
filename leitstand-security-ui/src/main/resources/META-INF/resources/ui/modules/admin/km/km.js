@@ -16,9 +16,7 @@
 import {Resource} from '/ui/js/client.js';
 
 //TODO JSDoc
-
-	
-export class AccessKeys extends Resource {
+export class Accesskeys extends Resource {
 	
 	constructor(cfg) {
 		super();
@@ -32,14 +30,14 @@ export class AccessKeys extends Resource {
 				   .GET();
 	}
 	
-	addAccessKey(settings){
+	addAccesskey(settings){
 		return this.json("/api/v1/accesskeys")
 		    	   .POST(settings);
 	}
 
 }
 
-export class AccessKey extends Resource {
+export class Accesskey extends Resource {
 	constructor(cfg) {
 		super();
 		this._cfg = cfg;

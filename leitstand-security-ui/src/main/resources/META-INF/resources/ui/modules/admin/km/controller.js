@@ -14,76 +14,73 @@
  * the License.
  */
 import {Controller,Menu} from '/ui/js/ui.js';
-import {AccessKeys,AccessKey} from './km.js';
+import {Accesskeys,Accesskey} from './km.js';
+import '../admin-components.js';
 
-let accessKeysController = function() {
-	var keys = new AccessKeys();
+const accesskeysController = function() {
+	const keys = new Accesskeys();
 	return new Controller({
 		resource:keys,
 		viewModel:function(keys){
-			return {"keys":keys,
-					"filter":this.location.param("filter")};
+			return {'keys':keys,
+					'filter':this.location.param('filter')};
 		},
 		buttons:{
-			"filter":function(){
-				this.reload({"filter":this.input("filter").value()});
+			'filter':function(){
+				this.reload({'filter':this.input('filter').value()});
 			}
 		}
 	});
 };
 
-
-let accessKeyController = function(){
-	let key = new AccessKey();
+const accesskeyController = function(){
+	const key = new Accesskey();
 	return new Controller({
 		resource:key,
 		buttons:{
-			"revoke":function(){
+			'revoke':function(){
 				key.revoke(this.location.params);
 			},
-			"save":function(){
+			'save':function(){
 				key.setDescription(this.location.params,
-								   this.input("description").value());
+								   this.input('description').value());
 			}
 		},
 		onSuccess:function(){
-			this.navigate("/ui/views/admin/km/accesskeys.html");
+			this.navigate('/ui/views/admin/km/accesskeys.html');
 		}
 	});
 };
 
-let validatorController = function() {
-	let key = new AccessKey();
+const validatorController = function() {
+	const key = new Accesskey();
 	return new Controller({
 		resource: key,
 		buttons:{
-			"validate":function(){
-				key.validate(this.input("accesskey").value());
+			'validate':function(){
+				key.validate(this.input('accesskey').value());
 			}
 		},
 		onError:function(){
-			this.renderView({"encoded":this.input("accesskey").value()});
+			this.renderView({'encoded':this.input('accesskey').value()});
 		},
 		onSuccess:function(accesskey){
-			this.renderView({"accesskey":accesskey,
-						     "encoded":this.input("accesskey").value()});
+			this.renderView({'accesskey':accesskey,
+						     'encoded':this.input('accesskey').value()});
 		}
 	});
 }
 
-
-
-let newAccessKeyController = function() {
-	let keys = new AccessKeys();
+const newAccesskeyController = function() {
+	const keys = new Accesskeys();
 	return new Controller({
 		resource:keys,
+		viewModel:function(){
+			return {};
+		},
 		buttons:{
-			"create-accesskey":function(){
-				var submission = { "key_name" : this.input("key_name").value(),	
-						    	   "description" : this.input("description").value(),
-						    	   "scopes": this.input("scope").values() };
-				
-				keys.addAccessKey(submission);
+			'create-accesskey':function(){
+				keys.addAccesskey(this.getViewModel());
 			}
 		},
 		onCreated:function(location,token){
@@ -91,19 +88,18 @@ let newAccessKeyController = function() {
 			this.renderView();
 		},
 		onConflict:function(message){
-			message.property="key_name";
+			message.property='key_name';
 			this.onInputError(message);
 		}
 	});
 };
 
-
-let usersMenu = {
-	"master" : accessKeysController(),
-	"details": { "new-accesskey.html" : newAccessKeyController(),
-				 "confirm-revoke.html" : accessKeyController(),
-				 "accesskey.html" : accessKeyController()}
+const accesskeysMenu = {
+	'master' : accesskeysController(),
+	'details': { 'new-accesskey.html' : newAccesskeyController(),
+				 'confirm-revoke.html' : accesskeyController(),
+				 'accesskey.html' : accesskeyController()}
 };
 
-export const menu = new Menu({"accesskeys.html":usersMenu,
-							  "validator.html":validatorController()});
+export const menu = new Menu({'accesskeys.html':accesskeysMenu,
+							  'validator.html':validatorController()});

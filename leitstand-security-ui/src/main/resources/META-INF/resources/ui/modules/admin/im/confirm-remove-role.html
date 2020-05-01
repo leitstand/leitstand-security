@@ -1,0 +1,24 @@
+<!--
+ Copyright 2020 RtBrick Inc.
+ 
+ Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ use this file except in compliance with the License.  You may obtain a copy
+ of the License at
+ 
+   http://www.apache.org/licenses/LICENSE-2.0
+ 
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
+ License for the specific language governing permissions and limitations under
+ the License.
+-->
+<ui-confirm>
+  <ui-title>Confirm remove role {{role_name}}</ui-title>
+  <ui-message>
+    <ui-note>Removing a role <strong>cannot be undone</strong>.
+  		   Once being removed, the role is not assigned to any user anymore.</ui-note>
+  </ui-message>
+  <ui-approve name="remove">Confirm</ui-approve>
+  <ui-decline href="role.html?role={{role_id}}">Dismiss</ui-decline>
+</ui-confirm>

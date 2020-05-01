@@ -60,17 +60,17 @@
 	</ui-group>
 	<ui-group>
 		<ui-label>Roles</ui-label>
-		<ui-note>Select the user's roles. A user without any role has read-only access.</ui-note>
+		<ui-note>Select the roles of this user.</ui-note>
 		<!--  {{#roles}} -->
-		<ui-checkbox name="role" bind="user.roles" value="{{name}}">
-			<ui-label>{{name}}</ui-label>
+		<ui-checkbox name="role" bind="user.roles" value="{{role_name}}">
+			<ui-label>{{role_name}}</ui-label>
 			<ui-note>{{description}}</ui-note>
 		</ui-checkbox>
 		<!-- {{/roles}} -->
 	</ui-group>
 	<ui-actions>
 		<ui-button name="save-settings" primary>Save settings</ui-button>
-		<ui-button href="confirm-remove.html?user={{user.uuid}}" danger>Remove user</ui-button>
-		<ui-button href="passwd.html?user={{user.uuid}}">Reset password</ui-button>
+		<ui-button href="confirm-remove-user.html?user={{user.user_id}}" danger>Remove user</ui-button>
+		<ui-button href="passwd.html?user={{user.user_id}}">Reset password</ui-button>
 	</ui-actions>
 </ui-form>

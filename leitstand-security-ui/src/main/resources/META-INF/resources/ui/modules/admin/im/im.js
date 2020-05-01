@@ -43,15 +43,11 @@ export class Roles extends Resource {
 				   .GET();
 	}
 
-}
-
-export class Scopes extends Resource {
-
-	load() {
-		return this.json("/api/v1/scopes")
-				   .GET();
+	addRole(params){
+		return this.json("/api/v1/userroles")
+				   .POST(params);
 	}
-
+	
 }
 
 export class Role extends Resource {
@@ -61,6 +57,16 @@ export class Role extends Resource {
 				   .GET();
 	}
 
+	storeRole(params){
+		return this.json("/api/v1/userroles/{{role}}",params)
+				   .PUT(params);
+	}
+	
+	removeRole(params){
+		return this.json("/api/v1/userroles/{{role}}",params)
+		   		   .DELETE(params);		
+	}
+	
 }
 
 export class User extends Resource {

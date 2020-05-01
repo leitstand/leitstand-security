@@ -19,8 +19,8 @@
 </ui-view-header>
 <ui-form>
 	<ui-group>
-		<ui-input name="user_id" bind="user.user_id">
-			<ui-label>User ID</ui-label>
+		<ui-input name="user_name" bind="user.user_name">
+			<ui-label>User Name</ui-label>
 			<ui-note>The user account login ID</ui-note>
 		</ui-input>
 		<ui-input name="email" bind="user.email">
@@ -74,11 +74,11 @@
 		<ui-label>Roles</ui-label>
 		<ui-note>Select the roles of the user.</ui-note>
 		<!--  {{#roles}} -->
-		<ui-checkbox name="role" bind="user.roles" value="{{name}}">
-			<ui-label>{{name}}</ui-label>
+		<ui-checkbox name="role" bind="user.roles" value="{{role_name}}">
+			<ui-label>{{role_name}}</ui-label>
 			<ui-note>{{description}}</ui-note>
 		</ui-checkbox>
-		<!--  {{/roles}} -->
+		<!-- {{/roles}} -->
 	</ui-group>
 	<ui-actions>
 		<ui-button name="add-user" primary>Add user</ui-button>
