@@ -34,12 +34,15 @@ const roleController = function(){
 		buttons:{
 			'save-settings':function(){
 				const settings = this.getViewModel();
-				role.saveSettings(this.location.params,
-								  this.settings)
+				role.store(this.location.params,
+						   settings)
 			},
 			'remove':function(){
 				role.removeRole(this.location.params);
 			}
+		},
+		onSuccess:function(){
+			this.navigate('roles.html');
 		}
 	})
 }
@@ -89,7 +92,7 @@ const userController = function() {
 		buttons:{
 			'save-settings':function(){
 				user.store(this.location.params,
-						   this.getViewModel("user"));
+						   this.getViewModel('user'));
 			},
 			'passwd':function(){
 				user.resetPassword(this.location.params,
@@ -100,7 +103,7 @@ const userController = function() {
 				user.remove(this.location.params);
 			}
 		},
-		onRemoved : function(){
+		onSuccess : function(){
 			this.navigate('users.html');
 		}
 	});
@@ -121,7 +124,7 @@ const addUserController = function() {
 				users.add(this.getViewModel('user'));
 			}
 		},
-		onCreated : function(location){
+		onSuccess : function(){
 			this.navigate('users.html');
 		}
 	});
@@ -139,7 +142,7 @@ const addRoleController = function() {
 				roles.addRole(this.getViewModel('role'));
 			}
 		},
-		onCreated : function(location){
+		onSuccess : function(){
 			this.navigate('roles.html');
 		}
 	});

@@ -51,24 +51,23 @@
 		<ui-label>Session Settings</ui-label>
 		<ui-note>Override the default session timeout for this user. 
 				 The default session timeout defaults to one hour and can be set by the <code>jwt.ttl</code> environment variable.</ui-note>
-		<div class="row">
-			<div class="column one-third">
+		<ui-composition>
+			<ui-item size="two-third">
 				<ui-input name="access_token_ttl" bind="user.access_token_ttl">
 					<ui-label>Access Token Expiration Period</ui-label>		
 					<ui-note>Idle user session expiration period</ui-note>
 				</ui-input>
-			</div>
-			<div class="column">
+			</ui-item>
+			<ui-item size="one-third">
 				<ui-select name="access_token_ttl_unit" bind="user.access_token_ttl_unit">
 					<ui-label>Unit</ui-label>
 					<ui-note>Expiration period temporal unit</ui-note>
-					<ui-option value=""></ui-option>
 					<ui-option value="MINUTES">Minutes</ui-option>
 					<ui-option value="HOURS">Hours</ui-option>
 					<ui-option value="DAYS">Days</ui-option>
 				</ui-select>
-			</div>
-		</div>
+			</ui-item>
+		</ui-composition>
 	</ui-group>
 	<ui-group>
 		<ui-label>Roles</ui-label>

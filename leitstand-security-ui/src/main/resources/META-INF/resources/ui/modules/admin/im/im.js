@@ -57,9 +57,9 @@ export class Role extends Resource {
 				   .GET();
 	}
 
-	storeRole(params){
+	store(params,settings){
 		return this.json("/api/v1/userroles/{{role}}",params)
-				   .PUT(params);
+				   .PUT(settings);
 	}
 	
 	removeRole(params){

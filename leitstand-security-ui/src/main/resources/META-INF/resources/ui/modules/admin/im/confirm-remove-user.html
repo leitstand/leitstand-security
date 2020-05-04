@@ -14,12 +14,12 @@
  the License.
 -->
 <ui-confirm>
-  <ui-title>Confirm remove user {{user_name}}</ui-title>
+  <ui-title>Confirm remove user {{user.user_name}}</ui-title>
   <ui-message>
     <ui-note>Removing a user <strong>cannot be undone</strong>. 
              A deleted user must be restored manually.
   		     Once being removed, the user is not allowed to access Leitstand anymore.</ui-note>
   </ui-message>
   <ui-approve name="remove">Confirm</ui-approve>
-  <ui-decline href="user.html?user={{user_id}}">Dismiss</ui-decline>
+  <ui-decline href="user.html?user={{user.user_id}}">Dismiss</ui-decline>
 </ui-confirm>
