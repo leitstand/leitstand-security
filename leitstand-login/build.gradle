@@ -7,7 +7,6 @@ dependencies {
     compile project(':leitstand-auth')
     compile project(':leitstand-users')
     compile 'io.leitstand:leitstand-commons:' + findProperty("versions.leitstand-commons")
-    compile 'io.leitstand:leitstand-etc:' + findProperty("versions.leitstand-commons")
     compileOnly 'javax:javaee-api:8.0'
 
     testCompile 'io.leitstand:leitstand-test:' + findProperty("versions.leitstand-commons")

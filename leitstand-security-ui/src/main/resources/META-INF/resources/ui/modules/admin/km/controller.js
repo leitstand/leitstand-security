@@ -22,7 +22,7 @@ let accessKeysController = function() {
 		resource:keys,
 		viewModel:function(keys){
 			return {"keys":keys,
-					"filter":this.location().param("filter")};
+					"filter":this.location.param("filter")};
 		},
 		buttons:{
 			"filter":function(){
@@ -39,10 +39,10 @@ let accessKeyController = function(){
 		resource:key,
 		buttons:{
 			"revoke":function(){
-				key.revoke(this.location().params());
+				key.revoke(this.location.params);
 			},
 			"save":function(){
-				key.setDescription(this.location().params(),
+				key.setDescription(this.location.params,
 								   this.input("description").value());
 			}
 		},
@@ -62,11 +62,11 @@ let validatorController = function() {
 			}
 		},
 		onError:function(){
-			this.render({"encoded":this.input("accesskey").value()});
+			this.renderView({"encoded":this.input("accesskey").value()});
 		},
 		onSuccess:function(accesskey){
-			this.render({"accesskey":accesskey,
-						 "encoded":this.input("accesskey").value()});
+			this.renderView({"accesskey":accesskey,
+						     "encoded":this.input("accesskey").value()});
 		}
 	});
 }
@@ -87,9 +87,8 @@ let newAccessKeyController = function() {
 			}
 		},
 		onCreated:function(location,token){
-			this.render("token",{"location":location,
-								 "token":token});
-			this.element("create").css().add("hidden");
+			this.updateViewModel({'token':token});
+			this.renderView();
 		},
 		onConflict:function(message){
 			message.property="key_name";

@@ -30,7 +30,7 @@ public class Authorization extends CompositeValue {
 
 	public static final String HTTP_AUTHORIZATION_HEADER = "Authorization";
 	
-	public static Authorization valueOf(HttpServletRequest request) {
+	public static Authorization authorization(HttpServletRequest request) {
 		return valueOf(request.getHeader(HTTP_AUTHORIZATION_HEADER));
 	}
 	
@@ -66,6 +66,24 @@ public class Authorization extends CompositeValue {
 	 */
 	public boolean isBearerToken() {
 		return "Bearer".equalsIgnoreCase(type);
+	}
+
+	/**
+	 * Returns the bearer token conveyed with this authorization header.
+	 * @return the bearer token.
+	 * @see #isBearerToken()
+	 */
+	public BearerToken getBearerToken() {
+		return new BearerToken(this);
+	}
+	
+	/**
+	 * Returns the credentials conveyed with this authorization header.
+	 * @return the credentials
+	 * @see #isBasic()
+	 */
+	public BasicAuthentication getBasicAuthentication() {
+		return new BasicAuthentication(this);
 	}
 
 	/**

@@ -15,6 +15,7 @@
  */
 package io.leitstand.security.auth.accesskeys;
 
+import static io.leitstand.security.auth.http.Authorization.authorization;
 import static javax.security.enterprise.identitystore.CredentialValidationResult.INVALID_RESULT;
 import static javax.security.enterprise.identitystore.CredentialValidationResult.NOT_VALIDATED_RESULT;
 
@@ -57,7 +58,7 @@ public class ApiAccessKeyManager implements AccessTokenManager {
 		if(!loginConfig.isApiAccessKeysEnabled()) {
 			return NOT_VALIDATED_RESULT;
 		}
-		Authorization auth = Authorization.valueOf(request);
+		Authorization auth = authorization(request);
 		if(auth != null && auth.isBearerToken() && accesskeys.isApiAccessKey(auth.getCredentials())) {
 			try {
 				ApiAccessKey accessKey = accesskeys.decode(auth.getCredentials());

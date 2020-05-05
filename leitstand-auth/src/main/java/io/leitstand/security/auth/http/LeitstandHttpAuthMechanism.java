@@ -41,7 +41,7 @@ import io.leitstand.security.auth.user.LoginManager;
 
 
 /**
- * The default RBMS HTTP authentication mechanism.
+ * The default Leitstand HTTP authentication mechanism.
  * <p>
  * For login requests, i.e. requests to <code>/api/v1/_login</code>, the user credentials
  * are read from the request body and passed to the identity store for verification. 

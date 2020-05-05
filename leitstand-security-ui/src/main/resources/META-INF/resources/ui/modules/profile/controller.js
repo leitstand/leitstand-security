@@ -33,11 +33,11 @@ function myController(){
 		buttons:{
 			"save-settings":function(){
 				// Update user profile. All changes have already been applied to the view model through the auto-bind feature.
-				profile.saveSettings(this.location().params(),
+				profile.saveSettings(this.location.params,
 									 this.getViewModel("profile"));
 			},
 			"passwd":function(){
-				profile.passwd(this.location().params(),
+				profile.passwd(this.location.params,
 							   {"uuid":this.getViewModel("uuid"),
 								"password":this.input("password").value(),
 							    "new_password":this.input("new_password").value(),

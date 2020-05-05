@@ -1,0 +1,27 @@
+name: user management
+provider: rtbrick.com
+description: User management UI contribution for the Leitstand administration console.
+extensions:
+- extend:
+    module: admin
+    menu: main
+    after: webhooks
+  items:
+  - item: Users
+    label: Users
+    title: Manage existing users.
+    view: users.html
+    scopesAllowed:
+    - adm
+    - adm.read
+    - adm.user
+    - adm.user.read
+  - item: Roles
+    label: Roles
+    title: View existing roles
+    view: roles.html
+    scopesAllowed:
+    - adm
+    - adm.read
+    - adm.user
+    - adm.user.read
