@@ -1,0 +1,25 @@
+<!--
+ Copyright 2020 RtBrick Inc.
+ 
+ Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ use this file except in compliance with the License.  You may obtain a copy
+ of the License at
+ 
+   http://www.apache.org/licenses/LICENSE-2.0
+ 
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
+ License for the specific language governing permissions and limitations under
+ the License.
+-->
+<ui-confirm>
+  <ui-title>Confirm remove user {{user.user_name}}</ui-title>
+  <ui-message>
+    <ui-note>Removing a user <strong>cannot be undone</strong>. 
+             A deleted user must be restored manually.
+  		     Once being removed, the user is not allowed to access Leitstand anymore.</ui-note>
+  </ui-message>
+  <ui-approve name="remove">Confirm</ui-approve>
+  <ui-decline href="user.html?user={{user.user_id}}">Dismiss</ui-decline>
+</ui-confirm>

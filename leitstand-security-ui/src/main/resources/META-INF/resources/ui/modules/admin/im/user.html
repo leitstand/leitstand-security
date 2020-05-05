@@ -49,28 +49,34 @@
 		<ui-label>Session Settings</ui-label>
 		<ui-note>Override the default session timeout for this user. 
 				 The default session timeout is one hour and can be adjusted through the <code>jwt.ttl</code> environment variable.</ui-note>
-		<ui-input name="access_token_ttl" bind="user.access_token_ttl">
-			<ui-label>Access Token Expiration Period</ui-label>
-			<ui-note>Idle user session expiration period.</ui-note>
-		</ui-input>	
-		<ui-select name="access_token_ttl_unit" bind="user.access_token_ttl_unit" options="ttl_units">
-			<ui-label>Unit</ui-label>
-			<ui-note>Expiration period temporal unit.</ui-note>
-		</ui-select>	 
+		<ui-composition>
+			<ui-item size="two-third">
+				<ui-input name="access_token_ttl" bind="user.access_token_ttl">
+					<ui-label>Access Token Expiration Period</ui-label>
+					<ui-note>Idle user session expiration period.</ui-note>
+				</ui-input>	
+			</ui-item>
+			<ui-item size="one-third">
+				<ui-select name="access_token_ttl_unit" bind="user.access_token_ttl_unit" options="ttl_units">
+					<ui-label>Unit</ui-label>
+					<ui-note>Expiration period temporal unit.</ui-note>
+				</ui-select>
+			</ui-item>
+		</ui-composition>
 	</ui-group>
 	<ui-group>
 		<ui-label>Roles</ui-label>
-		<ui-note>Select the user's roles. A user without any role has read-only access.</ui-note>
+		<ui-note>Select the roles of this user.</ui-note>
 		<!--  {{#roles}} -->
-		<ui-checkbox name="role" bind="user.roles" value="{{name}}">
-			<ui-label>{{name}}</ui-label>
+		<ui-checkbox name="role" bind="user.roles" value="{{role_name}}">
+			<ui-label>{{role_name}}</ui-label>
 			<ui-note>{{description}}</ui-note>
 		</ui-checkbox>
 		<!-- {{/roles}} -->
 	</ui-group>
 	<ui-actions>
 		<ui-button name="save-settings" primary>Save settings</ui-button>
-		<ui-button href="confirm-remove.html?user={{user.uuid}}" danger>Remove user</ui-button>
-		<ui-button href="passwd.html?user={{user.uuid}}">Reset password</ui-button>
+		<ui-button href="confirm-remove-user.html?user={{user.user_id}}" danger>Remove user</ui-button>
+		<ui-button href="passwd.html?user={{user.user_id}}">Reset password</ui-button>
 	</ui-actions>
 </ui-form>

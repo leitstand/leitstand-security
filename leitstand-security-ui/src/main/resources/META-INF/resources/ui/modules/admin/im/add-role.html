@@ -16,29 +16,29 @@
 <ui-view-header>
   <ui-breadcrumbs>
   	<ui-breadcrumb href="roles.html">Roles</ui-breadcrumb>
-  	<ui-breadcrumb>Role {{role_name}}</ui-breadcrumb>
+  	<ui-breadcrumb>New Role</ui-breadcrumb>
   </ui-breadcrumbs>
-  <ui-title>Role {{role_name}}</ui-title>
-  <ui-subtitle>Manage {{role_name}} role</ui-subtitle>
+  <ui-title>New Role</ui-title>
+  <ui-subtitle>Add a new role</ui-subtitle>
 </ui-view-header>
 <ui-form>
 	<ui-group>
 		<ui-label>Role</ui-label>
-		<ui-input name="role_name" disabled="{{system_role}}">
+		<ui-input name="role_name" bind="role.role_name">
 			<ui-label>Role Name</ui-label>
 			<ui-note>Unique descriptive role name</ui-note>
 		</ui-input>
-		<resource-scopes name="scopes" disabled="{{system_role}}">
+		<resource-scopes name="scopes" bind="role.scopes">
 			<ui-label>Accessible Resource Scopes</ui-label>
 			<ui-note>Select the scopes this role is allowed to access.</ui-note>		
 		</resource-scopes>
-		<ui-textarea name="description" disabled="{{system_role}}">
+		<ui-textarea name="description" bind="role.description">
 			<ui-label>Description</ui-label>
 			<ui-note>Outline the purpose of this role.</ui-note>	
 		</ui-textarea>
 	</ui-group>
 	<ui-actions>
-		<ui-button name="save-settings" title="Save role" primary disabled="{{system_role}}">Save role</ui-button>
-		<ui-button href="confirm-remove-role.html?role={{role_id}}" title="Remove role" danger disabled="{{system_role}}">Remove role</ui-button>
+		<ui-button name="add-role" title="Save role" primary>Add role</ui-button>
+		<ui-button href="roles.html" title="Cancel creation of the new role" danger>Cancel</ui-button>
 	</ui-actions>
 </ui-form>

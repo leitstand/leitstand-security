@@ -22,108 +22,27 @@
 	<ui-subtitle>Issue a new access key</ui-subtitle>
 </ui-view-header>
 <ui-form scopesAllowed="adm adm.accesskey">
-	<ui-group>
-		<ui-label>General Settings</ui-label>
+	<ui-group when="show_form">
+		<ui-label>Accesskey</ui-label>
 		<ui-input name="key_name">
 			<ui-label>Key Name</ui-label>
 			<ui-note>A unique key name that also forms the user login ID for all requestes authenticated by this key</ui-note>
 		</ui-input>
+		<resource-scopes name="scopes">
+			<ui-label>Scopes</ui-label>
+			<ui-note>The resource scopes this accesskey is allowed to access</ui-note>
+		</resource-scopes>
 		<ui-textarea name="description">
 			<ui-label>Description</ui-label>
 			<ui-note>A brief description of this access key, which ideally explains why this access key was issued.</ui-note>
 		</ui-textarea>
-	</ui-group>
-	<ui-group>
-		<ui-label>Scopes</ui-label>
-		<ui-note>Restrict access to certain resource scopes.
-				 Umbrella scopes imply access to the underlying scopes.  </ui-note>	
-		<ui-checkbox name="scope" value="ivt.read">
-			<ui-label>ivt.read</ui-label>
-			<ui-note>Readonly inventory access.</ui-note>
-		</ui-checkbox>
-		<ui-checkbox name="scope" value="ivt">
-			<ui-label>ivt</ui-label>
-			<ui-note>Full inventory access.</ui-note>
-		</ui-checkbox>
-		<ui-checkbox name="scope" value="ivt.element">
-			<ui-label>ivt.element</ui-label>
-			<ui-note>Manage element inventory records.</ui-note>
-		</ui-checkbox>
-		<ui-checkbox name="scope" value="ivt.element.settings">
-			<ui-label>ivt.element.settings</ui-label>
-			<ui-note>Manage element settings including element role and platform information</ui-note>
-		</ui-checkbox>
-		<ui-checkbox name="scope" value="ivt.element.dns">
-			<ui-label>ivt.element.dns</ui-label>
-			<ui-note>Manage element DNS records and DNS zones</ui-note>
-		</ui-checkbox>
-		<ui-checkbox name="scope" value="ivt.element.config">
-			<ui-label>ivt.element.config</ui-label>
-			<ui-note>Manage element configuration and environment variables</ui-note>
-		</ui-checkbox>
-		<ui-checkbox name="scope" value="ivt.element.module">
-			<ui-label>ivt.element.module</ui-label>
-			<ui-note>Manage element hardware modules.</ui-note>
-		</ui-checkbox>
-		<ui-checkbox name="scope" value="ivt.group">
-			<ui-label>ivt.group</ui-label>
-			<ui-note>Manage element groups.</ui-note>
-		</ui-checkbox>
-	    <ui-checkbox name="scope" value="ivt.group.settings">
-			<ui-label>ivt.group.settings</ui-label>
-			<ui-note>Manage element group settings.</ui-note>
-		</ui-checkbox>
-		<ui-checkbox name="scope" value="ivt.metric">
-			<ui-label>ivt.metric</ui-label>
-			<ui-note>Manage metric definitions and alert rules.</ui-note>
-		</ui-checkbox>
-		<ui-checkbox name="scope" value="ivt.image">
-			<ui-label>ivt.metric</ui-label>
-			<ui-note>Manage software images.</ui-note>
-		</ui-checkbox>
-		<ui-checkbox name="scope" value="job">
-			<ui-label>job</ui-label>
-			<ui-note>Full access to all scheduled jobs.</ui-note>
-		</ui-checkbox>
-		<ui-checkbox name="scope" value="job.read">
-			<ui-label>job.read</ui-label>
-			<ui-note>Readonly access to all scheduled jobs.</ui-note>
-		</ui-checkbox>
-		<ui-checkbox name="scope" value="job.task">
-			<ui-label>job.task</ui-label>
-			<ui-note>Manage tasks of a scheduled job.</ui-note>
-		</ui-checkbox>
-		<ui-checkbox name="scope" value="adm">
-			<ui-label>adm</ui-label>
-			<ui-note>Full access to the Leitstand admin API</ui-note>
-		</ui-checkbox>
-		<ui-checkbox name="scope" value="adm.read">
-			<ui-label>adm.read</ui-label>
-			<ui-note>Readonly access to the Leitstand admin API</ui-note>
-		</ui-checkbox>
-		<ui-checkbox name="scope" value="adm.webhook">
-			<ui-label>adm.webhook</ui-label>
-			<ui-note>Manage webhook settings including adding and removing webhooks.</ui-note>
-		</ui-checkbox>
-		<ui-checkbox name="scope" value="adm.webhook">
-			<ui-label>adm.webhook.read</ui-label>
-			<ui-note>Read webhook settings</ui-note>
-		</ui-checkbox>		
-		<ui-checkbox name="scope" value="adm.accesskey">
-			<ui-label>adm.accesskey</ui-label>
-			<ui-note>Manage access keys.</ui-note>
-		</ui-checkbox>		
-		<ui-checkbox name="scope" value="adm.user">
-			<ui-label>adm.user</ui-label>
-			<ui-note>Manage users and roles.</ui-note>
-		</ui-checkbox>
-
-	<ui-actions id="create">
+	</ui-group>	
+	<ui-actions id="create" when="token">
 		<ui-button name="create-accesskey" primary>Create access key</ui-button>
 		<ui-button href="accesskeys.html">Cancel</ui-button>
 	</ui-actions>
 
-	<ui-group id="token" class="mustache-template hidden">
+	<ui-group id="token" when="token">
 		<ui-label>Token</ui-label>
 		<ui-note>Please create a copy of the generated access key. 
 				 The access key token cannot be accessed again once this view has been closed.</ui-note>

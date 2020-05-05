@@ -17,22 +17,31 @@
   <ui-title>Roles</ui-title>
   <ui-subtitle>Overview of all existing roles</ui-subtitle>
 </ui-view-header>
-<table class="list">
-	<thead>
-	<tr>
-		<th class="text">Role</th>
-		<th class="text">Description</th>
-	</tr>
-	</thead>
-	<tbody>
-		<!-- {{#roles}} -->
-		<tr>
-			<td class="text" ><a href="role.html?role={{role_id}}">{{role_name}}</a></td>
-			<td class="text" >{{description}}</td>
-		</tr>
-		<!-- {{/roles}} -->
-		<!-- {{^roles}} -->
-		<tr><td colspan="6">No roles available.</td></tr>
-		<!-- {{/roles}} -->
-	</tbody>
-</table>
+<ui-form>
+	<ui-group>
+		<ui-label>Roles</ui-label>
+		<table class="list">
+			<thead>
+			<tr>
+				<th class="text">Role</th>
+				<th class="text">Description</th>
+			</tr>
+			</thead>
+			<tbody>
+				<!-- {{#roles}} -->
+				<tr>
+					<td class="text" ><a href="role.html?role={{role_id}}">{{role_name}}</a></td>
+					<td class="text" >{{description}}</td>
+				</tr>
+				<!-- {{/roles}} -->
+				<!-- {{^roles}} -->
+				<tr><td colspan="6">No roles available.</td></tr>
+				<!-- {{/roles}} -->
+			</tbody>
+		</table>
+	</ui-group>
+	<ui-actions>
+		<ui-button href="add-role.html" title="Create a new role" primary>Add role</ui-button>
+	</ui-actions>
+</ui-form>
+

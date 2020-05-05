@@ -14,11 +14,11 @@
  the License.
 -->
 <ui-confirm>
-  <ui-title>Confirm remove user {{user_id}}</ui-title>
+  <ui-title>Confirm remove role {{role_name}}</ui-title>
   <ui-message>
-    <ui-note>Removing a user <strong>cannot be undone</strong> and the user must be created again.
-  		   Once being removed, the user is not allowed to access RBMS any longer.</ui-note>
+    <ui-note>Removing a role <strong>cannot be undone</strong>.
+  		   Once being removed, the role is not assigned to any user anymore.</ui-note>
   </ui-message>
   <ui-approve name="remove">Confirm</ui-approve>
-  <ui-decline href="user.htm?user={{user_id}}">Decline</ui-decline>
+  <ui-decline href="role.html?role={{role_id}}">Dismiss</ui-decline>
 </ui-confirm>

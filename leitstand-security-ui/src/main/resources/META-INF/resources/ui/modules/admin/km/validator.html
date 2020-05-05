@@ -47,33 +47,18 @@
 			<ui-value><ui-date readonly>{{date_created}}</ui-date></ui-value>
 		</ui-property>
 		<ui-property>
-			<ui-label>Paths</ui-label>
+			<ui-label>Scopes</ui-label>
 			<ui-value>
-				<!-- {{#paths.length}} -->
+				<!-- {{#scopes.length}} -->
 				<ul>
-					<!-- {{#paths}} -->
+					<!-- {{#scopes}} -->
 					<li>{{.}}</li>
-					<!-- {{/paths}} -->
+					<!-- {{/scopes}} -->
 				</ul> 
-				<!-- {{/paths.length}} --> 
-				<!-- {{^paths}} --> 
-					<strong>No path constraints.</strong> 
-				<!-- {{/paths}} -->
-			</ui-value>
-		</ui-property>
-		<ui-property>
-			<ui-label>Methods</ui-label>
-			<ui-value>
-				<!-- {{#methods.length}} -->
-				<ul>
-					<!-- {{#methods}} -->
-					<li>{{.}}</li>
-					<!-- {{/methods}} -->
-				</ul> 
-				<!-- {{/methods.length}} --> 
-				<!-- {{^methods}} --> 
-				<strong>No method constraints.</strong> 
-				<!-- {{/methods}} -->
+				<!-- {{/scopes.length}} --> 
+				<!-- {{^scopes}} --> 
+					<strong>No scopes.</strong> 
+				<!-- {{/scopes}} -->
 			</ui-value>
 		</ui-property>
 </ui-details>

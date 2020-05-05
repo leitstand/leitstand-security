@@ -1,4 +1,4 @@
-/*
+/* 
  * Copyright 2020 RtBrick Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -13,23 +13,34 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package io.leitstand.security.auth.rs;
+import {Select} from '/ui/js/ui-components.js';
+import {Resource} from '/ui/js/client.js';
 
-import static io.leitstand.commons.model.ObjectUtil.asSet;
 
-import java.util.Set;
+class Scopes extends Resource {
 
-import javax.enterprise.context.Dependent;
-
-import io.leitstand.commons.rs.ApiResourceProvider;
-
-@Dependent
-public class AuthResources implements ApiResourceProvider{
-
-	@Override
-	public Set<Class<?>> getResources() {
-		return asSet(LoginResource.class,
-				     ScopesResource.class);
+	load() {
+		return this.json("/api/v1/_/scopes")
+				   .GET();
 	}
 
 }
+
+class ResourceScopes extends Select {
+	
+	constructor(){
+		super();
+	}
+	
+	get multiple(){
+		return true;
+	}
+	
+	options(){
+		const scopes = new Scopes();
+		return scopes.load()
+					 .then( scopes => scopes.map(scope =>  {return {'value':scope}}));
+	}
+}
+
+customElements.define('resource-scopes',ResourceScopes);

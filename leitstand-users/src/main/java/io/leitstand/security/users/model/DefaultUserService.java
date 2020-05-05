@@ -397,8 +397,9 @@ public class DefaultUserService implements UserService {
 		Password newpass = submission.getPassword();
 		Password confirm = submission.getConfirmedPassword();
 		if(isDifferent(newpass,confirm)) {
-			messages.add(createMessage(IDM0008E_PASSWORD_MISMATCH));
-			return;
+			LOG.fine(()-> format("%s: Password and confirmed password do not match!",
+								 IDM0008E_PASSWORD_MISMATCH.getReasonCode()));
+			throw new UnprocessableEntityException(IDM0008E_PASSWORD_MISMATCH);
 		}
 		
 		User user = new User(submission.getUserId(),
