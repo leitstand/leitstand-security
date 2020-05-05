@@ -22,7 +22,7 @@
 	<ui-subtitle>Issue a new access key</ui-subtitle>
 </ui-view-header>
 <ui-form scopesAllowed="adm adm.accesskey">
-	<ui-group>
+	<ui-group when="show_form">
 		<ui-label>Accesskey</ui-label>
 		<ui-input name="key_name">
 			<ui-label>Key Name</ui-label>
@@ -37,7 +37,7 @@
 			<ui-note>A brief description of this access key, which ideally explains why this access key was issued.</ui-note>
 		</ui-textarea>
 	</ui-group>	
-	<ui-actions id="create">
+	<ui-actions id="create" when="token">
 		<ui-button name="create-accesskey" primary>Create access key</ui-button>
 		<ui-button href="accesskeys.html">Cancel</ui-button>
 	</ui-actions>

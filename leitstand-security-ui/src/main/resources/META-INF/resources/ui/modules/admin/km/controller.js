@@ -76,7 +76,7 @@ const newAccesskeyController = function() {
 	return new Controller({
 		resource:keys,
 		viewModel:function(){
-			return {};
+			return {'show_form':function(){return true}};
 		},
 		buttons:{
 			'create-accesskey':function(){
@@ -84,7 +84,8 @@ const newAccesskeyController = function() {
 			}
 		},
 		onCreated:function(location,token){
-			this.updateViewModel({'token':token});
+			this.updateViewModel({'token':token,
+								  'show_form':false});
 			this.renderView();
 		},
 		onConflict:function(message){
