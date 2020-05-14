@@ -76,15 +76,20 @@ public class OidcAuthenticationFlowResource {
 		users.storeUser(userInfo);
 		
 		// Store refresh token.
-		refreshTokens.storeRefreshToken(userInfo.getSub(),accessToken.getRefreshToken());
+		refreshTokens.storeRefreshToken(userInfo.getSub(),
+										 accessToken.getRefreshToken());
 		
 		LOG.fine(() -> format("%s: Created session for user %s",
 							  OID0003I_SESSION_CREATED.getReasonCode(),
 							  userInfo.getUserName()));
 
 		return ok(userInfo)
-			   .cookie(cookie(ID_COOKIE,accessToken.getIdToken(),accessToken.getExpiresIn()))
-			   .cookie(cookie(JWS_COOKIE,accessToken.getAccessToken(),accessToken.getExpiresIn()))
+			   .cookie(cookie(ID_COOKIE,
+					   		  accessToken.getIdToken(),
+					   		  accessToken.getRefreshExpiresIn()))
+			   .cookie(cookie(JWS_COOKIE,
+					   		  accessToken.getAccessToken(),
+					   		  accessToken.getRefreshExpiresIn()))
 			   .build();
 		
 	}

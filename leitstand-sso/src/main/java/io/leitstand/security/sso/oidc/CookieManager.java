@@ -17,7 +17,6 @@ package io.leitstand.security.sso.oidc;
 
 import static io.leitstand.commons.etc.Environment.getSystemProperty;
 import static io.leitstand.security.auth.UserId.userId;
-import static java.lang.System.currentTimeMillis;
 import static java.util.Arrays.stream;
 import static java.util.Collections.emptySet;
 import static java.util.stream.Collectors.toSet;
@@ -33,6 +32,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jws;
 import io.leitstand.security.auth.UserId;
 import io.leitstand.security.auth.UserName;
@@ -45,21 +45,31 @@ import io.leitstand.security.sso.oauth2.RefreshTokenStore;
 public class CookieManager implements AccessTokenManager{
 
 	private static final String JWT_COOKIE = getSystemProperty("LEITSTAND_ACCESS_TOKEN_COOKIE_NAME","LEITSTAND_ACCESS");
+	private static final String ID_COOKIE  = getSystemProperty("LEITSTAND_ID_TOKEN","LEITSTAND_ID");
 	
 
 	static Cookie findAccessToken(HttpServletRequest request) {
+		return findCookie(request,JWT_COOKIE);
+	}
+
+	static Cookie findIdToken(HttpServletRequest request) {
+		return findCookie(request,ID_COOKIE);
+	}
+	
+	private static Cookie findCookie(HttpServletRequest request, String name) {
 		Cookie[] cookies = request.getCookies();
 		// Cookies is null, if request sends no cookie information
 		if(cookies == null) {
 			return null;
 		}
 		for(Cookie cookie:cookies) {
-			if(cookie.getName().equals(JWT_COOKIE)) {
+			if(cookie.getName().equals(name)) {
 				return cookie;
 			}
 		}
 		return null;
 	}
+	
 	
 	@Inject
 	private OidcClient client;
@@ -81,21 +91,10 @@ public class CookieManager implements AccessTokenManager{
 		if(jwsCookie == null) {
 			return NOT_VALIDATED_RESULT;
 		}
+		Cookie idCookie = findIdToken(request);
 		
 		// Verify
-		Jws<Claims> jws = oidcConfig.parse(jwsCookie.getValue());
-		
-		if(isExpired(jws)) {
-			String sub = jws.getBody().getSubject();
-			String refreshToken = refreshTokens.getRefreshToken(sub);
-			Oauth2AccessToken oauth2 = client.refreshAccessToken(refreshToken);
-			refreshTokens.storeRefreshToken(sub, oauth2.getRefreshToken());
-			jwsCookie.setValue(oauth2.getAccessToken());
-			jwsCookie.setMaxAge(oauth2.getExpiresIn());
-			jwsCookie.setHttpOnly(true);
-			response.addCookie(jwsCookie);
-			jws = oidcConfig.parse(oauth2.getAccessToken());
-		}
+		Jws<Claims> jws = parseJws(response, jwsCookie, idCookie);
 		UserId userId =  userId(jws.getBody().getSubject());
 		Set<String> scopes = stream(jws.getBody().get("scope",String.class).split("\\s+")).collect(toSet()); 
 		UserName userName = UserName.userName(jws.getBody().get("preferred_username",String.class));
@@ -111,9 +110,26 @@ public class CookieManager implements AccessTokenManager{
 		return new CredentialValidationResult(userContext.getUserName().toString(),
 											  emptySet());
 	}
-	
-	private boolean isExpired(Jws<Claims> jws) {
-		return currentTimeMillis() > jws.getBody().getExpiration().getTime();
+
+	private Jws<Claims> parseJws(HttpServletResponse response, Cookie jwsCookie, Cookie idCookie) {
+		
+		try {
+			return oidcConfig.parse(jwsCookie.getValue());
+		} catch (ExpiredJwtException e) {
+			String sub = e.getClaims().getSubject();
+			String refreshToken = refreshTokens.getRefreshToken(sub);
+			Oauth2AccessToken oauth2 = client.refreshAccessToken(refreshToken);
+			refreshTokens.storeRefreshToken(sub, oauth2.getRefreshToken());
+			idCookie.setValue(oauth2.getIdToken());
+			idCookie.setHttpOnly(true);
+			idCookie.setMaxAge(oauth2.getRefreshExpiresIn());
+			response.addCookie(idCookie);
+			jwsCookie.setValue(oauth2.getAccessToken());
+			jwsCookie.setHttpOnly(true);
+			jwsCookie.setMaxAge(oauth2.getRefreshExpiresIn());
+			response.addCookie(jwsCookie);
+			return oidcConfig.parse(oauth2.getAccessToken());
+		}
 	}
 	
 }
