@@ -64,6 +64,7 @@ public class OidcConfigProvider implements StartupListener {
 	private static final String OIDC_AUTHORIZATION_ENDPOINT = "OIDC_AUTHORIZATION_ENDPOINT";
 	private static final String OIDC_TOKEN_ENDPOINT	  	    = "OIDC_TOKEN_ENDPOINT";
 	private static final String OIDC_USERINFO_ENDPOINT 	    = "OIDC_USERINFO_ENDPOINT";
+	private static final String OIDC_ENDSESSION_ENDPOINT	= "OIDC_ENDSESSION_ENDPOINT";
 	private static final String OIDC_TOKEN_SECRET			= "OIDC_TOKEN_SECRET"; 
 	private static final String OIDC_TOKEN_X5C				= "OIDC_TOKEN_X5C";
 	private static final String OIDC_CLIENT_ID 		 	    = "OIDC_CLIENT_ID";
@@ -128,6 +129,7 @@ public class OidcConfigProvider implements StartupListener {
 		String authorizationEndpoint = readOidcProperty(OIDC_AUTHORIZATION_ENDPOINT,properties);
 		String tokenEndpoint		 = readOidcProperty(OIDC_TOKEN_ENDPOINT,properties);
 		String userInfoEndpoint		 = readOidcProperty(OIDC_USERINFO_ENDPOINT, properties);
+		String endSessionEndpoint	 = readOidcProperty(OIDC_ENDSESSION_ENDPOINT,properties);
 		SigningKeyResolver keys 	 = readKeys(properties);
 		
 		String configEndpoint = readOidcProperty(OIDC_CONFIGURATION_ENDPOINT,properties);
@@ -143,12 +145,14 @@ public class OidcConfigProvider implements StartupListener {
 			authorizationEndpoint = discovery.getAuthorizationEndpoint();
 			tokenEndpoint = discovery.getTokenEndpoint();
 			userInfoEndpoint = discovery.getUserInfoEndpoint();
+			endSessionEndpoint = discovery.getEndSessionEndpoint();
 			keys = discovery.getKeys();
 		}
 		
 		if(isOpenIdEnabled(authorizationEndpoint, 
 						   tokenEndpoint, 
 						   userInfoEndpoint,
+						   endSessionEndpoint,
 						   clientId,
 						   clientSecret,
 						   keys)) {
@@ -158,6 +162,7 @@ public class OidcConfigProvider implements StartupListener {
 						 .withAuthorizationEndpoint(new URI(authorizationEndpoint))
 						 .withTokenEndpoint(new URI(tokenEndpoint))
 						 .withUserInfoEndpoint(new URI(userInfoEndpoint))
+						 .withEndSessionEndpoint(new URI(endSessionEndpoint))
 						 .withClientId(clientId)
 						 .withClientSecret(clientSecret)
 						 .withConnectTimeout(connectTimeout)
@@ -169,6 +174,7 @@ public class OidcConfigProvider implements StartupListener {
 				LOG.info(format("OpenID authorization endpoint  : %s",authorizationEndpoint));
 				LOG.info(format("OpenID token endpoint ........ : %s",tokenEndpoint));
 				LOG.info(format("OpenID user info endpoint .... : %s",userInfoEndpoint));
+				LOG.info(format("OpenID end session endpoint .. : %s",endSessionEndpoint));
 				LOG.info(format("OpenID connect timeout ....... : %d ms", connectTimeout));
 				LOG.info(format("OpenID read timeout .......... : %d ms", readTimeout));
 				LOG.info(format("OpenID client ID ............. : %s",clientId));
@@ -244,12 +250,14 @@ public class OidcConfigProvider implements StartupListener {
 	boolean isOpenIdEnabled(String authorizationEndpoint, 
 							String tokenEndpoint, 
 							String userInfoEndpoint,
+							String endSessionEndpoint,
 							UserName clientId,
 							Password clientSecret,
 							SigningKeyResolver keys) {
 		return isNonEmptyString(authorizationEndpoint) 
 			   && isNonEmptyString(tokenEndpoint) 
 			   && isNonEmptyString(userInfoEndpoint)
+			   && isNonEmptyString(endSessionEndpoint)
 			   && clientId != null
 			   && clientSecret != null
 			   && keys != null;

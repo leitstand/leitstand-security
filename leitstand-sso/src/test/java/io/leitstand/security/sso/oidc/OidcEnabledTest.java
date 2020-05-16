@@ -17,6 +17,7 @@ package io.leitstand.security.sso.oidc;
 
 import static io.leitstand.security.auth.UserName.userName;
 import static java.util.Arrays.asList;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 
@@ -24,7 +25,6 @@ import java.util.Collection;
 
 import javax.security.enterprise.credential.Password;
 
-import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -39,6 +39,7 @@ public class OidcEnabledTest {
 	private static final String AUTHORIZATION_ENDPOINT = "http://localhost/authorize";
 	private static final String TOKEN_ENDPOINT = "http://localhost/token";
 	private static final String USER_ENDPOINT = "http://localhost/userinfo";
+	private static final String ENDSESSION_ENDPOINT = "http://localhost/endsession";
 	private static final Password CLIENT_SECRET = new Password("secret");
 	private static final UserName CLIENT_ID = userName("id");
 	private static final SigningKeyResolver KEYS = mock(SigningKeyResolver.class);
@@ -47,25 +48,26 @@ public class OidcEnabledTest {
 	@Parameters
 	public static Collection<Object[]> getParameters(){
 
-		return asList(new Object[][] {
-						{AUTHORIZATION_ENDPOINT, TOKEN_ENDPOINT, USER_ENDPOINT, CLIENT_ID, CLIENT_SECRET, KEYS, true},
-						{AUTHORIZATION_ENDPOINT, TOKEN_ENDPOINT, USER_ENDPOINT, CLIENT_ID, null			, KEYS, false},
-						{AUTHORIZATION_ENDPOINT, TOKEN_ENDPOINT, USER_ENDPOINT, null	 , CLIENT_SECRET, KEYS, false},
-						{AUTHORIZATION_ENDPOINT, TOKEN_ENDPOINT, null		  , CLIENT_ID, CLIENT_SECRET, KEYS, false},
-						{AUTHORIZATION_ENDPOINT, TOKEN_ENDPOINT, ""			  , CLIENT_ID, CLIENT_SECRET, KEYS, false},
-						{AUTHORIZATION_ENDPOINT, null		   , USER_ENDPOINT, CLIENT_ID, CLIENT_SECRET, KEYS, false},
-						{AUTHORIZATION_ENDPOINT, ""			   , USER_ENDPOINT, CLIENT_ID, CLIENT_SECRET, KEYS, false},
-						{null, 					 TOKEN_ENDPOINT, USER_ENDPOINT, CLIENT_ID, CLIENT_SECRET, KEYS, false},
-						{"", 					 TOKEN_ENDPOINT, USER_ENDPOINT, CLIENT_ID, CLIENT_SECRET, KEYS, false}});
+		return asList(new Object[][] { 
+				{ AUTHORIZATION_ENDPOINT, TOKEN_ENDPOINT, USER_ENDPOINT, ENDSESSION_ENDPOINT, CLIENT_ID, CLIENT_SECRET, KEYS, true  },
+				{ AUTHORIZATION_ENDPOINT, TOKEN_ENDPOINT, USER_ENDPOINT, ENDSESSION_ENDPOINT, CLIENT_ID, CLIENT_SECRET, null, false },
+				{ AUTHORIZATION_ENDPOINT, TOKEN_ENDPOINT, USER_ENDPOINT, ENDSESSION_ENDPOINT, CLIENT_ID, null,			KEYS, false },
+				{ AUTHORIZATION_ENDPOINT, TOKEN_ENDPOINT, USER_ENDPOINT, ENDSESSION_ENDPOINT, null, 	 CLIENT_SECRET, KEYS, false },
+				{ AUTHORIZATION_ENDPOINT, TOKEN_ENDPOINT, USER_ENDPOINT, null, 				  CLIENT_ID, CLIENT_SECRET, KEYS, false },
+				{ AUTHORIZATION_ENDPOINT, TOKEN_ENDPOINT, USER_ENDPOINT, "",				  CLIENT_ID, CLIENT_SECRET, KEYS, false },
+				{ AUTHORIZATION_ENDPOINT, TOKEN_ENDPOINT, null,          ENDSESSION_ENDPOINT, CLIENT_ID, CLIENT_SECRET, KEYS, false },
+				{ AUTHORIZATION_ENDPOINT, TOKEN_ENDPOINT, "",            ENDSESSION_ENDPOINT, CLIENT_ID, CLIENT_SECRET, KEYS, false },
+				{ AUTHORIZATION_ENDPOINT, null,           USER_ENDPOINT, ENDSESSION_ENDPOINT, CLIENT_ID, CLIENT_SECRET, KEYS, false },
+				{ AUTHORIZATION_ENDPOINT, "",             USER_ENDPOINT, ENDSESSION_ENDPOINT, CLIENT_ID, CLIENT_SECRET, KEYS, false },
+				{ null,                   TOKEN_ENDPOINT, USER_ENDPOINT, ENDSESSION_ENDPOINT, CLIENT_ID, CLIENT_SECRET, KEYS, false },
+				{ "",                     TOKEN_ENDPOINT, USER_ENDPOINT, ENDSESSION_ENDPOINT, CLIENT_ID, CLIENT_SECRET, KEYS, false }});
 
 	}
-	
-	
-	
 	
 	private String authorizationEndpoint;
 	private String tokenEndpoint;
 	private String userInfoEndpoint;
+	private String endSessionEndpoint;
 	private UserName clientId;
 	private Password clientSecret;
 	private SigningKeyResolver keys;
@@ -73,11 +75,19 @@ public class OidcEnabledTest {
 	
 	private OidcConfigProvider provider;
 	
-	public OidcEnabledTest(String authorizationEndpoint, String tokenEndpoint, String userInfoEndpoint, UserName clientId, Password clientSecret, SigningKeyResolver keys, boolean state) {
+	public OidcEnabledTest(String authorizationEndpoint, 
+						   String tokenEndpoint, 
+						   String userInfoEndpoint, 
+						   String endSessionEndpoint, 
+						   UserName clientId, 
+						   Password clientSecret, 
+						   SigningKeyResolver keys, 
+						   boolean state) {
 		this.provider = new OidcConfigProvider();
 		this.authorizationEndpoint = authorizationEndpoint;
 		this.tokenEndpoint = tokenEndpoint;
 		this.userInfoEndpoint = userInfoEndpoint;
+		this.endSessionEndpoint = endSessionEndpoint;
 		this.clientId = clientId;
 		this.clientSecret = clientSecret;
 		this.keys = keys;
@@ -86,7 +96,13 @@ public class OidcEnabledTest {
 
 	@Test
 	public void correct_openid_enabled_state() {
-		assertThat(openIdEnabledState, CoreMatchers.is(provider.isOpenIdEnabled(authorizationEndpoint, tokenEndpoint, userInfoEndpoint, clientId, clientSecret, keys)));
+		assertThat(openIdEnabledState, is(provider.isOpenIdEnabled(authorizationEndpoint, 
+																   tokenEndpoint, 
+																   userInfoEndpoint, 
+																   endSessionEndpoint, 
+																   clientId, 
+																   clientSecret, 
+																   keys)));
 	}
 	
 }
