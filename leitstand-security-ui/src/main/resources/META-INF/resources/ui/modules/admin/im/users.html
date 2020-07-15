@@ -39,8 +39,8 @@
 		<!-- {{#users}} -->
 		<tr>
 			<td class="text" ><a href="/ui/views/admin/im/user.html?user={{user_id}}" title="Show user details">{{user_name}}</a></td>
+			<td class="text" >{{family_name}}{{^family_name}}-{{/family_name}}</td>
 			<td class="text" >{{given_name}}{{^given_name}}-{{/given_name}}</td>
-			<td class="text" >{{surname}}{{^surname}}-{{/surname}}</td>
 			<td class="text" >{{#email}}<a href="mailto:{{.}}" title="Send an email">{{.}}</a>{{/email}}{{^email}}-{{/email}}</td>
 		</tr>
 		<!-- {{/users}} -->
