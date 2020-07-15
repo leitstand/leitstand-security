@@ -91,8 +91,12 @@ const userController = function() {
 		},
 		buttons:{
 			'save-settings':function(){
+				const settings = this.getViewModel('user');
+				if(settings.roles && !Array.isArray(settings.roles)){
+					settings.roles = [settings.roles];
+				}
 				user.store(this.location.params,
-						   this.getViewModel('user'));
+						   settings);
 			},
 			'passwd':function(){
 				user.resetPassword(this.location.params,
@@ -121,7 +125,11 @@ const addUserController = function() {
 		},
 		buttons:{
 			'add-user':function(){
-				users.add(this.getViewModel('user'));
+	            const user = this.getViewModel('user');
+	            if(user.roles && !Array.isArray(user.roles)){
+	                user.roles = [user.roles];
+	            }
+	            users.add(user);
 			}
 		},
 		onSuccess : function(){
