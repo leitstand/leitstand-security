@@ -22,6 +22,7 @@ import static io.leitstand.security.auth.UserName.userName;
 import static java.lang.String.format;
 import static java.lang.System.currentTimeMillis;
 import static java.util.Collections.emptySet;
+import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.FINER;
 import static java.util.logging.Logger.getLogger;
 import static java.util.stream.Collectors.joining;
@@ -119,6 +120,7 @@ public class CookieManager implements AccessTokenManager{
 							 HttpServletResponse response, 
 							 String jws,
 							 int maxAgeSeconds) {
+		
 		Cookie cookie = findAccessToken(request);
 		if(cookie == null) {
 			cookie = new Cookie(JWS_COOKIE, jws);
@@ -137,12 +139,22 @@ public class CookieManager implements AccessTokenManager{
 	@Override
 	public void invalidateAccessToken(HttpServletRequest request, 
 									  HttpServletResponse response) {
+		if(!config.isJwsEnabled()) {
+			return;
+		}
 		Cookie cookie = new Cookie(JWS_COOKIE,"");
 		cookie.setHttpOnly(true);
 		cookie.setSecure(request.isSecure());
 		cookie.setPath("/");
 		cookie.setMaxAge(0);
-		response.addCookie(cookie);		
+		response.addCookie(cookie);			
+		try {
+			response.sendRedirect("/ui/login/login.html");
+		} catch (Exception e) {
+			LOG.log(FINE,
+					e.getMessage(),
+					format("Failed to redirect to end session endpoint: %s",e.getMessage()));
+		}
 	}
 
 

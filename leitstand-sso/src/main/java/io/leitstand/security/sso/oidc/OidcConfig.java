@@ -58,6 +58,12 @@ public class OidcConfig extends ValueObject{
 			return this;
 		}
 		
+		public Builder withEndSessionEndpoint(URI endpoint) {
+			assertNotInvalidated(getClass(), config);
+			config.endSessionEndpoint = endpoint;
+			return this;
+		}
+		
 		public Builder withConnectTimeout(long timeout) {
 			assertNotInvalidated(getClass(), config);
 			config.connectTimeout = timeout;
@@ -102,6 +108,7 @@ public class OidcConfig extends ValueObject{
 	private URI authorizationEndpoint;
 	private URI userInfoEndpoint;
 	private URI tokenEndpoint;
+	private URI endSessionEndpoint;
 	private UserName clientId;
 	private Password clientSecret;
 	private long connectTimeout;
@@ -118,6 +125,10 @@ public class OidcConfig extends ValueObject{
 	
 	public URI getTokenEndpoint() {
 		return tokenEndpoint;
+	}
+	
+	public URI getEndSessionEndpoint() {
+		return endSessionEndpoint;
 	}
 	
 	public UserName getClientId() {

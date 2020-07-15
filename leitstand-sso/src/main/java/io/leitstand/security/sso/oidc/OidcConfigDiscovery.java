@@ -54,6 +54,7 @@ public class OidcConfigDiscovery {
 	private String authorizationEndpoint;
 	private String userInfoEndpoint;
 	private String tokenEndpoint;
+	private String endSessionEndpoint;
 	private SigningKeyResolver keyResolver;
 	
 	
@@ -88,50 +89,55 @@ public class OidcConfigDiscovery {
 				 		.register(new JsonbDefaults())
 				 		.build();
 		
-		JsonObject config = client.target(configEndpoint)
-								  .request()
-								  .accept(APPLICATION_JSON)
-								  .header("Authorization", basicAuthentication(clientId, clientSecret))
-								  .buildGet()
-								  .invoke(JsonObject.class);
-		
-		authorizationEndpoint = config.getString("authorization_endpoint");
-		tokenEndpoint = config.getString("token_endpoint");
-		userInfoEndpoint = config.getString("userinfo_endpoint");
-		// Read public key
-		URI jwksEndpoint = URI.create(config.getString("jwks_uri"));
-
-		
 		try {
-			JsonArray keys = client.target(jwksEndpoint)
-					  				.request()
-					  				.accept(APPLICATION_JSON)
-					  				.header("Authorization", basicAuthentication(clientId, clientSecret))
-					  				.buildGet()
-					  				.invoke(JsonObject.class)
-					  				.getJsonArray("keys");
+			JsonObject config = client.target(configEndpoint)
+									  .request()
+									  .accept(APPLICATION_JSON)
+									  .header("Authorization", basicAuthentication(clientId, clientSecret))
+									  .buildGet()
+									  .invoke(JsonObject.class);
 			
-			CertificateFactory cf = CertificateFactory.getInstance("X509");
+			authorizationEndpoint = config.getString("authorization_endpoint");
+			tokenEndpoint = config.getString("token_endpoint");
+			userInfoEndpoint = config.getString("userinfo_endpoint");
+			endSessionEndpoint = config.getString("end_session_endpoint");
+			// Read public key
+			URI jwksEndpoint = URI.create(config.getString("jwks_uri"));
+	
 			
-			Map<String,Key> keyById = new HashMap<>();
-			for(int i=0; i < keys.size(); i++) {
-				JsonObject key = keys.getJsonObject(i);
-				try(InputStream in = new ByteArrayInputStream(getDecoder().decode(key.getJsonArray("x5c").getString(0)))){
-					X509Certificate crt = (X509Certificate) cf.generateCertificate(in);
-					keyById.put(key.getString("kid"), crt.getPublicKey());
+			try {
+				JsonArray keys = client.target(jwksEndpoint)
+						  				.request()
+						  				.accept(APPLICATION_JSON)
+						  				.header("Authorization", basicAuthentication(clientId, clientSecret))
+						  				.buildGet()
+						  				.invoke(JsonObject.class)
+						  				.getJsonArray("keys");
+				
+				CertificateFactory cf = CertificateFactory.getInstance("X509");
+				
+				Map<String,Key> keyById = new HashMap<>();
+				for(int i=0; i < keys.size(); i++) {
+					JsonObject key = keys.getJsonObject(i);
+					try(InputStream in = new ByteArrayInputStream(getDecoder().decode(key.getJsonArray("x5c").getString(0)))){
+						X509Certificate crt = (X509Certificate) cf.generateCertificate(in);
+						keyById.put(key.getString("kid"), crt.getPublicKey());
+					}
 				}
+				
+				this.keyResolver = new OidcSigningKeyResolver()
+								   .keysByKeyId(keyById);
+			} catch (Exception e) {
+				LOG.severe(format("%s: Cannot decode key chain: %s", 
+								  OID0005E_CERTIFICATE_CHAIN_ERROR.getReasonCode(), 
+								  e.getMessage()));
+				throw new OidcConfigException(e, OID0005E_CERTIFICATE_CHAIN_ERROR);
 			}
-			
-			this.keyResolver = new OidcSigningKeyResolver()
-							   .keysByKeyId(keyById);
-		} catch (Exception e) {
-			LOG.severe(format("%s: Cannot decode key chain: %s", 
-							  OID0005E_CERTIFICATE_CHAIN_ERROR.getReasonCode(), 
-							  e.getMessage()));
-			throw new OidcConfigException(e, OID0005E_CERTIFICATE_CHAIN_ERROR);
+			return this;
+		} finally {
+			client.close();
 		}
 		
-		return this;
 		
 	}
 	
@@ -145,6 +151,10 @@ public class OidcConfigDiscovery {
 	
 	public String getTokenEndpoint() {
 		return tokenEndpoint;
+	}
+	
+	public String getEndSessionEndpoint() {
+		return endSessionEndpoint;
 	}
 	
 	public SigningKeyResolver getKeys() {

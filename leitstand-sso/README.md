@@ -16,6 +16,7 @@ The table below summarizes the _Leitstand OpenID Connect (OIDC) settings_:
 | OIDC\_AUTHORIZATION\_ENDPOINT             | Authorization service URL to be used if no configuration endpoint exists.                                          |
 | OIDC\_TOKEN\_ENDPOINT                     | Token service URL to be used if no configuration endpoint exists.                                                  |
 | OIDC\_USERINFO\_ENDPOINT                  | OpenID user info URL to be used if no configuration endpoint exists.      											 |
+| OIDC\_END\_SESSION_\ENDPOINT				| End session service URL to be used if no configuration endpoint exists.											 |
 | OIDC\_TOKEN\_X5C						    | Base64 URL-encoded X509 certificate chain to verify JWS tokens if the certificate chain cannot be auto-discovered. |
 | OIDC\_TOKEN\_SECRET						| Token secret to verify a JWS if the secret cannot be auto-discovered.                                              |
 | OIDC\_JWS\_ALGORITHM                      | The token signature algorithm (e.g. HS256) |
