@@ -101,7 +101,7 @@ const userController = function() {
 			'passwd':function(){
 				user.resetPassword(this.location.params,
 								   {'new_password':this.input('new_password').value(),
-								   	'confirmed_password':this.input('confirm_password').value()});
+								   	'confirmed_password':this.input('confirmed_password').value()});
 			},
 			'remove':function(){
 				user.remove(this.location.params);

@@ -27,8 +27,6 @@ import io.leitstand.security.users.jsonb.PasswordAdapter;
  * <p>
  */
 public class ResetPasswordRequest extends ValueObject{
-	// Not derived from CompositeValue, because this reques shall not be serializable.
-	// Password is not serializable and dumping passwords by object serialization is an potential vulnerability.
 
 	@JsonbTypeAdapter(PasswordAdapter.class)
 	@NotNull(message="{new_password.required}")

@@ -14,13 +14,18 @@
  the License.
 -->
 <ui-view-header>
+    <ui-breadcrumbs>
+        <ui-breadcrumb href="users.html">Users</ui-breadcrumb>
+        <ui-breadcrumb href="user.html?user={{user.user_id}}">User {{user.user_name}}</ui-breadcrumb>
+        <ui-breadcrumb>Reset Password</ui-breadcrumb>
+    </ui-breadcrumbs>
 	<ui-title>Reset Password</ui-title>
-	<ui-subtitle>Reset password for user {{user_id}}</ui-subtitle>
+	<ui-subtitle>Reset password for user {{user.user_name}}</ui-subtitle>
 </ui-view-header>
 <ui-form>
 	<ui-group>
 		<ui-label>Change Password</ui-label>
-		<ui-password name="password" scoesAllowed="adm">
+		<ui-password name="new_password" scopesAllowed="adm">
 			<ui-label>Password</ui-label>
 			<ui-note>Enter the new password</ui-note>
 		</ui-password>
@@ -31,6 +36,6 @@
 	</ui-group>
 	<ui-actions>
 	  <ui-button name="passwd" primary scopesAllowed="adm">Reset password</ui-button>
-	  <ui-button href="user.html?user={{user_id}}" danger>Cancel</ui-button>
+	  <ui-button href="user.html?user={{user.user_id}}" danger>Cancel</ui-button>
 	</ui-actions>
 </ui-form>
