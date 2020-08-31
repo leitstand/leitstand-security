@@ -4,27 +4,34 @@ plugins {
 }
 
 dependencies {
-    compile project(':leitstand-auth')
-    compile project(':leitstand-crypto')
-    compile project(':leitstand-users')
-    compile 'io.leitstand:leitstand-commons:' + findProperty("versions.leitstand-commons")
-    compile 'io.leitstand:leitstand-template:' + findProperty("versions.leitstand-commons")
-    compile 'io.jsonwebtoken:jjwt-api:0.11.0'
+    implementation project(':leitstand-auth')
+    implementation project(':leitstand-crypto')
+    implementation project(':leitstand-users')
+    implementation 'io.leitstand:leitstand-commons:' + findProperty("versions.leitstand-commons")
+    implementation 'io.leitstand:leitstand-template:' + findProperty("versions.leitstand-commons")
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.0'
     compileOnly 'javax:javaee-api:8.0'
-    runtime 'io.jsonwebtoken:jjwt-impl:0.11.0','io.jsonwebtoken:jjwt-gson:0.11.0'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.0','io.jsonwebtoken:jjwt-gson:0.11.0'
 
-    testCompile 'io.leitstand:leitstand-test:' + findProperty("versions.leitstand-commons")
-    testCompile 'junit:junit:4.12'
-    testCompile 'org.mockito:mockito-all:1.8.4'
-    testCompile 'org.eclipse.persistence:eclipselink:2.7.1'
-    testCompile 'org.hibernate:hibernate-validator:4.2.0.Final'
-    testCompile 'org.eclipse:yasson:1.0.3'
-    testCompile 'org.glassfish:javax.json:1.1.4'
-    testCompile 'org.glassfish.jersey.core:jersey-client:2.6'
-    testCompile 'javax.xml.bind:jaxb-api:2.3.0'
-    testCompile 'com.h2database:h2:1.4.200'
-    
+    testImplementation 'junit:junit:4.12'
+    testImplementation 'io.leitstand:leitstand-test:' + findProperty("versions.leitstand-commons")
+    testImplementation 'org.mockito:mockito-all:1.8.4'
+    testImplementation 'com.h2database:h2:1.4.200'
+    testRuntimeOnly 'org.eclipse.persistence:eclipselink:2.7.1'
+    testRuntimeOnly 'org.hibernate:hibernate-validator:4.2.0.Final'
+    testRuntimeOnly 'org.eclipse:yasson:1.0.3'
+    testRuntimeOnly 'org.glassfish:javax.json:1.1.4'
+    testRuntimeOnly 'org.glassfish.jersey.core:jersey-client:2.6'
+    testRuntimeOnly 'javax.xml.bind:jaxb-api:2.3.0'
 
+}
+
+java {
+    withSourcesJar()
+    withJavadocJar()
+    javadoc {
+        failOnError = false
+    }
 }
 
 publishing {
