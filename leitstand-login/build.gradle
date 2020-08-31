@@ -4,18 +4,27 @@ plugins {
 }
 
 dependencies {
-    compile project(':leitstand-auth')
-    compile project(':leitstand-users')
-    compile 'io.leitstand:leitstand-commons:' + findProperty("versions.leitstand-commons")
+    implementation project(':leitstand-crypto')
+    implementation project(':leitstand-auth')
+    implementation project(':leitstand-users')
+    implementation 'io.leitstand:leitstand-commons:' + findProperty("versions.leitstand-commons")
     compileOnly 'javax:javaee-api:8.0'
 
-    testCompile 'io.leitstand:leitstand-test:' + findProperty("versions.leitstand-commons")
-    testCompile 'junit:junit:4.12'
-    testCompile 'javax:javaee-api:8.0'
-    testCompile 'org.glassfish.jersey.core:jersey-client:2.6'
-    testCompile 'org.mockito:mockito-all:1.8.4'
-    testCompile 'org.hibernate:hibernate-validator:4.2.0.Final'
+    testImplementation 'junit:junit:4.12'
+    testImplementation 'io.leitstand:leitstand-test:' + findProperty("versions.leitstand-commons")
+    testImplementation 'org.mockito:mockito-all:1.8.4'
+    testCompileOnly 'javax:javaee-api:8.0'
+    testRuntimeOnly 'org.glassfish.jersey.core:jersey-client:2.6'
+    testRuntimeOnly 'org.hibernate:hibernate-validator:4.2.0.Final'
 
+}
+
+java {
+    withSourcesJar()
+    withJavadocJar()
+    javadoc {
+        failOnError = false
+    }
 }
 
 publishing {
