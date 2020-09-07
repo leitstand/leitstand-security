@@ -17,11 +17,11 @@
 	<ui-title>Access Key Validator</ui-title>
 	<ui-subtitle>Validate an encoded acceess key</ui-subtitle>
 </ui-view-header>
-<!--  {{^encoded}} -->
+<!--  {{^result}} -->
 <ui-form scopesAllowed="adm adm.accesskey adm.accesskeys.read">
 	<ui-group>
 		<ui-label>Encoded Access Key</ui-label>
-		<ui-textarea name="accesskey">
+		<ui-textarea name="encoded">
 			<ui-label>Access Key</ui-label>
 			<ui-note>Enter the access key to be validated.</ui-note>
 		</ui-textarea>
@@ -30,7 +30,7 @@
 		<ui-button name="validate" primary title="Validate access key">Validate</ui-button>
 	</ui-actions>
 </ui-form>
-<!--  {{/encoded}} -->
+<!--  {{/result}} -->
 <!--  {{#accesskey}} -->
 <ui-details>
 		<ui-property>
@@ -63,16 +63,25 @@
 		</ui-property>
 </ui-details>
 <!-- {{/accesskey}} -->
-<!-- {{#encoded.length}} --> 
+<!-- {{#result}} --> 
 <!-- {{^accesskey}} -->
+<!-- {{#restore}} -->
+<ui-blankslate>
+    <ui-title>Revoked Access Key</ui-title>
+    <ui-note>The access key has been revoked. Click the restore button to re-enable the access key.</ui-note>
+</ui-blankslate>
+<!-- {{/restore}}  -->
+<!-- {{^restore}} -->
 <ui-blankslate>
 	<ui-title>Invalid Access Key</ui-title>
-	<ui-note>The access key is unknown. It was either issued for a different envirnment or has been revoked in the meanwhile.</ui-note>
+	<ui-note>The access key is malformed or has an invalid signature.</ui-note>
 </ui-blankslate>
+<!-- {{/restore}} -->
 <!-- {{/accesskey}}  -->
 <ui-form>
 	<ui-actions>
-		<ui-button href="validator.html" primary title="Validate another access key">Done</ui-button>
+	    <ui-button name="restore" when="restore" primary title="Restore access key">Restore</ui-button>
+		<ui-button name="done" title="Validate another access key">Done</ui-button>
 	</ui-actions>	
 <ui-form>
-<!-- {{/encoded.length}}  -->
+<!-- {{/result}}  -->

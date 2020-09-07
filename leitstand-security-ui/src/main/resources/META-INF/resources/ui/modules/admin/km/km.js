@@ -70,4 +70,10 @@ export class Accesskey extends Resource {
 				   .contentType("text/plain")
 				   .POST(key);
 	}
+	
+	restore(key){
+	    return this.json("/api/v1/accesskeys/_restore")
+	               .contentType("text/plain")
+	               .POST(key);
+	}
 }	

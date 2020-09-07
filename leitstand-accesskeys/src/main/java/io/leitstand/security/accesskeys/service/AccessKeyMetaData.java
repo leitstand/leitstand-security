@@ -32,6 +32,7 @@ public class AccessKeyMetaData extends CompositeValue {
 		return new Builder();
 	}
 	
+	@SuppressWarnings("unchecked")
 	public static class MetaDataBuilder<T extends AccessKeyMetaData,
 								        B extends MetaDataBuilder<T,B>>{
 		protected T instance;
