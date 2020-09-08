@@ -109,6 +109,7 @@ public class DefaultAccessKeyService implements AccessKeyService{
 		key = new AccessKey(accessKeyId,accessKey.getAccessKeyName());
 		key.setDescription(accessKey.getDescription());
 		key.setScopes(accessKey.getScopes());
+		key.setDateCreated(accessKey.getDateCreated());
 		repository.add(key);
 		
 		ApiAccessKey token = newApiAccessKey()

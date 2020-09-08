@@ -20,9 +20,11 @@ import static io.leitstand.commons.model.ByteArrayUtil.encodeBase64String;
 import static io.leitstand.commons.model.ObjectUtil.isDifferent;
 import static io.leitstand.commons.model.StringUtil.fromUtf8Bytes;
 import static io.leitstand.commons.model.StringUtil.toUtf8Bytes;
+import static io.leitstand.commons.model.StringUtil.trim;
 import static io.leitstand.security.auth.UserName.userName;
 import static io.leitstand.security.auth.accesskey.ApiAccessKey.newApiAccessKey;
 import static io.leitstand.security.auth.accesskeys.ReasonCode.AKY0100E_INVALID_ACCESSKEY;
+import static io.leitstand.security.auth.accesskeys.ReasonCode.AKY0101E_MALFORMED_ACCESSKEY;
 import static java.lang.Boolean.parseBoolean;
 import static java.lang.Long.parseLong;
 import static java.util.Arrays.stream;
@@ -36,6 +38,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import io.leitstand.commons.AccessDeniedException;
+import io.leitstand.commons.UnprocessableEntityException;
 import io.leitstand.security.auth.UserName;
 import io.leitstand.security.auth.accesskey.AccessKeyId;
 import io.leitstand.security.auth.accesskey.ApiAccessKey;
@@ -78,19 +81,26 @@ public class AccessKeyEncodingService implements ApiAccessKeyDecoder, ApiAccessK
 	
 	@Override
 	public ApiAccessKey decode(String encodedToken) {
-		String token = fromUtf8Bytes(decodeBase64String(encodedToken));
+	    String token = decodeToken(encodedToken);
 		int    lastColon  = token.lastIndexOf(':');
+		
+		if (lastColon < 0 || token.endsWith(":")) {
+		    throw new AccessDeniedException(AKY0101E_MALFORMED_ACCESSKEY);
+		}
+		
 		String tokenData  = token.substring(0, lastColon);
 		String signature  = token.substring(lastColon+1);
 		if(isDifferent(signature, config.apiKeyHmac(tokenData))) {
 			throw new AccessDeniedException(AKY0100E_INVALID_ACCESSKEY);
 		}
+		
 		String[] segments = tokenData.split(":");
  		AccessKeyId id = AccessKeyId.accessKeyId(segments[0]);
 		UserName userName = userName(segments[1]); 
 		Set<String> scopes = stream(segments[2].split(","))
 							 .filter(s -> s.length() > 0)
 							 .collect(toSet());
+		
 		boolean temporary = parseBoolean(segments[3]);
 		Date dateCreated = new Date(parseLong(segments[4]));
 		
@@ -104,8 +114,18 @@ public class AccessKeyEncodingService implements ApiAccessKeyDecoder, ApiAccessK
 		
 	}
 
+    private String decodeToken(String encodedToken) {
+        try {
+            return trim(fromUtf8Bytes(decodeBase64String(encodedToken)));
+        } catch (IllegalArgumentException e) {
+            throw new UnprocessableEntityException(AKY0101E_MALFORMED_ACCESSKEY);
+        }
+    }
+
 	@Override
 	public boolean isApiAccessKey(String key) {
+	    // JWS tokens contains a '.' as delimiter of token segments.
+	    // Thus a key without '.' is an API access key issued by Leitstand.
 		return !key.contains(".");
 	}
 	

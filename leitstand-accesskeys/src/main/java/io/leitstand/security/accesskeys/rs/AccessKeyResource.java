@@ -19,6 +19,8 @@ import static io.leitstand.security.accesskeys.rs.Scopes.ADM;
 import static io.leitstand.security.accesskeys.rs.Scopes.ADM_ACCESSKEY;
 import static io.leitstand.security.accesskeys.rs.Scopes.ADM_ACCESSKEY_READ;
 import static io.leitstand.security.accesskeys.rs.Scopes.ADM_READ;
+import static io.leitstand.security.accesskeys.service.AccessKeyData.newAccessKey;
+import static io.leitstand.security.accesskeys.service.AccessKeyName.accessKeyName;
 import static java.lang.String.format;
 import static java.net.URI.create;
 import static javax.servlet.http.HttpServletResponse.SC_CONFLICT;
@@ -47,6 +49,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
+import io.leitstand.commons.AccessDeniedException;
+import io.leitstand.commons.UnprocessableEntityException;
 import io.leitstand.commons.messages.Messages;
 import io.leitstand.commons.rs.Resource;
 import io.leitstand.security.accesskeys.flow.CreateAccessKeyFlow;
@@ -138,8 +142,37 @@ public class AccessKeyResource {
 	@Path("/_validate")	
 	@Consumes(TEXT_PLAIN)
 	public AccessKeyData validate(String accessToken) {
-		ApiAccessKey key = encoder.decode(accessToken);
-		return service.getAccessKey(key.getId());
+	    try {
+    		ApiAccessKey key = encoder.decode(accessToken);
+    		return service.getAccessKey(key.getId());
+	    } catch (AccessDeniedException e) {
+	        // The access token is either malformed or has an invalid signature.
+	        // However, since we verify another token (not the token to authorize the request),
+	        // we map the AccessDeniedException to an unprocessable entity exception, 
+	        // because the request entity conveys the access token to validate.
+	        throw new UnprocessableEntityException(e.getReason());
+	    }
 	}
-
+	
+	@POST
+	@Path("/_restore")
+	@Consumes(TEXT_PLAIN)
+	public AccessKeyData restore(String accessToken) {
+	    try{
+    	    ApiAccessKey key = encoder.decode(accessToken);
+    	    service.createAccessKey(newAccessKey()
+    	                            .withAccessKeyId(key.getId())
+    	                            .withAccessKeyName(accessKeyName(key.getUserName()))
+    	                            .withScopes(key.getScopes())
+    	                            .build());
+    	    return service.getAccessKey(key.getId());
+	    } catch (AccessDeniedException e) {
+            // The access token is either malformed or has an invalid signature.
+            // However, since we verify another token (not the token to authorize the request),
+            // we map the AccessDeniedException to an unprocessable entity exception, 
+            // because the request entity conveys the access token to validate.
+	        throw new UnprocessableEntityException(e.getReason());
+	    }
+	}
+	
 }

@@ -27,6 +27,14 @@ public class AccessKeyName extends Scalar<String>{
 
 	private static final long serialVersionUID = 1L;
 
+	public static AccessKeyName accessKeyName(String name) {
+	    return valueOf(name);
+	}
+	
+	public static AccessKeyName accessKeyName(Scalar<String> name) {
+	    return valueOf(name);
+	}
+	
 	public static AccessKeyName valueOf(String name) {
 		return fromString(name,AccessKeyName::new);
 	}

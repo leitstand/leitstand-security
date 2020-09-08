@@ -56,17 +56,37 @@ const validatorController = function() {
 	const key = new Accesskey();
 	return new Controller({
 		resource: key,
+		viewModel:function(){
+		    return {};
+		},
 		buttons:{
 			'validate':function(){
-				key.validate(this.input('accesskey').value());
+				key.validate(this.input('encoded').value());
+			},
+			'restore':function(){
+			    key.restore(this.getViewModel('encoded'));
+			},
+			'done':function(){
+			    this.updateViewModel({'accesskey':null,
+			                          'result':false});
+			    this.renderView();
 			}
 		},
+		onNotFound:function(){
+		    this.updateViewModel({'restore':true,
+		                          'result':true});
+            this.renderView();
+		},
 		onError:function(){
-			this.renderView({'encoded':this.input('accesskey').value()});
+			this.updateViewModel({'restore':false,
+			                      'result':true});
+			this.renderView();
 		},
 		onSuccess:function(accesskey){
-			this.renderView({'accesskey':accesskey,
-						     'encoded':this.input('accesskey').value()});
+			this.updateViewModel({'accesskey':accesskey,
+			                      'result':true,
+			                      'restore':false});
+			this.renderView();
 		}
 	});
 }

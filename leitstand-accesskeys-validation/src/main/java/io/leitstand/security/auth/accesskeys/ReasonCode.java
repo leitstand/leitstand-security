@@ -23,7 +23,8 @@ import io.leitstand.commons.Reason;
 
 public enum ReasonCode implements Reason {
 
-	AKY0100E_INVALID_ACCESSKEY;
+	AKY0100E_INVALID_ACCESSKEY,
+    AKY0101E_MALFORMED_ACCESSKEY;
 	
 	private static final ResourceBundle MESSAGES = ResourceBundle.getBundle("AccesskeyValidationMessages");
 

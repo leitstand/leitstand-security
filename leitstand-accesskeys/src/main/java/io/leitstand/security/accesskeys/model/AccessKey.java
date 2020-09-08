@@ -17,6 +17,7 @@ package io.leitstand.security.accesskeys.model;
 
 import static java.util.Collections.unmodifiableSet;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -115,7 +116,10 @@ public class AccessKey extends AbstractEntity{
 	public String getDescription() {
 		return description;
 	}
-
-
 	
+	public void setDateCreated(Date dateCreated) {
+	    if(dateCreated != null) {
+	        super.setDateCreated(dateCreated);
+	    }
+	}
 }

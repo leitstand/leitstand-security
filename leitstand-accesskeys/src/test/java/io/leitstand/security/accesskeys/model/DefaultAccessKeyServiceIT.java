@@ -16,6 +16,7 @@
 package io.leitstand.security.accesskeys.model;
 
 import static io.leitstand.security.accesskeys.service.AccessKeyData.newAccessKey;
+import static io.leitstand.security.accesskeys.service.AccessKeyName.accessKeyName;
 import static io.leitstand.security.accesskeys.service.ReasonCode.AKY0001E_ACCESS_KEY_NOT_FOUND;
 import static io.leitstand.security.accesskeys.service.ReasonCode.AKY0005E_DUPLICATE_KEY_NAME;
 import static io.leitstand.security.auth.accesskey.AccessKeyId.randomAccessKeyId;
@@ -46,7 +47,6 @@ import io.leitstand.commons.model.ObjectUtil;
 import io.leitstand.commons.model.Repository;
 import io.leitstand.security.accesskeys.event.AccessKeyEvent;
 import io.leitstand.security.accesskeys.service.AccessKeyData;
-import io.leitstand.security.accesskeys.service.AccessKeyName;
 import io.leitstand.security.accesskeys.service.ReasonCode;
 import io.leitstand.security.auth.accesskey.AccessKeyId;
 import io.leitstand.security.auth.accesskey.ApiAccessKey;
@@ -97,7 +97,7 @@ public class DefaultAccessKeyServiceIT extends AccessKeysIT{
 		
 		AccessKeyData key = newAccessKey()
 							.withAccessKeyId(randomAccessKeyId())
-							.withAccessKeyName(AccessKeyName.valueOf("general"))
+							.withAccessKeyName(accessKeyName("general"))
 							.withDateCreated(new Date())
 							.withDescription("Unittest access key")
 							.build();
@@ -122,7 +122,7 @@ public class DefaultAccessKeyServiceIT extends AccessKeysIT{
 		
 		AccessKeyData key = newAccessKey()
 							.withAccessKeyId(randomAccessKeyId())
-							.withAccessKeyName(AccessKeyName.valueOf("method_path"))
+							.withAccessKeyName(accessKeyName("method_path"))
 							.withDateCreated(new Date())
 							.withScopes("element","pod")
 							.withDescription("Unittest access key")
@@ -148,7 +148,7 @@ public class DefaultAccessKeyServiceIT extends AccessKeysIT{
 		
 		AccessKeyData key = newAccessKey()
 							.withAccessKeyId(randomAccessKeyId())
-							.withAccessKeyName(AccessKeyName.valueOf("unique_test"))
+							.withAccessKeyName(accessKeyName("unique_test"))
 							.withDateCreated(new Date())
 							.withScopes("element","pod")
 							.withDescription("Unittest access key")
@@ -174,7 +174,7 @@ public class DefaultAccessKeyServiceIT extends AccessKeysIT{
 		
 		AccessKeyData key = newAccessKey()
 							.withAccessKeyId(randomAccessKeyId())
-							.withAccessKeyName(AccessKeyName.valueOf("revoke"))
+							.withAccessKeyName(accessKeyName("revoke"))
 							.withScopes("element","pod")
 							.withDescription("Unittest access key")
 							.build();
@@ -217,7 +217,7 @@ public class DefaultAccessKeyServiceIT extends AccessKeysIT{
 	public void can_update_access_key_description() {
 		AccessKeyData key = newAccessKey()
 							.withAccessKeyId(randomAccessKeyId())
-							.withAccessKeyName(AccessKeyName.valueOf("description_test"))
+							.withAccessKeyName(accessKeyName("description_test"))
 							.withDescription("Unittest access key")
 							.build();
 		transaction(() -> {
@@ -244,6 +244,52 @@ public class DefaultAccessKeyServiceIT extends AccessKeysIT{
 		transaction(() -> {
 			service.removeAccessKey(keyId);
 		});
+	}
+	
+	static class TokenInspector {
+	    String token;
+	}
+	
+	@Test
+	public void restore_revoked_access_key() {
+	 
+	    AccessKeyData key = newAccessKey()
+	                        .withAccessKeyId(randomAccessKeyId())
+	                        .withAccessKeyName(accessKeyName("restore_revoked"))
+	                        .withScopes("element","pod")
+	                        .withDescription("Unittest access key")
+	                        .build();
+	    
+	    TokenInspector inspector = new TokenInspector(); 
+	    
+	    // Create access key
+	    transaction(() -> {
+           inspector.token = service.createAccessKey(key);
+           assertNotNull(inspector.token);
+        });
+               
+	    // Revoke access key
+	    transaction(() -> {
+           service.removeAccessKey(key.getAccessKeyId());
+        });
+
+	    // Restore access key
+        transaction(() -> {
+            
+            ApiAccessKey decoded = encoder.decode(inspector.token);
+            AccessKeyData restored = newAccessKey()
+                                     .withAccessKeyId(decoded.getId())
+                                     .withAccessKeyName(accessKeyName(decoded.getUserName()))
+                                     .withDateCreated(decoded.getDateCreated())
+                                     .withScopes(decoded.getScopes())
+                                     .build();
+            
+            
+           String token = service.createAccessKey(restored);
+           assertEquals(inspector.token,token);
+        
+        });
+
 	}
 	
 }
