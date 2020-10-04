@@ -57,6 +57,10 @@ public class ScopeAuthenticatorTest {
 		
 		}
 		
+		@Public
+		public void everyone() {
+		    
+		}
 	}
 	
 	// A resource without scopes and not declared as being public 
@@ -91,6 +95,15 @@ public class ScopeAuthenticatorTest {
 		verify(context).proceed();
 		verifyZeroInteractions(userContext);
 	}
+	
+	@Test
+    public void unauthenticated_can_access_public_resource_method() throws Exception{
+        InvocationContext context = invoke(ProtectedResource.class, "everyone");
+        authenticator.authenticate(context);
+        
+        verify(context).proceed();
+        verifyZeroInteractions(userContext);
+    }
 	
 	@Test
 	public void unauthentication_cannot_access_unprotected_resource() throws Exception {
