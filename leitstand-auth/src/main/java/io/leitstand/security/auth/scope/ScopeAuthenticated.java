@@ -53,7 +53,7 @@ public class ScopeAuthenticated {
 		Method method = context.getMethod();
 		Class<?> clazz = method.getDeclaringClass();
 		// Everyone can access a public resource
-		if(clazz.isAnnotationPresent(Public.class)) {
+		if(clazz.isAnnotationPresent(Public.class) || method.isAnnotationPresent(Public.class)) {
 			return context.proceed();
 		}
 		
