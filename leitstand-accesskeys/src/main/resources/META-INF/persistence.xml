@@ -7,11 +7,5 @@
 		<class>io.leitstand.security.accesskeys.jpa.AccessKeyIdConverter</class>
 		<class>io.leitstand.security.accesskeys.jpa.AccessKeyNameConverter</class>
 		<shared-cache-mode>NONE</shared-cache-mode>
-		<properties>
-			<property name="eclipselink.logging.logger" value="JavaLogger"/>
-			<property name="eclipselink.logging.level" value="FINE"/>
-			<property name="eclipselink.logging.level.sql" value="ALL"/>
-			<property name="eclipselink.logging.parameters" value="true"/>
-		</properties>
 	</persistence-unit>
 </persistence>
