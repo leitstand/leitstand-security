@@ -171,10 +171,10 @@ public class LeitstandHttpAuthMechanism implements HttpAuthenticationMechanism{
 		
 		for(AccessTokenManager manager : accessTokenManagers) {
 			CredentialValidationResult result = manager.validateAccessToken(request, response);
-			LOG.fine(() -> format("%s %s: %s", 
-								  request.getRequestURI(), 
-								  manager.getClass().getSimpleName(), 
-								  result));
+			LOG.finest(() -> format("%s %s: %s", 
+								    request.getRequestURI(), 
+								    manager.getClass().getSimpleName(), 
+								    result.getStatus()));
 			if(result.getStatus() == NOT_VALIDATED) {
 				continue; // Try next manager, if no statement was made.
 			}
