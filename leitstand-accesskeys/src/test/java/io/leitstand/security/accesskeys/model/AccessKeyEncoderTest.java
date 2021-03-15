@@ -5,8 +5,6 @@ import static io.leitstand.security.auth.accesskeys.ReasonCode.AKY0101E_MALFORME
 import static io.leitstand.testing.ut.LeitstandCoreMatchers.reason;
 import static java.util.Base64.getEncoder;
 
-import java.util.Base64;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

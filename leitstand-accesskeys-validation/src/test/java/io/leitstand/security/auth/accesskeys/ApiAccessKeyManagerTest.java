@@ -16,6 +16,7 @@
 package io.leitstand.security.auth.accesskeys;
 
 
+import static io.leitstand.security.auth.UserName.userName;
 import static io.leitstand.security.auth.accesskeys.ReasonCode.AKY0100E_INVALID_ACCESSKEY;
 import static io.leitstand.security.auth.http.Authorization.HTTP_AUTHORIZATION_HEADER;
 import static java.lang.Boolean.FALSE;
@@ -27,7 +28,6 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
-import static io.leitstand.security.auth.UserName.userName;
 
 import javax.security.enterprise.identitystore.CredentialValidationResult;
 import javax.servlet.http.HttpServletRequest;
@@ -40,7 +40,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import io.leitstand.commons.AccessDeniedException;
-import io.leitstand.security.auth.UserName;
 import io.leitstand.security.auth.accesskey.ApiAccessKey;
 import io.leitstand.security.auth.accesskey.ApiAccessKeyDecoder;
 import io.leitstand.security.auth.http.Authorization;
