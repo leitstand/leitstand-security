@@ -23,6 +23,8 @@ import static io.leitstand.security.sso.oauth2.Oauth2AccessToken.newOauth2Access
 import static io.leitstand.security.sso.oauth2.ReasonCode.OAH0001E_UNSUPPORTED_RESPONSE_TYPE;
 import static io.leitstand.security.sso.oauth2.ReasonCode.OAH0002E_CLIENT_ID_MISMATCH;
 import static java.lang.String.format;
+import static java.lang.System.currentTimeMillis;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.logging.Logger.getLogger;
 import static javax.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
@@ -127,10 +129,10 @@ public class AuthorizationService {
 		
 		if(OAUTH2_CODE.equals(responseType)){
 			
-			String code = config.signJwt(Jwts.builder()
-										  	 .setSubject(context.getUserPrincipal().getName())
-										  	 .setAudience(clientId)
-										  	 .setIssuedAt(new Date()));
+			String code = config.signAccessToken(Jwts.builder()
+										  	         .setSubject(context.getUserPrincipal().getName())
+										  	         .setAudience(clientId)
+										  	         .setIssuedAt(new Date()));
 
 			target.addQueryParam(OAUTH2_CODE,code);
 			if(isNonEmptyString(state)) {
@@ -165,7 +167,7 @@ public class AuthorizationService {
 								   @FormParam("grant_type") String grantType,
 								   @FormParam(OAUTH2_CODE) String code) {
 		
-		Jws<Claims> jws = config.decodeJws(code);
+		Jws<Claims> jws = config.decodeAccessToken(code);
 		
 		
 		if(context.getUserPrincipal().getName().equals(jws.getBody().getAudience())) {
@@ -178,7 +180,7 @@ public class AuthorizationService {
 			
 			ApiAccessKey token = newApiAccessKey()
 								 .withUserName(userInfo.getUserName())
-								 .withTemporaryAccess(true)
+								 .withDateExpiry(new Date(currentTimeMillis()+SECONDS.toMillis(60)))
 								 .build();
 
 			String token64 = encoder.encode(token);

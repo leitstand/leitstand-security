@@ -19,7 +19,6 @@ import static io.leitstand.commons.model.ObjectUtil.asSet;
 import static io.leitstand.security.auth.UserName.userName;
 import static io.leitstand.security.auth.accesskey.AccessKeyId.randomAccessKeyId;
 import static java.lang.Boolean.TRUE;
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
@@ -29,8 +28,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
-import java.util.Date;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -94,16 +91,12 @@ public class AccessKeyValidatorTest {
 	
 	@Test
 	public void accept_temporary_access_key_if_not_expired() {
-		when(key.getDateCreated()).thenReturn(new Date());
-		when(key.isTemporary()).thenReturn(TRUE);
-		
 		assertTrue(validator.isValid(request, key));
 	}
 	
 	@Test
 	public void reject_expired_temporary_access_key() {
-		when(key.isTemporary()).thenReturn(TRUE);
-		when(key.isOlderThan(60, SECONDS)).thenReturn(TRUE);
+		when(key.isExpired()).thenReturn(TRUE);
 		assertFalse(validator.isValid(request, key));
 	}
 	

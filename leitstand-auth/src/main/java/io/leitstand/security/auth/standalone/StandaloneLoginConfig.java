@@ -15,16 +15,19 @@
  */
 package io.leitstand.security.auth.standalone;
 
+import static io.jsonwebtoken.Jwts.builder;
+import static io.leitstand.commons.etc.Environment.emptyEnvironment;
 import static io.leitstand.commons.etc.Environment.getSystemProperty;
 import static io.leitstand.commons.etc.FileProcessor.properties;
 import static io.leitstand.commons.model.StringUtil.isNonEmptyString;
 import static io.leitstand.security.mac.MessageAuthenticationCodes.hmac;
 import static java.lang.Boolean.parseBoolean;
 import static java.util.Base64.getDecoder;
+import static java.util.Base64.getUrlEncoder;
+import static java.util.logging.Logger.getLogger;
 
 import java.security.Key;
 import java.time.Duration;
-import java.util.Base64;
 import java.util.Properties;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
@@ -49,7 +52,7 @@ import io.leitstand.security.mac.MessageAuthenticationCode;
 @ApplicationScoped
 public class StandaloneLoginConfig {
 	
-	private static final Logger LOG = Logger.getLogger(StandaloneLoginConfig.class.getName());
+	private static final Logger LOG = getLogger(StandaloneLoginConfig.class.getName());
 
 	private static final String STANDALONE_JWS_SECRET = "JWS_SECRET";
 	private static final String STANDALONE_JWS_TTL = "JWS_TTL";
@@ -68,8 +71,17 @@ public class StandaloneLoginConfig {
 	private Duration jwsTtl;
 	private Duration jwsRefresh;
 	private Key jwsKey;
+	private Key apiKey;
 	private Supplier<MessageAuthenticationCode> apiMac;
 	private boolean basicAuthEnabled;
+	
+	public static StandaloneLoginConfig createDefaultLoginConfig() {
+	    StandaloneLoginConfig config = new StandaloneLoginConfig();
+	    config.env = emptyEnvironment();
+	    config.master = new MasterSecret(config.env);
+	    config.readProperties(new Properties());
+	    return config;
+	}
 	
 	@PostConstruct
 	protected void readStandaloneConfig() {		
@@ -83,6 +95,7 @@ public class StandaloneLoginConfig {
 		SignatureAlgorithm alg = SignatureAlgorithm.valueOf(getSystemProperty(STANDALONE_JWS_SIGNATURE_ALGORITHM,
 															jwtConfig.getProperty(STANDALONE_JWS_SIGNATURE_ALGORITHM,"HS256")));
 		
+		// Don't specify a default STANDALONE_JWS_SECRET to disable JWS
 		String secret64 = getSystemProperty(STANDALONE_JWS_SECRET,
 									  		jwtConfig.getProperty(STANDALONE_JWS_SECRET));
 		
@@ -104,10 +117,11 @@ public class StandaloneLoginConfig {
 		secret64 = getSystemProperty(STANDALONE_API_ACCESSKEY_SECRET,
 									 jwtConfig.getProperty(STANDALONE_API_ACCESSKEY_SECRET,"changeit"));
 		
-		SecretKeySpec apiKey = createKey(alg,secret64);
-		if(apiKey != null) {
-			apiMac = () -> {
-				return hmac(apiKey);
+		SecretKeySpec apiKeySpec = createKey(alg,secret64);
+		if(apiKeySpec != null) {
+		    this.apiKey = apiKeySpec;
+			this.apiMac = () -> {
+				return hmac(apiKeySpec);
 			};
 		}
 	}
@@ -147,20 +161,41 @@ public class StandaloneLoginConfig {
 
 
 	
-	public Jws<Claims> decodeJws(String token){
+	public Jws<Claims> decodeAccessToken(String token){
 		JwtParser parser = Jwts.parserBuilder()
 				   			   .setSigningKey(jwsKey)
 				   			   .build();
 		return parser.parseClaimsJws(token);
 	}
+
+   public Jws<Claims> decodeApiAccessKey(String token){
+        JwtParser parser = Jwts.parserBuilder()
+                               .setSigningKey(apiKey)
+                               .build();
+        return parser.parseClaimsJws(token);
+    }
+
 	
-	public String signJwt(JwtBuilder builder) {
+	public String signAccessToken(JwtBuilder builder) {
 		return builder.signWith(jwsKey).compact();
-	
 	}
 	
+	public String signAccessToken(Claims claims) {
+	    return signAccessToken(builder().addClaims(claims));
+	}
+
+    public String signApiAccessKey(JwtBuilder builder) {
+        return builder.signWith(apiKey).compact();
+	}
+	    
+	public String signApiAccessKey(Claims claims) {
+	    return signApiAccessKey(builder().addClaims(claims));
+	}
+
+	
+	@Deprecated
 	public String apiKeyHmac(String key) {
-		return Base64.getUrlEncoder().encodeToString(apiMac.get().sign(key));
+		return getUrlEncoder().encodeToString(apiMac.get().sign(key));
 	}
 	
 	public Duration getTimeToLive() {

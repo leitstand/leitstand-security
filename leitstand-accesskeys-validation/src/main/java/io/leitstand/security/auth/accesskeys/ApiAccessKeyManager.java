@@ -59,7 +59,7 @@ public class ApiAccessKeyManager implements AccessTokenManager {
 			return NOT_VALIDATED_RESULT;
 		}
 		Authorization auth = authorization(request);
-		if(auth != null && auth.isBearerToken() && accesskeys.isApiAccessKey(auth.getCredentials())) {
+		if(auth != null && auth.isBearerToken()) {
 			try {
 				ApiAccessKey accessKey = accesskeys.decode(auth.getCredentials());
 				if(authenticator.isValid(request,accessKey)) {

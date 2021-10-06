@@ -20,6 +20,7 @@ import static io.leitstand.security.accesskeys.service.AccessKeyName.accessKeyNa
 import static io.leitstand.security.accesskeys.service.ReasonCode.AKY0001E_ACCESS_KEY_NOT_FOUND;
 import static io.leitstand.security.accesskeys.service.ReasonCode.AKY0005E_DUPLICATE_KEY_NAME;
 import static io.leitstand.security.auth.accesskey.AccessKeyId.randomAccessKeyId;
+import static io.leitstand.security.auth.standalone.StandaloneLoginConfig.createDefaultLoginConfig;
 import static io.leitstand.security.mac.MessageAuthenticationCodes.hmacSha256;
 import static java.util.Base64.getUrlEncoder;
 import static org.junit.Assert.assertEquals;
@@ -64,15 +65,7 @@ public class DefaultAccessKeyServiceIT extends AccessKeysIT{
 	@Before
 	public void initResources() {
 		repository = new Repository(getEntityManager());
-		StandaloneLoginConfig config = mock(StandaloneLoginConfig.class);
-		when(config.apiKeyHmac(Mockito.anyString())).thenAnswer(new Answer() {
-
-			@Override
-			public Object answer(InvocationOnMock invocation) throws Throwable {
-				String token = (String) invocation.getArguments()[0];
-				return getUrlEncoder().encodeToString(hmacSha256(new Secret("changeit".getBytes())).sign(token));
-			}
-		});
+		StandaloneLoginConfig config = createDefaultLoginConfig();
 		Event event = mock(Event.class);
 		captor = ArgumentCaptor.forClass(AccessKeyEvent.class);
 		doNothing().when(event).fire(captor.capture());

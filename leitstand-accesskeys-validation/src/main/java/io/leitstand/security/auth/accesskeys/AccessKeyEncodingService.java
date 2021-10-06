@@ -15,11 +15,10 @@
  */
 package io.leitstand.security.auth.accesskeys;
 
+import static io.jsonwebtoken.Jwts.claims;
 import static io.leitstand.commons.model.ByteArrayUtil.decodeBase64String;
-import static io.leitstand.commons.model.ByteArrayUtil.encodeBase64String;
 import static io.leitstand.commons.model.ObjectUtil.isDifferent;
 import static io.leitstand.commons.model.StringUtil.fromUtf8Bytes;
-import static io.leitstand.commons.model.StringUtil.toUtf8Bytes;
 import static io.leitstand.commons.model.StringUtil.trim;
 import static io.leitstand.security.auth.UserName.userName;
 import static io.leitstand.security.auth.accesskey.ApiAccessKey.newApiAccessKey;
@@ -37,6 +36,8 @@ import java.util.Set;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
 import io.leitstand.commons.AccessDeniedException;
 import io.leitstand.commons.UnprocessableEntityException;
 import io.leitstand.security.auth.UserName;
@@ -62,58 +63,81 @@ public class AccessKeyEncodingService implements ApiAccessKeyDecoder, ApiAccessK
 	
 	@Override
 	public String encode(ApiAccessKey key) {
-		StringBuilder buffer = new StringBuilder();
-		buffer.append(key.getId())
-			  .append(":")
-			  .append(key.getUserName())
-			  .append(":")
-			  .append(key.getScopes().stream().collect(joining(",")))
-			  .append(":")
-			  .append(key.isTemporary())
-			  .append(":")
-			  .append(key.getDateCreated().getTime());
-		String hmac64 = config.apiKeyHmac(buffer.toString());  
-		buffer.append(":")
-			  .append(hmac64);
-		return encodeBase64String(toUtf8Bytes(buffer.toString()));
+	    Claims claims = claims()
+	                    .setId(AccessKeyId.toString(key.getId()))
+	                    .setIssuedAt(key.getDateCreated())    
+	                    .setExpiration(key.getDateExpiry())
+	                    .setSubject(UserName.toString(key.getUserName()));
+	    
+	    claims.put("scopes",key.getScopes()
+                                .stream()
+                               .collect(joining(" ")));
+	    
+	    if (key.isTemporary()) {
+	        claims.put("temporay","true");
+	    }
+        
+	    return config.signApiAccessKey(claims);
 	}
 
 	
 	@Override
 	public ApiAccessKey decode(String encodedToken) {
-	    String token = decodeToken(encodedToken);
-		int    lastColon  = token.lastIndexOf(':');
-		
-		if (lastColon < 0 || token.endsWith(":")) {
-		    throw new AccessDeniedException(AKY0101E_MALFORMED_ACCESSKEY);
-		}
-		
-		String tokenData  = token.substring(0, lastColon);
-		String signature  = token.substring(lastColon+1);
-		if(isDifferent(signature, config.apiKeyHmac(tokenData))) {
-			throw new AccessDeniedException(AKY0100E_INVALID_ACCESSKEY);
-		}
-		
-		String[] segments = tokenData.split(":");
- 		AccessKeyId id = AccessKeyId.accessKeyId(segments[0]);
-		UserName userName = userName(segments[1]); 
-		Set<String> scopes = stream(segments[2].split(","))
-							 .filter(s -> s.length() > 0)
-							 .collect(toSet());
-		
-		boolean temporary = parseBoolean(segments[3]);
-		Date dateCreated = new Date(parseLong(segments[4]));
-		
-		return newApiAccessKey()
-			   .withId(id)
-			   .withUserName(userName)
-			   .withScopes(scopes)
-			   .withTemporaryAccess(temporary)
-			   .withDateCreated(dateCreated)
-			   .build();
-		
+	    if (encodedToken.indexOf('.') < 0) {
+	        return legacyDecode(encodedToken);
+	    }
+	     
+	    Jws<Claims> jws = config.decodeApiAccessKey(encodedToken);
+	    Claims claims = jws.getBody();
+	    return newApiAccessKey()
+	           .withId(AccessKeyId.accessKeyId(claims.getId()))
+	           .withDateCreated(claims.getIssuedAt())
+	           .withDateExpiry(claims.getExpiration())
+	           .withUserName(userName(claims.getSubject()))
+	           .withTemporaryAccess(parseBoolean(claims.get("temporary",String.class)))
+	           .withScopes(stream(claims
+	                              .get("scopes",String.class)
+	                              .split("\\s+"))
+	                       .collect(toSet()))
+	           .build();
+
 	}
 
+
+	
+	private ApiAccessKey legacyDecode(String encodedToken) {
+	    String token = decodeToken(encodedToken);
+        int    lastColon  = token.lastIndexOf(':');
+        
+        if (lastColon < 0 || token.endsWith(":")) {
+            throw new AccessDeniedException(AKY0101E_MALFORMED_ACCESSKEY);
+        }
+        
+        String tokenData  = token.substring(0, lastColon);
+        String signature  = token.substring(lastColon+1);
+        if(isDifferent(signature, config.apiKeyHmac(tokenData))) {
+            throw new AccessDeniedException(AKY0100E_INVALID_ACCESSKEY);
+        }
+        
+        String[] segments = tokenData.split(":");
+        AccessKeyId id = AccessKeyId.accessKeyId(segments[0]);
+        UserName userName = userName(segments[1]); 
+        Set<String> scopes = stream(segments[2].split(","))
+                             .filter(s -> s.length() > 0)
+                             .collect(toSet());
+        
+        boolean temporary = parseBoolean(segments[3]);
+        Date dateCreated = new Date(parseLong(segments[4]));
+        
+        return newApiAccessKey()
+               .withId(id)
+               .withUserName(userName)
+               .withScopes(scopes)
+               .withTemporaryAccess(temporary)
+               .withDateCreated(dateCreated)
+               .build();
+	}
+	
     private String decodeToken(String encodedToken) {
         try {
             return trim(fromUtf8Bytes(decodeBase64String(encodedToken)));
@@ -122,11 +146,4 @@ public class AccessKeyEncodingService implements ApiAccessKeyDecoder, ApiAccessK
         }
     }
 
-	@Override
-	public boolean isApiAccessKey(String key) {
-	    // JWS tokens contains a '.' as delimiter of token segments.
-	    // Thus a key without '.' is an API access key issued by Leitstand.
-		return !key.contains(".");
-	}
-	
 }

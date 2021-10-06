@@ -112,15 +112,16 @@ public class AccessKeyValidator {
 	}
 	
 	private boolean isRevoked(ApiAccessKey key) {
-		if(key.isTemporary() ){
-			if(key.isOlderThan(60, SECONDS)) {
-				LOG.info(() -> format("Access attempt with an expired key %s (%s).", 
-									  	key.getUserName(), 
-									  	key.getId()));
-				return true;
-			}
-			// If a temporary access key is not expired, the key is valid.
-			return false;
+		if(key.isExpired() ){
+			LOG.info(() -> format("Access attempt with an expired key %s (%s).", 
+								  	key.getUserName(), 
+								  	key.getId()));
+			return true;
+		}
+		
+		if(key.isTemporary()) {
+		    // A temporary access key cannot be revoked.
+		    return false;
 		}
 		
 		// Non-temporary access keys must exist in the AUTH.ACCESSKEY table.

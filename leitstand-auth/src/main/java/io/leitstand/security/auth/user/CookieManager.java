@@ -100,11 +100,11 @@ public class CookieManager implements AccessTokenManager{
 	}
 
 	private String createJws(UserInfo userInfo, Date expiryDate) {
-		String jws = config.signJwt(Jwts.builder()
-										.setIssuedAt(new Date())
-										.setExpiration(expiryDate)
-										.setSubject(userInfo.getUserName().toString())
-										.claim("scope",userInfo.getScopes().stream().collect(joining(" "))));
+		String jws = config.signAccessToken(Jwts.builder()
+										        .setIssuedAt(new Date())
+										        .setExpiration(expiryDate)
+										        .setSubject(userInfo.getUserName().toString())
+										        .claim("scope",userInfo.getScopes().stream().collect(joining(" "))));
 		return jws;
 	}
 
@@ -171,7 +171,7 @@ public class CookieManager implements AccessTokenManager{
 			return NOT_VALIDATED_RESULT;
 		}
 		try {
-			Jws<Claims> jws = config.decodeJws(jwsCookie.getValue());
+			Jws<Claims> jws = config.decodeAccessToken(jwsCookie.getValue());
 
 			UserName 	userName	  = userName(jws.getBody().getSubject());
 			Set<String> grantedScopes = readScopes(jws);

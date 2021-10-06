@@ -105,7 +105,6 @@ public class ApiAccessKeyManagerTest {
 	@Test
 	public void reject_access_for_invalid_accesskey() {
 		when(loginConfig.isApiAccessKeysEnabled()).thenReturn(true);
-		when(keyDecoder.isApiAccessKey("ACCESSKEY")).thenReturn(true);
 
 		HttpServletRequest request = mock(HttpServletRequest.class);
 		when(request.getHeader(HTTP_AUTHORIZATION_HEADER)).thenReturn("Bearer ACCESSKEY");
@@ -122,7 +121,6 @@ public class ApiAccessKeyManagerTest {
 	@Test
 	public void reject_access_for_accesskey_with_insufficient_privileges() {
 		when(loginConfig.isApiAccessKeysEnabled()).thenReturn(true);
-		when(keyDecoder.isApiAccessKey("ACCESSKEY")).thenReturn(true);
 
 		HttpServletRequest request = mock(HttpServletRequest.class);
 		when(request.getHeader(HTTP_AUTHORIZATION_HEADER)).thenReturn("Bearer ACCESSKEY");
@@ -140,7 +138,6 @@ public class ApiAccessKeyManagerTest {
 	@Test
 	public void grant_access_for_accesskey_with_sufficient_privileges() {
 		when(loginConfig.isApiAccessKeysEnabled()).thenReturn(true);
-		when(keyDecoder.isApiAccessKey("ACCESSKEY")).thenReturn(true);
 
 		HttpServletRequest request = mock(HttpServletRequest.class);
 		when(request.getHeader(HTTP_AUTHORIZATION_HEADER)).thenReturn("Bearer ACCESSKEY");
@@ -161,14 +158,13 @@ public class ApiAccessKeyManagerTest {
 	public void do_nothing_when_api_accesskeys_are_disabled() {
 		HttpServletRequest request = mock(HttpServletRequest.class);
 		CredentialValidationResult result = manager.validateAccessToken(request,
-				mock(HttpServletResponse.class));
+				                                                        mock(HttpServletResponse.class));
 		assertEquals(NOT_VALIDATED_RESULT,result);
 	}
 	
 	@Test
 	public void do_nothing_when_bearer_token_does_not_match_access_key_format() {
 		when(loginConfig.isApiAccessKeysEnabled()).thenReturn(true);
-		when(keyDecoder.isApiAccessKey("ACCESSKEY")).thenReturn(false);
 
 		HttpServletRequest request = mock(HttpServletRequest.class);
 		when(request.getHeader(HTTP_AUTHORIZATION_HEADER)).thenReturn("Bearer ACCESSKEY");

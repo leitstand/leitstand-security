@@ -96,7 +96,7 @@ public class AuthorizationServiceTest {
 	
 	@Test
 	public void create_redirect_if_response_type_is_code_and_caller_is_authenticated() throws IOException {
-		when(config.signJwt(any(JwtBuilder.class))).thenReturn("AUTHCODE");
+		when(config.signAccessToken(any(JwtBuilder.class))).thenReturn("AUTHCODE");
 		Response response = service.authorize(authenticatedAs("junit"), "junit", "code", "junit", "http://localhost:9080/junit",null);
 		assertEquals(TEMPORARY_REDIRECT.getStatusCode() , response.getStatus());
 		assertEquals("http://localhost:9080/junit?code=AUTHCODE",response.getHeaderString("Location"));
@@ -104,7 +104,7 @@ public class AuthorizationServiceTest {
 	
 	@Test
 	public void preserve_state_if_response_type_is_code_and_caller_is_authenticated() throws IOException{
-		when(config.signJwt(any(JwtBuilder.class))).thenReturn("AUTHCODE");
+		when(config.signAccessToken(any(JwtBuilder.class))).thenReturn("AUTHCODE");
 		
 		Response response = service.authorize(authenticatedAs("junit"), "junit", "code", "client", "http://localhost:9080/junit","1234");
 
@@ -120,7 +120,7 @@ public class AuthorizationServiceTest {
 		when(jws.getBody()).thenReturn(claims);
 		when(claims.getAudience()).thenReturn("foo");
 		
-		when(config.decodeJws("AUTHCODE")).thenReturn(jws);
+		when(config.decodeAccessToken("AUTHCODE")).thenReturn(jws);
 		
 		Response response = service.getAccessToken(authenticatedAs("junit"),null,"AUTHCODE");
 		assertEquals(Status.FORBIDDEN.getStatusCode(),response.getStatus());
@@ -138,7 +138,7 @@ public class AuthorizationServiceTest {
 		when(claims.getAudience()).thenReturn("junit");
 		when(claims.getSubject()).thenReturn("client");
 		
-		when(config.decodeJws("AUTHCODE")).thenReturn(jws);
+		when(config.decodeAccessToken("AUTHCODE")).thenReturn(jws);
 
 		
 		Response response = service.getAccessToken(authenticatedAs("junit"),null,"AUTHCODE");
