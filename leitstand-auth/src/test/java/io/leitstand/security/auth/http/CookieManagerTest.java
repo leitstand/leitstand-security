@@ -113,7 +113,7 @@ public class CookieManagerTest {
 		Jws<Claims> jws = mock(Jws.class);
 		when(jws.getBody()).thenReturn(claims);
 		
-		when(loginConfig.decodeJws("TOKEN")).thenReturn(jws);
+		when(loginConfig.decodeAccessToken("TOKEN")).thenReturn(jws);
 		
 		CredentialValidationResult result = manager.validateAccessToken(cookieAuthenticationRequest(), 
 																 		response);
@@ -132,7 +132,7 @@ public class CookieManagerTest {
 		when(claims.getExpiration()).thenReturn(new Date(currentTimeMillis()+10000));
 		Jws<Claims> jws = mock(Jws.class);
 		when(jws.getBody()).thenReturn(claims);
-		when(loginConfig.decodeJws(anyString())).thenReturn(jws);
+		when(loginConfig.decodeAccessToken(anyString())).thenReturn(jws);
 		when(users.getUserInfo(userName("unittest"))).thenReturn(newUserInfo()
 																 .withUserName(userName("unittest"))
 																 .build());
@@ -159,7 +159,7 @@ public class CookieManagerTest {
 		Jws<Claims> jws = mock(Jws.class);
 		when(jws.getBody()).thenReturn(claims);
 		
-		when(loginConfig.decodeJws("TOKEN")).thenReturn(jws);
+		when(loginConfig.decodeAccessToken("TOKEN")).thenReturn(jws);
 
 
 		CredentialValidationResult result = manager.validateAccessToken(cookieAuthenticationRequest(), 
@@ -178,7 +178,7 @@ public class CookieManagerTest {
 		Jws<Claims> jws = mock(Jws.class);
 		when(jws.getBody()).thenReturn(claims);
 		
-		when(loginConfig.decodeJws("TOKEN")).thenThrow(new SignatureException("unittest"));
+		when(loginConfig.decodeAccessToken("TOKEN")).thenThrow(new SignatureException("unittest"));
 		
 		CredentialValidationResult result = manager.validateAccessToken(cookieAuthenticationRequest(), 
 																		response);

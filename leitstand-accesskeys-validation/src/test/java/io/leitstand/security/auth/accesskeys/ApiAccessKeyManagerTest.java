@@ -162,16 +162,4 @@ public class ApiAccessKeyManagerTest {
 		assertEquals(NOT_VALIDATED_RESULT,result);
 	}
 	
-	@Test
-	public void do_nothing_when_bearer_token_does_not_match_access_key_format() {
-		when(loginConfig.isApiAccessKeysEnabled()).thenReturn(true);
-
-		HttpServletRequest request = mock(HttpServletRequest.class);
-		when(request.getHeader(HTTP_AUTHORIZATION_HEADER)).thenReturn("Bearer ACCESSKEY");
-		
-		CredentialValidationResult result = manager.validateAccessToken(request,
-																		mock(HttpServletResponse.class));
-		
-		assertEquals(NOT_VALIDATED_RESULT,result);
-	}
 }

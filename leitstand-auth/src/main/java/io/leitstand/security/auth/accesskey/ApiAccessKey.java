@@ -26,7 +26,6 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import java.util.Date;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.concurrent.TimeUnit;
 
 import javax.json.bind.annotation.JsonbTypeAdapter;
 
@@ -115,7 +114,7 @@ public class ApiAccessKey extends ValueObject {
 		 */
 		public Builder withDateCreated(Date dateCreated) {
 			assertNotInvalidated(getClass(), key);
-			key.dateCreated = new Date(dateCreated.getTime());
+			key.dateCreated = dateCreated != null ? new Date(dateCreated.getTime()/1000*1000) : null;
 			return this;
 		}
 
@@ -126,7 +125,7 @@ public class ApiAccessKey extends ValueObject {
          */
         public Builder withDateExpiry(Date dateExpiry) {
             assertNotInvalidated(getClass(), key);
-            key.dateExpiry = new Date(dateExpiry.getTime());
+            key.dateExpiry = dateExpiry != null ? new Date(dateExpiry.getTime()/1000*1000) : null;
             return this;
         }
         
@@ -140,7 +139,10 @@ public class ApiAccessKey extends ValueObject {
             assertNotInvalidated(getClass(), key);
             key.temporary = temporary;
             if (temporary) {
-                key.dateCreated = new Date(currentTimeMillis()+SECONDS.toMillis(60));
+                if (key.dateCreated == null) {
+                    withDateCreated(new Date());
+                }
+                key.dateExpiry = new Date(key.dateCreated.getTime()+SECONDS.toMillis(60));
             }
             return this;
         }
@@ -155,7 +157,7 @@ public class ApiAccessKey extends ValueObject {
 			try {
 				assertNotInvalidated(getClass(), key);
 				if(key.dateCreated == null) {
-					key.dateCreated = new Date();
+				    key.dateCreated = new Date();
 				}
 				return key;
 			} finally {
@@ -203,7 +205,7 @@ public class ApiAccessKey extends ValueObject {
 		if (dateExpiry == null) {
 		    return false;
 		}
-		return dateExpiry.after(new Date());
+		return new Date().after(dateExpiry);
 	}
 	
 	public Set<String> getScopes() {

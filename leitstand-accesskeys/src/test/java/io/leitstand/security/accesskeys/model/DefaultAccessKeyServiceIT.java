@@ -21,15 +21,12 @@ import static io.leitstand.security.accesskeys.service.ReasonCode.AKY0001E_ACCES
 import static io.leitstand.security.accesskeys.service.ReasonCode.AKY0005E_DUPLICATE_KEY_NAME;
 import static io.leitstand.security.auth.accesskey.AccessKeyId.randomAccessKeyId;
 import static io.leitstand.security.auth.standalone.StandaloneLoginConfig.createDefaultLoginConfig;
-import static io.leitstand.security.mac.MessageAuthenticationCodes.hmacSha256;
-import static java.util.Base64.getUrlEncoder;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import java.util.Date;
 
@@ -38,9 +35,6 @@ import javax.enterprise.event.Event;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import io.leitstand.commons.EntityNotFoundException;
 import io.leitstand.commons.UniqueKeyConstraintViolationException;
@@ -53,7 +47,6 @@ import io.leitstand.security.auth.accesskey.AccessKeyId;
 import io.leitstand.security.auth.accesskey.ApiAccessKey;
 import io.leitstand.security.auth.accesskeys.AccessKeyEncodingService;
 import io.leitstand.security.auth.standalone.StandaloneLoginConfig;
-import io.leitstand.security.crypto.Secret;
 
 public class DefaultAccessKeyServiceIT extends AccessKeysIT{
 

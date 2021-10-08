@@ -16,55 +16,36 @@
 package io.leitstand.security.auth.accesskeys;
 
 import static io.leitstand.commons.model.ObjectUtil.asSet;
+import static io.leitstand.security.auth.UserName.userName;
 import static io.leitstand.security.auth.accesskey.AccessKeyId.randomAccessKeyId;
 import static io.leitstand.security.auth.accesskey.ApiAccessKey.newApiAccessKey;
-import static io.leitstand.security.mac.MessageAuthenticationCodes.hmacSha256;
-import static java.util.Base64.getUrlEncoder;
+import static io.leitstand.security.auth.standalone.StandaloneLoginConfig.createDefaultLoginConfig;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.when;
 
 import java.util.Date;
+import java.util.TreeSet;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 
 import io.leitstand.security.auth.UserName;
 import io.leitstand.security.auth.accesskey.ApiAccessKey;
-import io.leitstand.security.auth.standalone.StandaloneLoginConfig;
-import io.leitstand.security.crypto.Secret;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AccessKeyEncodingServiceTest {
 
-	private static final UserName USER_ID = UserName.valueOf("JUNIT");
+	private static final UserName USER_ID = userName("JUNIT");
 	
-	@Mock
-	private StandaloneLoginConfig config;
-	
-	@InjectMocks
-	private AccessKeyEncodingService service = new AccessKeyEncodingService();
+	private AccessKeyEncodingService service;
 	
 	
 	@Before
 	public void mockSignature() {
-		when(config.apiKeyHmac(anyString())).thenAnswer(new Answer() {
-
-			@Override
-			public Object answer(InvocationOnMock invocation) throws Throwable {
-				String token = (String) invocation.getArguments()[0];
-				return getUrlEncoder().encodeToString(hmacSha256(new Secret("changeit".getBytes())).sign(token));
-			}
-			
-		});
+	    service = new AccessKeyEncodingService(createDefaultLoginConfig());
 	}
 	
 	@Test
@@ -85,12 +66,13 @@ public class AccessKeyEncodingServiceTest {
 		ApiAccessKey accessKey = newApiAccessKey()
 								 .withId(randomAccessKeyId())
 								 .withUserName(USER_ID)
-								 .withTemporaryAccess(true)
 								 .withDateCreated(new Date())
+								 .withTemporaryAccess(true)
 								 .build();
 		String encoded = service.encode(accessKey);
 		ApiAccessKey decoded = service.decode(encoded);
 		assertEquals(accessKey,decoded);
+		
 		assertTrue(decoded.isTemporary());
 	}
 	

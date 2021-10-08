@@ -19,17 +19,22 @@ import static io.jsonwebtoken.Jwts.claims;
 import static io.leitstand.commons.model.ByteArrayUtil.decodeBase64String;
 import static io.leitstand.commons.model.ObjectUtil.isDifferent;
 import static io.leitstand.commons.model.StringUtil.fromUtf8Bytes;
+import static io.leitstand.commons.model.StringUtil.isNonEmptyString;
 import static io.leitstand.commons.model.StringUtil.trim;
 import static io.leitstand.security.auth.UserName.userName;
+import static io.leitstand.security.auth.accesskey.AccessKeyId.accessKeyId;
 import static io.leitstand.security.auth.accesskey.ApiAccessKey.newApiAccessKey;
 import static io.leitstand.security.auth.accesskeys.ReasonCode.AKY0100E_INVALID_ACCESSKEY;
 import static io.leitstand.security.auth.accesskeys.ReasonCode.AKY0101E_MALFORMED_ACCESSKEY;
 import static java.lang.Boolean.parseBoolean;
 import static java.lang.Long.parseLong;
 import static java.util.Arrays.stream;
+import static java.util.Collections.emptySet;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toSet;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Set;
 
@@ -40,6 +45,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.leitstand.commons.AccessDeniedException;
 import io.leitstand.commons.UnprocessableEntityException;
+import io.leitstand.commons.model.StringUtil;
 import io.leitstand.security.auth.UserName;
 import io.leitstand.security.auth.accesskey.AccessKeyId;
 import io.leitstand.security.auth.accesskey.ApiAccessKey;
@@ -69,12 +75,14 @@ public class AccessKeyEncodingService implements ApiAccessKeyDecoder, ApiAccessK
 	                    .setExpiration(key.getDateExpiry())
 	                    .setSubject(UserName.toString(key.getUserName()));
 	    
-	    claims.put("scopes",key.getScopes()
-                                .stream()
-                               .collect(joining(" ")));
+	    if(!key.getScopes().isEmpty()) {
+	        claims.put("scopes",key.getScopes()
+	                .stream()
+	                .collect(joining(" ")));
+	    }
 	    
 	    if (key.isTemporary()) {
-	        claims.put("temporay","true");
+	        claims.put("temporary","true");
 	    }
         
 	    return config.signApiAccessKey(claims);
@@ -89,16 +97,20 @@ public class AccessKeyEncodingService implements ApiAccessKeyDecoder, ApiAccessK
 	     
 	    Jws<Claims> jws = config.decodeApiAccessKey(encodedToken);
 	    Claims claims = jws.getBody();
+	    Set<String> scopes = emptySet();
+	    String scopesClaim = claims.get("scopes",String.class);
+	    if (isNonEmptyString(scopesClaim)) {
+	        scopes = stream(scopesClaim
+                            .split("\\s+"))
+                            .collect(toSet());
+	    }
 	    return newApiAccessKey()
-	           .withId(AccessKeyId.accessKeyId(claims.getId()))
+	           .withId(accessKeyId(claims.getId()))
 	           .withDateCreated(claims.getIssuedAt())
 	           .withDateExpiry(claims.getExpiration())
 	           .withUserName(userName(claims.getSubject()))
 	           .withTemporaryAccess(parseBoolean(claims.get("temporary",String.class)))
-	           .withScopes(stream(claims
-	                              .get("scopes",String.class)
-	                              .split("\\s+"))
-	                       .collect(toSet()))
+	           .withScopes(scopes)
 	           .build();
 
 	}

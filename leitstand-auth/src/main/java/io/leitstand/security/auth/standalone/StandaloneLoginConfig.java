@@ -20,6 +20,7 @@ import static io.leitstand.commons.etc.Environment.emptyEnvironment;
 import static io.leitstand.commons.etc.Environment.getSystemProperty;
 import static io.leitstand.commons.etc.FileProcessor.properties;
 import static io.leitstand.commons.model.StringUtil.isNonEmptyString;
+import static io.leitstand.security.crypto.SecureHashes.sha256;
 import static io.leitstand.security.mac.MessageAuthenticationCodes.hmac;
 import static java.lang.Boolean.parseBoolean;
 import static java.util.Base64.getDecoder;
@@ -131,6 +132,8 @@ public class StandaloneLoginConfig {
 			Secret secret = decodeSecret(secret64);
 			if(secret.bitlength() < alg.getMinKeyLength()) {
 				LOG.warning("Configured secret undershorts the encouraged minimum key length of "+alg.getMinKeyLength());
+				// Extend the secret to work around the problem.
+				secret = new Secret(sha256().hash(secret.toByteArray()));
 			}
 			return new SecretKeySpec(secret.toByteArray(), alg.getJcaName());
 		} 
