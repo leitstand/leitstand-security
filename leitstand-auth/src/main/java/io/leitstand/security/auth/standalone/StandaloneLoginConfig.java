@@ -73,6 +73,7 @@ public class StandaloneLoginConfig {
 	private Duration jwsRefresh;
 	private Key jwsKey;
 	private Key apiKey;
+	@Deprecated
 	private Supplier<MessageAuthenticationCode> apiMac;
 	private boolean basicAuthEnabled;
 	
@@ -118,11 +119,14 @@ public class StandaloneLoginConfig {
 		secret64 = getSystemProperty(STANDALONE_API_ACCESSKEY_SECRET,
 									 jwtConfig.getProperty(STANDALONE_API_ACCESSKEY_SECRET,"changeit"));
 		
-		SecretKeySpec apiKeySpec = createKey(alg,secret64);
-		if(apiKeySpec != null) {
-		    this.apiKey = apiKeySpec;
-			this.apiMac = () -> {
-				return hmac(apiKeySpec);
+		
+		this.apiKey = createKey(alg,secret64);
+		if(secret64 != null) {
+		    // Compute apiMac for backward compatibility.
+            SecretKeySpec apiHmacKey = new SecretKeySpec(decodeSecret(secret64).toByteArray(), 
+                                                         alg.getJcaName());
+		    this.apiMac = () -> {
+				return hmac(apiHmacKey);
 			};
 		}
 	}
