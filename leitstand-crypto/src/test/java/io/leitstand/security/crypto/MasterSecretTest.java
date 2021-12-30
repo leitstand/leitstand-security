@@ -22,12 +22,14 @@ import static io.leitstand.security.crypto.MasterSecret.RBMS_MASTER_SECRET_FILE_
 import static io.leitstand.security.crypto.MasterSecret.RBMS_PROPERTY_MASTER_IV;
 import static io.leitstand.security.crypto.MasterSecret.RBMS_PROPERTY_MASTER_SECRET;
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.util.Base64;
 import java.util.Properties;
 
 import org.junit.Before;
@@ -61,6 +63,15 @@ public class MasterSecretTest {
 		cfgMaster = new MasterSecret(propertiesEnv);
 		cfgMaster.init();
 		
+	}
+	
+	@Test
+	public void default_encryption() {
+        byte[] plain   = toUtf8Bytes("plaintext");
+        byte[] cipher  = defaultMaster.encrypt(plain);
+        String cipher64 = Base64.getEncoder().encodeToString(cipher);
+        assertEquals("nj8gGQxwJaHgVG7ngW2jRzBIuDaHrJsq/w==", cipher64);
+        
 	}
 	
 	@Test

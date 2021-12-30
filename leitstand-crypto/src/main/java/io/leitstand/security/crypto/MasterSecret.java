@@ -64,7 +64,7 @@ public class MasterSecret {
 
 	private static final int GCM_IV_LENGTH = 12;
 	private static final int GCM_TAG_LENGTH = 16;
-	private static final int AES_KEY_SIZE = 32;
+	private static final int AES_KEY_SIZE = 16;
 	
 	private Environment env;
 	
@@ -100,7 +100,7 @@ public class MasterSecret {
  					  0,
  					  master,
  					  0,
- 					  GCM_IV_LENGTH);
+ 					  AES_KEY_SIZE);
  			arraycopy(secretMd5Md5,
  					  0,
 					  iv,
@@ -113,7 +113,7 @@ public class MasterSecret {
 					  0,
 					  master,
 					  0,
-					  GCM_IV_LENGTH);
+					  AES_KEY_SIZE);
 			arraycopy(defaultMd5Md5,
 					  0,
 					  iv,
