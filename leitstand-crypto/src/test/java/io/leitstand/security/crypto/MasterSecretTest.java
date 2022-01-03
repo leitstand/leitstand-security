@@ -18,9 +18,8 @@ package io.leitstand.security.crypto;
 import static io.leitstand.commons.etc.Environment.emptyEnvironment;
 import static io.leitstand.commons.model.ByteArrayUtil.encodeBase64String;
 import static io.leitstand.commons.model.StringUtil.toUtf8Bytes;
-import static io.leitstand.security.crypto.MasterSecret.RBMS_MASTER_SECRET_FILE_NAME;
-import static io.leitstand.security.crypto.MasterSecret.RBMS_PROPERTY_MASTER_IV;
-import static io.leitstand.security.crypto.MasterSecret.RBMS_PROPERTY_MASTER_SECRET;
+import static io.leitstand.security.crypto.MasterSecret.LEITSTAND_MASTER_SECRET_FILE_NAME;
+import static java.util.Base64.getEncoder;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.eq;
@@ -29,8 +28,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
-import java.util.Base64;
-import java.util.Properties;
+import java.util.function.Supplier;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -55,11 +53,9 @@ public class MasterSecretTest {
 		defaultMaster = new MasterSecret(env);
 		defaultMaster.init();
 		
-		Properties properties = new Properties();
-		properties.put(RBMS_PROPERTY_MASTER_SECRET, base64encoded("properties-secret"));
-		properties.put(RBMS_PROPERTY_MASTER_IV, base64encoded("properties-iv"));
+		byte[] secret = toUtf8Bytes("unittest");
 		Environment propertiesEnv = mock(Environment.class);
-		when(propertiesEnv.loadFile(eq(RBMS_MASTER_SECRET_FILE_NAME),isA(FileProcessor.class))).thenReturn(properties);
+		when(propertiesEnv.loadConfig(eq(LEITSTAND_MASTER_SECRET_FILE_NAME),isA(FileProcessor.class),isA(Supplier.class))).thenReturn(secret);
 		cfgMaster = new MasterSecret(propertiesEnv);
 		cfgMaster.init();
 		
@@ -69,8 +65,8 @@ public class MasterSecretTest {
 	public void default_encryption() {
         byte[] plain   = toUtf8Bytes("plaintext");
         byte[] cipher  = defaultMaster.encrypt(plain);
-        String cipher64 = Base64.getEncoder().encodeToString(cipher);
-        assertEquals("nj8gGQxwJaHgVG7ngW2jRzBIuDaHrJsq/w==", cipher64);
+        String cipher64 = getEncoder().encodeToString(cipher);
+        assertEquals("7ohGcWDaIdRH", cipher64);
         
 	}
 	

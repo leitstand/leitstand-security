@@ -15,60 +15,59 @@
  */
 package io.leitstand.security.crypto;
 
-import static io.leitstand.commons.etc.Environment.getSystemProperty;
-import static io.leitstand.commons.etc.FileProcessor.properties;
-import static io.leitstand.commons.model.ByteArrayUtil.decodeBase64String;
-import static io.leitstand.commons.model.StringUtil.isNonEmptyString;
 import static io.leitstand.commons.model.StringUtil.toUtf8Bytes;
 import static io.leitstand.security.crypto.SecureHashes.md5;
-import static java.lang.System.arraycopy;
+import static java.util.Base64.getDecoder;
 import static java.util.logging.Level.FINER;
+import static java.util.logging.Logger.getLogger;
 import static javax.crypto.Cipher.DECRYPT_MODE;
 import static javax.crypto.Cipher.ENCRYPT_MODE;
 
-import java.util.Properties;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.Reader;
 import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.crypto.Cipher;
-import javax.crypto.spec.GCMParameterSpec;
+import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import io.leitstand.commons.etc.Environment;
+import io.leitstand.commons.etc.FileProcessor;
 
 /**
- * The master secret allows to protect sensitive configuration settings using <em>AES-GCM</em> encryption.
+ * The master secret allows protecting sensitive configuration settings using <em>AES</em> encryption
+ * in CTR mode with a 128-bit key.
  * <p>
- * The <code>master.secret</code> and the <code>master.iv</code> properties set the AES secret and initialization vector (IV) 
- * that shall be used to encrypt and decrypt data respectively.
- * Both properties can be either specified as system properties or in the <code>/etc/leitstand/master.secret</code> file, 
- * with system properties having precedence over the configuration file. The specified values must be Base64 encoded.
+ * The master secret is stored base64-encoded in the <code>{LEITSTAND_ENV}/master.secret</code> file
+ * and defaults to <em>changeit</em> if the file does not exist. 
  * <p>
- * AES requires a key with a length of 16 bytes and the IV should be 12 bytes long for GCM.
- * The master secret computes the MD5 sum of the configured secret to create a 128 bit key.
- * It also computes the MD5 sum of the configured IV and uses the first 12 bytes as IV.
- * If no IV was configured, master secret computes the MD5 of the secret MD5 sum and uses the first 12 bytes as IV. 
- *
- * <p>
- * If no secret is specified, the master secret key defaults to <i>changeit</i>.
+ * The AES key is the MD5 hash of the specified secret.
+ * The IV is the MD5 hash of the computed AES key.
  */
 @ApplicationScoped
 public class MasterSecret {
 
-	private static final Logger LOG = Logger.getLogger(MasterSecret.class.getName());
-	static final String RBMS_MASTER_SECRET_FILE_NAME = "master.secret";
-	static final String RBMS_PROPERTY_MASTER_SECRET  = "master.secret";
-	static final String RBMS_PROPERTY_MASTER_IV	     = "master.iv";
+	private static final Logger LOG = getLogger(MasterSecret.class.getName());
+	public static final String LEITSTAND_MASTER_SECRET_FILE_NAME = "master.secret";
 
-	private static final int GCM_IV_LENGTH = 12;
-	private static final int GCM_TAG_LENGTH = 16;
-	private static final int AES_KEY_SIZE = 16;
+	private static final FileProcessor<byte[]> BASE_64_PROCESSOR = new FileProcessor<>() {
+
+        @Override
+        public byte[] process(Reader reader) throws IOException {
+            BufferedReader lines = new BufferedReader(reader);
+            String secret = lines.readLine();
+            return getDecoder().decode(secret);
+        }
+	    
+	};
 	
 	private Environment env;
 	
-	private byte[] master;
+	private byte[] key;
 	private byte[] iv;
 	
 	protected MasterSecret() {
@@ -82,56 +81,14 @@ public class MasterSecret {
 	
 	@PostConstruct
 	public void init() {
-		this.master = new byte[AES_KEY_SIZE];
-		this.iv     = new byte[GCM_IV_LENGTH];
+		// Read master secret from file
+		byte[] masterSecret = env.loadConfig(LEITSTAND_MASTER_SECRET_FILE_NAME, 
+										     BASE_64_PROCESSOR,
+										     () -> toUtf8Bytes("changeit"));
 		
-		// Load the master.secret file. 
-		// Defaults to empty properties file, if file does not exist.
-		Properties masterSecret = env.loadFile(RBMS_MASTER_SECRET_FILE_NAME, 
-											   properties());
-		
-		// Read configured secret
-		String secret64 = masterSecret.getProperty(RBMS_PROPERTY_MASTER_SECRET,
-												   getSystemProperty(RBMS_PROPERTY_MASTER_SECRET));
-		if(isNonEmptyString(secret64)) {
- 			byte[] secretMd5 = md5().hash(decodeBase64String(secret64));
- 			byte[] secretMd5Md5 = md5().hash(secretMd5);
- 			arraycopy(secretMd5,
- 					  0,
- 					  master,
- 					  0,
- 					  AES_KEY_SIZE);
- 			arraycopy(secretMd5Md5,
- 					  0,
-					  iv,
-					  0,
-					  GCM_IV_LENGTH);
- 		} else {
- 			byte[] defaultMd5 = md5().hash("changeit");
- 			byte[] defaultMd5Md5 = md5().hash(defaultMd5);
- 			arraycopy(defaultMd5,
-					  0,
-					  master,
-					  0,
-					  AES_KEY_SIZE);
-			arraycopy(defaultMd5Md5,
-					  0,
-					  iv,
-					  0,
-					  GCM_IV_LENGTH);
- 		}
+		this.key = md5().hash(masterSecret);
+ 		this.iv = md5().hash(key);
 
-		// Overwrite iv, if another iv is configured
- 		String iv64 = masterSecret.getProperty(RBMS_PROPERTY_MASTER_IV,
- 											   getSystemProperty(RBMS_PROPERTY_MASTER_IV));
- 		if(isNonEmptyString(iv64)) {
- 			arraycopy(md5().hash(decodeBase64String(iv64)),
-					  0,
-					  iv,
-					  0,
-					  GCM_IV_LENGTH);
- 		}
-		
 	}
 	
 	/**
@@ -142,10 +99,10 @@ public class MasterSecret {
 	 */
 	public byte[] decrypt(byte[] ciphertext){
 		try{
-			Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+			Cipher cipher = Cipher.getInstance("AES/CTR/NoPadding");
 			cipher.init(DECRYPT_MODE, 
-						new SecretKeySpec(master,"AES"),
-						new GCMParameterSpec(GCM_TAG_LENGTH * 8, iv));
+						new SecretKeySpec(key,"AES"),
+						new IvParameterSpec(iv));
 			return cipher.doFinal(ciphertext);
 		} catch(Exception e){
 			LOG.fine(() -> "Cannot decrypt ciphertext: "+e.getMessage());
@@ -172,10 +129,10 @@ public class MasterSecret {
 	 */
 	public byte[] encrypt(byte[] plaintext) {
 		try{
-			Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+			Cipher cipher = Cipher.getInstance("AES/CTR/NoPadding");
 			cipher.init(ENCRYPT_MODE, 
-						new SecretKeySpec(master,"AES"),
-						new GCMParameterSpec(GCM_TAG_LENGTH * 8, iv));
+						new SecretKeySpec(key,"AES"),
+						new IvParameterSpec(iv));
 			return cipher.doFinal(plaintext);
 		} catch(Exception e){
 			LOG.fine(() -> "Cannot encrypt ciphertext: "+e.getMessage());
