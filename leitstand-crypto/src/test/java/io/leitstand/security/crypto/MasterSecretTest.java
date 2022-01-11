@@ -66,7 +66,7 @@ public class MasterSecretTest {
         byte[] plain   = toUtf8Bytes("plaintext");
         byte[] cipher  = defaultMaster.encrypt(plain);
         String cipher64 = getEncoder().encodeToString(cipher);
-        assertEquals("7ohGcWDaIdRH", cipher64);
+        assertEquals("YsbEf8HgQxB4", cipher64);
         
 	}
 	

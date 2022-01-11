@@ -16,7 +16,8 @@
 package io.leitstand.security.crypto;
 
 import static io.leitstand.commons.model.StringUtil.toUtf8Bytes;
-import static io.leitstand.security.crypto.SecureHashes.md5;
+import static io.leitstand.security.crypto.SecureHashes.sha3_256;
+import static java.util.Arrays.copyOfRange;
 import static java.util.Base64.getDecoder;
 import static java.util.logging.Level.FINER;
 import static java.util.logging.Logger.getLogger;
@@ -45,8 +46,8 @@ import io.leitstand.commons.etc.FileProcessor;
  * The master secret is stored base64-encoded in the <code>{LEITSTAND_ENV}/master.secret</code> file
  * and defaults to <em>changeit</em> if the file does not exist. 
  * <p>
- * The AES key is the MD5 hash of the specified secret.
- * The IV is the MD5 hash of the computed AES key.
+ * The master secret computes a SHA3-256 hash from the given master secret and uses the first 16 bytes 
+ * as key and the last 16 bytes as IV.
  */
 @ApplicationScoped
 public class MasterSecret {
@@ -86,8 +87,9 @@ public class MasterSecret {
 										     BASE_64_PROCESSOR,
 										     () -> toUtf8Bytes("changeit"));
 		
-		this.key = md5().hash(masterSecret);
- 		this.iv = md5().hash(key);
+		byte[] sha256 = sha3_256().hash(masterSecret);
+		this.key = copyOfRange(sha256, 0, 16) ;
+ 		this.iv = copyOfRange(sha256,16,32);
 
 	}
 	
