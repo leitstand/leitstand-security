@@ -17,6 +17,6 @@
  * (c) RtBrick, Inc - All rights reserved, 2015 - 2019
  */
 /**
- *
+ * Contains the access key events that can be fired as part of access key management.
  */
 package io.leitstand.security.accesskeys.event;

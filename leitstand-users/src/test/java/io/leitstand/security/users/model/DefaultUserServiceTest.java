@@ -15,12 +15,14 @@
  */
 package io.leitstand.security.users.model;
 
-import static io.leitstand.security.auth.UserId.randomUserId;
+import static io.leitstand.security.auth.UserName.userName;
 import static io.leitstand.security.users.model.PasswordService.ITERATIONS;
 import static io.leitstand.security.users.model.UserSettingsMother.newOperator;
+import static io.leitstand.security.users.service.EmailAddress.emailAddress;
 import static io.leitstand.security.users.service.ReasonCode.IDM0005E_INCORRECT_PASSWORD;
 import static io.leitstand.security.users.service.ReasonCode.IDM0007E_ADMIN_PRIVILEGES_REQUIRED;
 import static io.leitstand.security.users.service.ReasonCode.IDM0008E_PASSWORD_MISMATCH;
+import static io.leitstand.security.users.service.UserId.randomUserId;
 import static io.leitstand.security.users.service.UserSettings.newUserSettings;
 import static io.leitstand.security.users.service.UserSubmission.newUserSubmission;
 import static io.leitstand.testing.ut.LeitstandCoreMatchers.reason;
@@ -60,8 +62,9 @@ import io.leitstand.commons.messages.Messages;
 import io.leitstand.commons.model.Query;
 import io.leitstand.commons.model.Repository;
 import io.leitstand.security.auth.UserContext;
-import io.leitstand.security.auth.UserId;
 import io.leitstand.security.auth.UserName;
+import io.leitstand.security.users.service.EmailAddress;
+import io.leitstand.security.users.service.UserId;
 import io.leitstand.security.users.service.UserSettings;
 import io.leitstand.security.users.service.UserSubmission;
 
@@ -88,6 +91,7 @@ public class DefaultUserServiceTest {
 	private DefaultUserService service = new DefaultUserService();
 	
 	private static final UserId AUTHENTICATED = randomUserId();
+	private static final UserName USER = userName("user");
 	
 	@Test
 	public void create_new_user_with_custom_ttl() {
@@ -142,9 +146,8 @@ public class DefaultUserServiceTest {
 	public void non_admin_user_cannot_modify_other_user() {
 		exception.expect(AccessDeniedException.class);
 		exception.expect(reason(IDM0007E_ADMIN_PRIVILEGES_REQUIRED));
-		UserId other =randomUserId();
 		User user = mock(User.class);
-		when(userContext.getUserId()).thenReturn(other);
+		when(userContext.getUserName()).thenReturn(userName("other"));
 		when(repository.execute(any(Query.class)))
 					   .thenReturn(user);
 		service.storeUserSettings(newOperator("unittest"));
@@ -158,7 +161,6 @@ public class DefaultUserServiceTest {
 		Role role = mock(Role.class);
 		when(user.getUserName()).thenReturn(new UserName("other"));
 		
-		when(userContext.getUserId()).thenReturn(AUTHENTICATED);
 		when(repository.execute(any(Query.class)))
 					   .thenReturn(user)
 					   .thenReturn(role);
@@ -177,11 +179,18 @@ public class DefaultUserServiceTest {
 	public void non_admin_user_can_modify_its_own_settings() {
 		User user = mock(User.class);
 		when(user.getUserId()).thenReturn(AUTHENTICATED);
-		when(userContext.getUserId()).thenReturn(AUTHENTICATED);
-		when(userContext.scopesIncludeOneOf("adm")).thenReturn(true);
+		when(user.getUserName()).thenReturn(USER);
+		when(userContext.scopesIncludeOneOf("adm")).thenReturn(false);
+		when(userContext.getUserName()).thenReturn(USER);
 		when(repository.execute(any(Query.class))).thenReturn(user);
 
-		UserSettings settings = newUserSettings().withUserId(AUTHENTICATED).build();
+		UserSettings settings = newUserSettings()
+								.withUserId(AUTHENTICATED)
+								.withUserName(USER)
+								.withGivenName("John")
+								.withFamilyName("Doe")
+								.withEmailAddress(emailAddress("john.doe@acme.com"))
+								.build();
 		service.storeUserSettings(settings);
 		verify(user).setUserName(settings.getUserName());
 		verify(user).setEmailAddress(settings.getEmail());

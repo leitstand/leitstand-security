@@ -4,12 +4,11 @@ plugins {
 }
 
 dependencies {
-    implementation project(':leitstand-crypto')
+	implementation project(':leitstand-crypto')
     implementation 'io.leitstand:leitstand-commons:' + findProperty("versions.leitstand-commons")
+    implementation 'com.nimbusds:nimbus-jose-jwt:9.15.2'
+
     compileOnly 'javax:javaee-api:8.0'
-    implementation 'io.jsonwebtoken:jjwt-api:0.11.0'
-    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.0'
-    runtimeOnly 'io.jsonwebtoken:jjwt-gson:0.11.0'
 
     testImplementation 'junit:junit:4.12'
     testImplementation 'io.leitstand:leitstand-test:' + findProperty("versions.leitstand-commons")
@@ -23,9 +22,6 @@ dependencies {
 java {
     withSourcesJar()
     withJavadocJar()
-    javadoc {
-        failOnError = false
-    }
 }
 
 publishing {

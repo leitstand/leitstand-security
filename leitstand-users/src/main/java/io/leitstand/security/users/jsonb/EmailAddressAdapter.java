@@ -17,6 +17,7 @@ package io.leitstand.security.users.jsonb;
 
 import javax.json.bind.adapter.JsonbAdapter;
 
+import io.leitstand.commons.model.Scalar;
 import io.leitstand.security.users.service.EmailAddress;
 
 /**
@@ -32,7 +33,7 @@ public class EmailAddressAdapter implements JsonbAdapter<EmailAddress, String> {
 	 */
 	@Override
 	public String adaptToJson(EmailAddress obj) throws Exception {
-		return EmailAddress.toString(obj);
+		return Scalar.toString(obj);
 	}
 
 	/**

@@ -17,12 +17,32 @@ package io.leitstand.security.auth;
 
 import java.util.Set;
 
-
+/**
+ * The request-scoped CDI-managed <code>UserContext</code> provides information about the authenticated user.
+ */
 public interface UserContext {
 
-	UserId getUserId();
+	/**
+	 * Returns the user name of the authenticated user.
+	 * @return the user name of the authenticated user.
+	 */
 	UserName getUserName();
+	/**
+	 * Returns the scopes the user is authorized to access.
+	 * @return the scopes the user is authorized to access.
+	 */
 	Set<String> getScopes();
+	
+	/**
+	 * Returns whether the current request is unauthenticated.
+	 * @return <code>true</code> when the request is an unauthenticated request.
+	 */
 	boolean isUnauthenticated();
-	boolean scopesIncludeOneOf(String... value);
+	
+	/**
+	 * Tests whether the user is allowed to access at least one of the given scopes.
+	 * @param scopes the scopes to be tested for access
+	 * @return <code>true</code> if the user is allowed to access at least one of the given scopes, <code>false</code> otherwise.
+	 */
+	boolean scopesIncludeOneOf(String... scopes);
 }

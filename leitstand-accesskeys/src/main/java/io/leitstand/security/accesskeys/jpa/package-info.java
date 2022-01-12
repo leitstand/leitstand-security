@@ -14,6 +14,6 @@
  * the License.
  */
 /**
- * Accesskey-management related JPA converters.
+ * Access key management related JPA converters.
  */
 package io.leitstand.security.accesskeys.jpa;

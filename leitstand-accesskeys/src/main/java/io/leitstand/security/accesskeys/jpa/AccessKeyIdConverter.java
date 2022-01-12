@@ -18,20 +18,34 @@ package io.leitstand.security.accesskeys.jpa;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
-import io.leitstand.security.auth.accesskey.AccessKeyId;
+import io.leitstand.commons.model.Scalar;
+import io.leitstand.security.auth.accesskeys.AccessKeyId;
 
 
+/**
+ * <code>AccessKeyId</code> JPA converter.
+ */
 @Converter(autoApply=true)
 public class AccessKeyIdConverter implements AttributeConverter<AccessKeyId, String>{
 
+	/**
+	 * Converts an <code>AccessKeyId</code> to a string.
+	 * @param id the access key ID
+	 * @return access key ID string representation or <code>null</code> if the given access key is <code>null</code>
+	 */
 	@Override
 	public String convertToDatabaseColumn(AccessKeyId id) {
-		return AccessKeyId.toString(id);
+		return Scalar.toString(id);
 	}
 
+	/**
+	 * Creates an <code>AccessKeyId</code> from the given string.
+	 * @param key the string representation of an access key.
+	 * @return the <code>AccessKeyId</code> object or <code>null</code> if the given string is <code>null</code> or empty.
+	 */
 	@Override
-	public AccessKeyId convertToEntityAttribute(String name) {
-		return AccessKeyId.valueOf(name);
+	public AccessKeyId convertToEntityAttribute(String key) {
+		return AccessKeyId.valueOf(key);
 	}
 
 }

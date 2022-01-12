@@ -17,19 +17,33 @@ package io.leitstand.security.auth.jsonb;
 
 import javax.json.bind.adapter.JsonbAdapter;
 
-import io.leitstand.security.auth.accesskey.AccessKeyId;
+import io.leitstand.commons.model.Scalar;
+import io.leitstand.security.auth.accesskeys.AccessKeyId;
 
 
+/**
+ * <code>AccessKeyId</code> JSON-B adapter.
+ */
 public class AccessKeyIdAdapter implements JsonbAdapter<AccessKeyId,String> {
 
+	/**
+	 * Creates a <code>AccessKeyId</code> from the given string.
+	 * @param id the access key ID
+	 * @return the typed access key ID or <code>null</code> if the given string is <code>null</code> or empty
+	 */
 	@Override
-	public AccessKeyId adaptFromJson(String v) throws Exception {
-		return AccessKeyId.valueOf(v);
+	public AccessKeyId adaptFromJson(String id) throws Exception {
+		return AccessKeyId.valueOf(id);
 	}
 
+	/**
+	 * Converts a <code>AccessKeyId</code> to a string.
+	 * @param id the access key ID
+	 * @return the string representation of the given access key ID or <code>null</code> if the given access key is <code>null</code>
+	 */
 	@Override
-	public String adaptToJson(AccessKeyId v) throws Exception {
-		return AccessKeyId.toString(v);
+	public String adaptToJson(AccessKeyId id) throws Exception {
+		return Scalar.toString(id);
 	}
 
 }

@@ -4,11 +4,11 @@ plugins {
 }
 
 dependencies {
-    implementation project(':leitstand-auth')
-    implementation project(':leitstand-sso')
     implementation project(':leitstand-crypto')
-    implementation project(':leitstand-accesskeys-validation')
+    implementation project(':leitstand-users')
+    implementation project(':leitstand-auth')
     implementation 'io.leitstand:leitstand-commons:' + findProperty("versions.leitstand-commons")
+    implementation 'com.nimbusds:nimbus-jose-jwt:9.15.2'
     compileOnly 'javax:javaee-api:8.0'
 
 

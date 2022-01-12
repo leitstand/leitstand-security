@@ -17,7 +17,7 @@ package io.leitstand.security.users.model;
 
 import static io.leitstand.commons.db.DatabaseService.prepare;
 import static io.leitstand.commons.messages.MessageFactory.createMessage;
-import static io.leitstand.security.auth.UserId.userId;
+import static io.leitstand.commons.model.StringUtil.isEmptyString;
 import static io.leitstand.security.auth.UserName.userName;
 import static io.leitstand.security.users.model.PasswordService.ITERATIONS;
 import static io.leitstand.security.users.model.Role.findRoleByName;
@@ -33,10 +33,12 @@ import static io.leitstand.security.users.service.ReasonCode.IDM0006E_ROLE_NOT_F
 import static io.leitstand.security.users.service.ReasonCode.IDM0007E_ADMIN_PRIVILEGES_REQUIRED;
 import static io.leitstand.security.users.service.ReasonCode.IDM0008E_PASSWORD_MISMATCH;
 import static io.leitstand.security.users.service.ReasonCode.IDM0009I_USER_REMOVED;
+import static io.leitstand.security.users.service.UserId.userId;
 import static io.leitstand.security.users.service.UserReference.newUserReference;
 import static io.leitstand.security.users.service.UserSettings.newUserSettings;
 import static java.lang.String.format;
 import static java.util.logging.Level.FINER;
+import static java.util.logging.Logger.getLogger;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -54,10 +56,11 @@ import io.leitstand.commons.db.DatabaseService;
 import io.leitstand.commons.messages.Messages;
 import io.leitstand.commons.model.Repository;
 import io.leitstand.commons.model.Service;
+import io.leitstand.commons.model.StringUtil;
 import io.leitstand.security.auth.UserContext;
-import io.leitstand.security.auth.UserId;
 import io.leitstand.security.auth.UserName;
 import io.leitstand.security.users.service.RoleName;
+import io.leitstand.security.users.service.UserId;
 import io.leitstand.security.users.service.UserReference;
 import io.leitstand.security.users.service.UserService;
 import io.leitstand.security.users.service.UserSettings;
@@ -71,7 +74,7 @@ public class DefaultUserService implements UserService {
 
 	private static final String ADM_SCOPE = "adm";
 
-	private static final Logger LOG = Logger.getLogger(DefaultUserService.class.getName());
+	private static final Logger LOG = getLogger(DefaultUserService.class.getName());
 	
 	@Inject
 	@IdentityManagement
@@ -115,7 +118,7 @@ public class DefaultUserService implements UserService {
 	@Override
 	public List<UserReference> findUsers(String filter) {
 		
-		if(filter == null || filter.isEmpty()) {
+		if(isEmptyString(filter)) {
 			return db.executeQuery(prepare("SELECT uuid, name, email, givenname, familyname FROM auth.userdata ORDER BY familyname,givenname,name"), 
 						    	   rs -> newUserReference()
 						    	   		 .withUserId(userId(rs.getString(1)))
@@ -144,7 +147,7 @@ public class DefaultUserService implements UserService {
 	@Override
 	public void storeUserSettings(UserSettings settings) {
 		User user = findUser(settings.getUserId());
-		if(context.scopesIncludeOneOf(ADM_SCOPE) || context.getUserId().equals(user.getUserId())) {
+		if(context.scopesIncludeOneOf(ADM_SCOPE) || context.getUserName().equals(user.getUserName())) {
 			user.setUserName(settings.getUserName());
 			user.setGivenName(settings.getGivenName());
 			user.setFamilyName(settings.getFamilyName());

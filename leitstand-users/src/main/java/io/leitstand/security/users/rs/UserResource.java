@@ -39,8 +39,8 @@ import io.leitstand.commons.ConflictException;
 import io.leitstand.commons.messages.Messages;
 import io.leitstand.commons.rs.Resource;
 import io.leitstand.security.auth.Scopes;
-import io.leitstand.security.auth.UserId;
 import io.leitstand.security.auth.UserName;
+import io.leitstand.security.users.service.UserId;
 import io.leitstand.security.users.service.UserService;
 import io.leitstand.security.users.service.UserSettings;
 

@@ -15,11 +15,27 @@
  */
 package io.leitstand.security.accesskeys.rs;
 
+/**
+ * Enumeration of the access token scopes protecting access-key management.
+ */
 public final class Scopes {
 	
+	/**
+	 * The <code>adm</code> scope grants unrestricted access to access-key management.
+	 */
 	public static final String ADM = "adm";
+	/**
+	 * The <code>adm.read</code> scope grants read-only access to access-key management.
+	 */
 	public static final String ADM_READ = "adm.read";
+	/**
+	 * The <code>adm.accesskey</code> scope grants unrestricted access to access-key management.
+	 */
 	public static final String ADM_ACCESSKEY = "adm.accesskey";
+
+	/**
+	 * The <code>adm.accesskey.read</code> scope grants read-only access to access-key management.
+	 */
 	public static final String ADM_ACCESSKEY_READ = "adm.accesskey.read";
 	
 	private Scopes() {
