@@ -23,10 +23,16 @@ import java.util.ResourceBundle;
 
 import io.leitstand.commons.Reason;
 
+/**
+ * Enumeration of authentication-related reason codes.
+ * @author mast
+ *
+ */
 public enum ReasonCode implements Reason {
 
-	/** User is not allowed to access the resource and/or to execute the attempted operation.*/
+	/** Unauthenticated users are not allowed to access this resource.*/
 	AUT0001E_UNAUTHENTICATED_ACCESS_DENIED,
+	/** The authenticated user is not authorized to access this resource.*/ 
 	AUT0002E_SCOPE_ACCESS_DENIED;
 	
 	private static final ResourceBundle MESSAGES = getBundle("AuthMessages");

@@ -1,36 +1,69 @@
-# Leitstand Authentication Framework
+# Leitstand Authentication Service
 
-The _Leitstand Authentication Framework_ provides a simple framework to authenticate Leitstand requests.
-
-## Authentication Extension Points
-
-The _Leitstand Authentication Framework_ defines two main extension points, the `LoginManager` and the `AccessTokenManager`.
-The `LoginManager` validates user-password credentials and issues an access token to authenticate subsequent requests, 
-unless the credentials were invalid.
-An `AccessTokenManager` validates an access token and rejects requests with an invalid access tokens.
+The _Leitstand Authentication Service_ provides support for different authentication methods to authorize Leitstand REST API calls.
 
 
-## Access Keys
-The [leitstand-accesskeys](../leitstand-accesskeys/README.md) and [leitstand-accesskeys-validation](../leitstand-accesskeys-validation/README.md) projects
-provide access keys support for inter-system authentication. 
+## User Login Service
 
-## JSON Web Token
-The authentication framework issues a JSON Web Token (JWT) when valid  credentials are send to the `/api/v1/login` endpoint:
+The user login service enables a user-agent to obtain an access token to authorize Leitstand REST API calls.
+The access token is a JSON Web Token is stored in a session cookie.
+The cookie name defaults to `LEITSTAND_ACCESS` and can be renamed by setting the `LEITSTAND_ACCESS_TOKEN_COOKIE_NAME` environment variable.
 
-```JSON
-{"user_id":"admin",
- "password":"changeit"}
-```
+### OpenID/Connect Authorization Service
+Leitstand can be configured to delegate user authentication to an OpenID/Connect compliant authorization service using the [OpenID Authentication Flow](https://openid.net/specs/openid-connect-basic-1_0.html#CodeFlow).
 
-The JWT is stored in a cookie to authenticate subsequent requests.
+The authorization service prompts the user for credentials and assigns the [resource scopes](../leitstand-auth/README.md) the user is allowed to access to the created access token. 
 
-The default [Login Manager](../leitstand-login/README.md) validates the credentials against the [Leitstand User Repository](../leitstand-users/README.md).
+Leitstand forwards the access token to the user-agent and stores a refresh-token 
+for renewing expired access tokens without prompting the user for credentials again.
 
-## HTTP Basic Authentication
-In HTTP Basic Authentication the `Authorization` HTTP request header conveys the Base64-encoded user password credentials to authenticate a request.
+OpenID/Connect can be configured with the following environment variables.
 
-Leitstand decodes the `Authorization` header and verifies the provided credentials.
-Leitstand sends a `401 Unauthorized` reply if the credentials are invalid.
+| Environment Variable                      | Description                                                                                                        |
+|:------------------------------------------|:-------------------------------------------------------------------------------------------------------------------|
+| OIDC\_CLIENT\_ID                          | Client ID to authenticate Leitstand against the authorization service.                                             |
+| OIDC\_CLIENT\_SECRET                      | Client secret to authenticate Leitstand against the authorization service.                                         |
+| OIDC\_CONNECT\_TIMEOUT	                    | Connect timeout in milliseconds (Defaults to 10000).                                                               |
+| OIDC\_READ\_TIMEOUT                       | Read timeout in milliseconds (Defaults to 10000).         				                                             |
+| OIDC\_CONFIGURATION\_ENDPOINT				| URL to auto-discover the OpenID/Connect service endpoints and key set.                                             |
 
-Basic authentication is handy for instant authentication of `curl` commands.
-However, since the credentials are not encrypted by any means it is highly recommended to use basic authentication rarely.
+The OpenId/Connect settings can also be applied manually in case the configuration endpoint is not available:
+
+| Environment Variable                      | Description                                                                                                        |
+|:------------------------------------------|:-------------------------------------------------------------------------------------------------------------------|
+| OIDC\_AUTHORIZATION\_ENDPOINT             | Authorization service URL to be used if no configuration endpoint exists.                                          |
+| OIDC\_TOKEN\_ENDPOINT                     | Token service URL to be used if no configuration endpoint exists.                                                  |
+| OIDC\_USERINFO\_ENDPOINT                  | OpenID user info URL to be used if no configuration endpoint exists.      											 |
+| OIDC\_END\_SESSION_\ENDPOINT				| End session service URL to be used if no configuration endpoint exists.											 |
+| OIDC\_JWKS\_URL					        | URL to download the trusted keys. |
+| OIDC\_JWS\_ALGORITHM                      | The token signature algorithm (defaults to RS256) |
+
+[Keycloak](keycloak.md) is an open-source identity management system that can be connected with Leitstand.
+
+### Leitstand Authorization Service
+
+The Leitstand built-in authorization can be used if not OpenId/Connect authorization server is available. 
+It validates the user's credentials against the credentials stored in the Leitstand [user repository](../leitstand-users/README.md).
+
+The [Leitstand UI](../leitstand-security-ui/README.md) includes views to maintain users, user roles and the resource scopes each role is allowed to access.
+
+The Leitstand Authorization Service includes a rudimentary support for the [OpenID Authentication Flow](https://openid.net/specs/openid-connect-basic-1_0.html#CodeFlow), which allows spanning a Single-Sign On domain between Leitstand and 3rd-party products embedded in the Leitstand UI.
+
+## Bearer Tokens
+
+Bearer tokens are typically used to authorize a request with a [Leitstand Access Key](../leitstand-accesskeys/README.md) but Leitstand also accepts access tokens issued by the login service as bearer tokens.
+
+
+## HTTP Basic Authentication (deprecated)
+
+**It is strongly recommended to use Leitstand access keys rather than basic authentication.**
+
+HTTP Basic Authentication support is deprecated and disabled by default.
+It can be enabled by setting the `BASIC_AUTH_ENABLED` environment variable to `true`.
+HTTP Basic Authentication support is limited to Leitstand Java Services, the inventory, essentially speakinkg, and very likely to be completely removed soon.
+
+The user credentials are validated against the Leitstand user repository, even if user authentication is delegated to an OpenID/Connect-compliant authorization service. 
+
+
+
+

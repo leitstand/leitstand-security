@@ -1,6 +1,6 @@
 # Leitstand User Repository Database Model
 
-This document describes the tables, including their relations, forming the _Leitstand User Repository Database Model_, 
+This document describes the tables, including their relations, of the _Leitstand User Repository Database Model_, 
 which is a relational database model.
 
 The Leitstand user repository tables are located in the `auth` database schema.
@@ -80,6 +80,18 @@ The `USERDATA_ID` and `USERROLE_ID` columns form the primary key.
 The `userdata_userrole` table has two foreign keys.
 - The `userdata_id` column refers to the `ID` column in the `userdata` table.
 - The `userrole_id` column refers to the `ID` column in the `userrole` table.
+
+
+### `userrole_scope` Table
+
+The `userrole_scope` tables contains the scopes assigned to a user role.
+
+#### Columns
+
+| Column      | Type    | Description                       |
+|:------------|:--------|:----------------------------------|
+| USERROLE_ID | INT8    | Reference to the userrole record. |
+| SCOPE       | VARCHAR | The scope name.                   |
 
 
 

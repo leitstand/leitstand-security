@@ -49,6 +49,7 @@ public class RsaKeysTest {
         StringWriter w = new StringWriter();
         storeRsaKeyPair(p, w);
         StringReader r = new StringReader(w.toString());
+        System.out.println(w);
         KeyPair q = readRsaKeyPair(r);
         
         Cipher decrypt = Cipher.getInstance("RSA");

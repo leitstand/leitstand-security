@@ -27,7 +27,6 @@ import static javax.crypto.Cipher.ENCRYPT_MODE;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
-import java.util.Base64;
 import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
@@ -39,7 +38,6 @@ import javax.inject.Inject;
 
 import io.leitstand.commons.etc.Environment;
 import io.leitstand.commons.etc.FileProcessor;
-import io.leitstand.commons.model.StringUtil;
 
 /**
  * The master secret allows protecting sensitive configuration settings using <em>AES</em> encryption

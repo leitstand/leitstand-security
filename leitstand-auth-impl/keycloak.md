@@ -1,6 +1,6 @@
 # Leitstand Keycloak Integration
 
-[Keycloak](https://www.keycloak.org) is an open source identity and access management system, that supports the OpenID authentication flow.
+[Keycloak](https://www.keycloak.org) is an open source identity and access management system that supports the [OpenID Authentication Flow](https://openid.net/specs/openid-connect-basic-1_0.html#CodeFlow).
 
 ## Keycloak Setup
 
