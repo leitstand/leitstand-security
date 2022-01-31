@@ -14,6 +14,7 @@ import com.nimbusds.jose.proc.JWSKeySelector;
 import com.nimbusds.jose.proc.JWSVerificationKeySelector;
 import com.nimbusds.jose.proc.SecurityContext;
 import com.nimbusds.jwt.SignedJWT;
+import com.nimbusds.jwt.proc.BadJWTException;
 import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import com.nimbusds.jwt.proc.JWTProcessor;
@@ -70,9 +71,17 @@ public class DefaultJwksDecoder implements JwtDecoder {
      */
     @Override
     public Claims decode(String token) {
-        try {
-            SignedJWT jwt = SignedJWT.parse(token);
-            return new Claims(processor.process(jwt, null));
+    	try {
+    		SignedJWT jwt = SignedJWT.parse(token);
+    		try {
+    			return new Claims(processor.process(jwt, null));
+    		} catch(BadJWTException e) {
+    			if ("Expired JWT".equals(e.getMessage())) {
+    				return new Claims(jwt.getJWTClaimsSet());
+    			}
+                throw new JwtException("Invalid access token: "+e.getMessage(),e);
+
+    		}
         } catch (Exception e) {
             throw new JwtException("Cannot decode token: "+e.getMessage(),e);
         }

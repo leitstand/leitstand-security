@@ -18,7 +18,7 @@ import io.leitstand.security.sso.sys.service.LoginConfigurationService;
  */
 @Resource
 @Public // Allow unauthenticated access, because login configuration is required to know how to establish a session. 
-@Path("/login-config")
+@Path("/login/config")
 @Produces(APPLICATION_JSON)
 public class LoginConfigResource {
 

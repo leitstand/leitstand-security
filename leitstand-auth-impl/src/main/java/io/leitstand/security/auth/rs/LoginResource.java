@@ -17,6 +17,7 @@ package io.leitstand.security.auth.rs;
 
 import static io.leitstand.security.auth.UserName.userName;
 import static java.lang.String.format;
+import static java.util.logging.Logger.getLogger;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
 import java.util.logging.Logger;
@@ -35,17 +36,16 @@ import javax.ws.rs.core.SecurityContext;
 import io.leitstand.commons.rs.Public;
 import io.leitstand.commons.rs.Resource;
 import io.leitstand.security.auth.user.UserRegistry;
-import io.leitstand.security.sso.sys.service.LoginConfiguration;
 import io.leitstand.security.users.service.UserInfo;
 
 @Public
 @Resource
-@Path("/login")
 @Consumes(APPLICATION_JSON)
 @Produces(APPLICATION_JSON)
+@Path("")
 public class LoginResource {
 	
-	private static final Logger LOG = Logger.getLogger(LoginResource.class.getName());
+	private static final Logger LOG = getLogger(LoginResource.class.getName());
 
 	@Inject
 	private UserRegistry users;
@@ -56,7 +56,7 @@ public class LoginResource {
 		return users.getUserInfo(userName(context.getUserPrincipal()));
 	}
 	
-	@POST
+	@GET
 	@Path("/logout")
 	public void logout(@Context HttpServletRequest request) {
 		try {

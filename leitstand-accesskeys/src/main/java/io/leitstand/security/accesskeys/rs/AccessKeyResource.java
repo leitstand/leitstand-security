@@ -112,7 +112,7 @@ public class AccessKeyResource {
 	 * @return the new access key JSON web token
 	 */
 	@POST
-	@Path("/{key_id}/_renew")
+	@Path("/{key_id}/renew")
 	public Response renewAccessKey(@PathParam("key_id") @Valid AccessKeyId accessKeyId){
 		RenewAccessKeyFlow renewFlow = new RenewAccessKeyFlow(service);
 		renewFlow.renew(accessKeyId);
@@ -180,7 +180,7 @@ public class AccessKeyResource {
 	 * @throws UnprocessableEntityException if the access token cannot be processed
 	 */
 	@POST
-	@Path("/_validate")	
+	@Path("/validate")	
 	@Consumes(TEXT_PLAIN)
 	public AccessKeySettings validate(String accessToken) {
 	    try {
@@ -202,7 +202,7 @@ public class AccessKeyResource {
 	 * @throws UnprocessableEntityException when the access key cannot be restored.
 	 */
 	@POST
-	@Path("/_restore")
+	@Path("/restore")
 	@Consumes(TEXT_PLAIN)
 	public AccessKeySettings restore(String accessToken) {
 	    try{

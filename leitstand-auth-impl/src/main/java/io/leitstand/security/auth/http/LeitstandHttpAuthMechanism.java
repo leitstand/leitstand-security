@@ -54,8 +54,8 @@ public class LeitstandHttpAuthMechanism implements HttpAuthenticationMechanism{
 	private static final Logger LOG = getLogger(LeitstandHttpAuthMechanism.class.getName());
 	
 	/**
-	 * Returns <code>true</code> if the request is a login request, 
-	 * i.e. a <code>POST</code> request submitted to <code>/api/v1/_login</code>.
+	 * Returns <code>true</code> if the request is a login request,
+	 * i.e. a request relates to session establishment.
 	 * @param request the HTTP request.
 	 * @return <code>true</code> if the request is a login request
 	 */
@@ -88,12 +88,12 @@ public class LeitstandHttpAuthMechanism implements HttpAuthenticationMechanism{
 		
 		if(isApiRequest(request)) {
 			if(isLoginRequest(request)) {
-				if(request.getRequestURI().startsWith("/api/v1/login/_login") && "POST".equals(request.getMethod())) {
+				if(request.getRequestURI().equals("/api/v1/login") && "POST".equals(request.getMethod())) {
 					return login(request,
 								 response,
 								 context);
 				}
-				// Grant unauthenticated access to login configurationa and SSO flows.
+				// Grant unauthenticated access to login and SSO flow endpoints.
 				return NOT_DONE;
 			}
 			

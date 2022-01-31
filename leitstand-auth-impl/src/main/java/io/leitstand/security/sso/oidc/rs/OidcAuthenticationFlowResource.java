@@ -19,6 +19,7 @@ import static io.leitstand.commons.etc.Environment.getSystemProperty;
 import static io.leitstand.security.sso.oidc.ReasonCode.OID0003I_SESSION_CREATED;
 import static java.lang.String.format;
 import static java.net.URLDecoder.decode;
+import static java.util.logging.Logger.getLogger;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.Response.ok;
 
@@ -44,7 +45,7 @@ import io.leitstand.security.sso.oidc.user.OidcUserService;
 
 @Public
 @Resource
-@Path("/login/oidc/")
+@Path("/login/oidc")
 @Consumes(APPLICATION_JSON)
 @Produces(APPLICATION_JSON)
 public class OidcAuthenticationFlowResource {
@@ -52,7 +53,7 @@ public class OidcAuthenticationFlowResource {
 	private static final String ID_COOKIE  = getSystemProperty("LEITSTAND_ID_TOKEN","LEITSTAND_ID");
 	private static final String JWS_COOKIE = getSystemProperty("LEITSTAND_ACCESS_TOKEN_COOKIE_NAME","LEITSTAND_ACCESS");
 	
-	private static final Logger LOG = Logger.getLogger(OidcAuthenticationFlowResource.class.getName());
+	private static final Logger LOG = getLogger(OidcAuthenticationFlowResource.class.getName());
 
 	@Inject
 	private OidcService oidc;
@@ -64,7 +65,7 @@ public class OidcAuthenticationFlowResource {
 	private RefreshTokenStore refreshTokens;
 	
 	@POST
-	@Path("/_authentication_flow")
+	@Path("/authenticate")
 	public Response authenticate(@QueryParam("code") String code, 
 								 @QueryParam("redirect_uri") String redirectUri) throws UnsupportedEncodingException{
 		

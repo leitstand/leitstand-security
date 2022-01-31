@@ -17,6 +17,7 @@ import java.util.TreeSet;
 import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.security.enterprise.identitystore.CredentialValidationResult;
@@ -41,7 +42,7 @@ import io.leitstand.security.sso.standalone.config.StandaloneLoginConfig;
 /**
  * The <code>BearerTokenValidator</code> validates a bearer token against the the API access and the OpenId/Connect or standalone login key. 
  */
-@Dependent
+@ApplicationScoped
 public class BearerTokenValidator implements AccessTokenManager {
 	
 	private static final Logger LOG = getLogger(BearerTokenValidator.class.getName());
