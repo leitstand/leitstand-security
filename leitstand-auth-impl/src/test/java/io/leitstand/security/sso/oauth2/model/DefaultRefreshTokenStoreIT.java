@@ -15,27 +15,38 @@
  */
 package io.leitstand.security.sso.oauth2.model;
 
+import static java.lang.System.currentTimeMillis;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
+import java.util.Date;
+
 import javax.persistence.EntityManager;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
+import io.leitstand.commons.etc.Environment;
 import io.leitstand.commons.model.Repository;
+import io.leitstand.security.crypto.MasterSecret;
 import io.leitstand.security.sso.oidc.oauth2.DefaultRefreshTokenStore;
 
 public class DefaultRefreshTokenStoreIT extends Oauth2IT{
 
+	@Rule
+	public TemporaryFolder etc = new TemporaryFolder();
+	
 	private DefaultRefreshTokenStore store;
 	
 	@Before
 	public void initTestEnvironment() {
 		EntityManager em = super.getEntityManager();
 		Repository repository = new Repository(em);
-		store = new DefaultRefreshTokenStore(repository);
+		Environment env = new Environment(etc.getRoot());
+		store = new DefaultRefreshTokenStore(repository, new MasterSecret(env));
 		
 	}
 	
@@ -45,8 +56,9 @@ public class DefaultRefreshTokenStoreIT extends Oauth2IT{
 	public void store_new_refresh_token() {
 		String sub = randomUUID().toString();
 		String token = "token";
+		Date expiry = new Date(currentTimeMillis()+10000);
 		transaction(() -> {
-			store.storeRefreshToken(sub, token);
+			store.storeRefreshToken(sub, token, expiry);
 		});
 		transaction(() -> {
 			assertEquals(token,store.getRefreshToken(sub));
@@ -57,15 +69,16 @@ public class DefaultRefreshTokenStoreIT extends Oauth2IT{
 	public void update_existing_refresh_token() {
 		String sub = randomUUID().toString();
 		String token = "a";
+		Date expiry = new Date(currentTimeMillis()+10000);
 		transaction(() -> {
-			store.storeRefreshToken(sub, token);
+			store.storeRefreshToken(sub, token, expiry);
 		});
 		transaction(() -> {
 			assertEquals(token,store.getRefreshToken(sub));
 		});
 		String newToken = "b";
 		transaction(() -> {
-			store.storeRefreshToken(sub, newToken);
+			store.storeRefreshToken(sub, newToken, expiry);
 		});
 		transaction(() -> {
 			assertEquals(newToken,store.getRefreshToken(sub));
@@ -84,8 +97,9 @@ public class DefaultRefreshTokenStoreIT extends Oauth2IT{
 	public void read_refresh_token() {
 		String sub = randomUUID().toString();
 		String token = "token";
+		Date expiry = new Date(currentTimeMillis()+10000);
 		transaction(() -> {
-			store.storeRefreshToken(sub, token);
+			store.storeRefreshToken(sub, token, expiry);
 		});
 		transaction(() -> {
 			assertEquals(token,store.getRefreshToken(sub));

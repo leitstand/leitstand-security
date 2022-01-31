@@ -15,9 +15,26 @@
  */
 package io.leitstand.security.sso.oidc.oauth2;
 
+import java.util.Date;
+
+/**
+ * The <code>RefreshTokenStore</code> stores OAuth refresh tokens to renew access tokens.
+ */
 public interface RefreshTokenStore {
 	
-	void storeRefreshToken(String sub, String refreshToken64);
+	/**
+	 * Stores a user's refresh token.
+	 * @param sub the user subject
+	 * @param refreshToken64 the Base64-encoded refresh token 
+	 * @param dateExpiry the expiry date of the refresh token
+	 */
+	void storeRefreshToken(String sub, String refreshToken64, Date expiryDate);
+	
+	/**
+	 * Returns the user's refresh token or <code>null</code> if no refresh token for the use exists.
+	 * @param sub the user subject
+	 * @return the user's refresh token or <code>null</code> if no refresh token exists.
+	 */
 	String getRefreshToken(String sub);
 	
 }

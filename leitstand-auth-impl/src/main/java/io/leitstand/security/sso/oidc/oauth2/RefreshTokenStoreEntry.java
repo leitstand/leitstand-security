@@ -15,12 +15,16 @@
  */
 package io.leitstand.security.sso.oidc.oauth2;
 
+import static javax.persistence.TemporalType.TIMESTAMP;
+
 import java.io.Serializable;
+import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
 
 @Table(schema="auth", name="oauth2_refreshtoken")
 @Entity
@@ -33,13 +37,18 @@ public class RefreshTokenStoreEntry implements Serializable{
 	@Column(name="token64")
 	private String refreshToken;
 	
+	@Temporal(TIMESTAMP)
+	@Column(name="exp")
+	private Date expiryDate;
+	
 	protected RefreshTokenStoreEntry() {
 		// JPA
 	}
 	
-	protected RefreshTokenStoreEntry(String sub, String refreshToken) {
+	protected RefreshTokenStoreEntry(String sub, String refreshToken, Date dateExpiry) {
 		this.sub = sub;
 		this.refreshToken = refreshToken;
+		this.expiryDate = dateExpiry;
 	}
 	
 	public String getRefreshToken() {
@@ -48,6 +57,10 @@ public class RefreshTokenStoreEntry implements Serializable{
 	
 	public String getSub() {
 		return sub;
+	}
+	
+	public boolean isExpired() {
+		return new Date().after(expiryDate);
 	}
 	
 }

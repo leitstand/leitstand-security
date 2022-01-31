@@ -17,14 +17,15 @@ package io.leitstand.security.sso.oidc.auth;
 
 import static io.leitstand.commons.etc.Environment.getSystemProperty;
 import static io.leitstand.security.auth.UserName.userName;
-import static io.leitstand.security.users.service.UserId.userId;
 import static java.lang.String.format;
+import static java.lang.System.currentTimeMillis;
 import static java.net.URLEncoder.encode;
 import static java.util.Collections.emptySet;
 import static java.util.logging.Level.FINE;
 import static javax.security.enterprise.identitystore.CredentialValidationResult.INVALID_RESULT;
 import static javax.security.enterprise.identitystore.CredentialValidationResult.NOT_VALIDATED_RESULT;
 
+import java.util.Date;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -44,7 +45,6 @@ import io.leitstand.security.oauth2.Oauth2AccessToken;
 import io.leitstand.security.sso.oidc.config.OidcConfig;
 import io.leitstand.security.sso.oidc.oauth2.RefreshTokenStore;
 import io.leitstand.security.sso.oidc.service.OidcService;
-import io.leitstand.security.users.service.UserId;
 
 /**
  * Scans the HTTP request for a Leitstand access token cookie and validates the discovered access token.
@@ -135,9 +135,6 @@ public class CookieManager implements AccessTokenManager{
 			return INVALID_RESULT;
 		}
 		
-		UserId userId =  userId(claims.getSubject());
-		
-		
 		Set<String> scopes = claims.getScopes();
 		UserName userName = userName(claims.getClaim("preferred_username"));
 		
@@ -169,7 +166,7 @@ public class CookieManager implements AccessTokenManager{
 		try {
 			Oauth2AccessToken oauth2 = client.refreshAccessToken(refreshToken);
 			// Store new refresh token
-			refreshTokens.storeRefreshToken(sub, oauth2.getRefreshToken());
+			refreshTokens.storeRefreshToken(sub, oauth2.getRefreshToken(), new Date(currentTimeMillis()+1000*oauth2.getExpiresIn()));
 			idCookie.setPath("/");
 			idCookie.setValue(oauth2.getIdToken());
 			idCookie.setHttpOnly(true);

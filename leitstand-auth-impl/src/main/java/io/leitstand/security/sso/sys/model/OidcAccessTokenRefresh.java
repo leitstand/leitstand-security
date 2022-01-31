@@ -1,6 +1,9 @@
 package io.leitstand.security.sso.sys.model;
 
 import static io.leitstand.security.oauth2.Oauth2AccessToken.newOauth2AccessToken;
+import static java.lang.System.currentTimeMillis;
+
+import java.util.Date;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
@@ -28,7 +31,9 @@ public class OidcAccessTokenRefresh {
         String sub = subject(accessToken);
         String refreshToken = refreshTokens.getRefreshToken(sub);
         Oauth2AccessToken oauth2 = client.refreshAccessToken(refreshToken);
-        refreshTokens.storeRefreshToken(sub, oauth2.getRefreshToken());
+        refreshTokens.storeRefreshToken(sub, 
+        								oauth2.getRefreshToken(),
+        								new Date(currentTimeMillis()+1000*oauth2.getExpiresIn()));
 
         // Do not expose refresh token to client!
      

@@ -18,12 +18,14 @@ package io.leitstand.security.sso.oidc.rs;
 import static io.leitstand.commons.etc.Environment.getSystemProperty;
 import static io.leitstand.security.sso.oidc.ReasonCode.OID0003I_SESSION_CREATED;
 import static java.lang.String.format;
+import static java.lang.System.currentTimeMillis;
 import static java.net.URLDecoder.decode;
 import static java.util.logging.Logger.getLogger;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.Response.ok;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Date;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -72,7 +74,6 @@ public class OidcAuthenticationFlowResource {
 		// Obtain an access token
 		Oauth2AccessToken accessToken = oidc.getAccessToken(code, decode(redirectUri,"UTF-8"));
 	
-		
 		// Load user info
 		OidcUserInfo userInfo = oidc.getUserInfo(accessToken);
 		
@@ -81,7 +82,8 @@ public class OidcAuthenticationFlowResource {
 		
 		// Store refresh token.
 		refreshTokens.storeRefreshToken(userInfo.getSub(),
-										 accessToken.getRefreshToken());
+										accessToken.getRefreshToken(),
+										new Date(currentTimeMillis() + 1000*accessToken.getExpiresIn()));
 		
 		LOG.fine(() -> format("%s: Created session for user %s",
 							  OID0003I_SESSION_CREATED.getReasonCode(),
