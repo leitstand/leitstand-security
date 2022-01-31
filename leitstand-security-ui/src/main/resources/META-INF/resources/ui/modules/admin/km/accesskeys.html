@@ -15,7 +15,7 @@
 -->
 <ui-view-header>
 	<ui-title>Access Keys</ui-title>
-	<ui-subtitle>Listing of all existing access keys.</ui-subtitle>
+	<ui-subtitle>Lists all existing access keys. Select an access key to view its details or revoke the access key.</ui-subtitle>
 </ui-view-header>
 <ui-form>
 	<ui-filter name="filter">
@@ -26,9 +26,7 @@
 <!-- {{#keys.length}} -->
 <ui-group>
 	<ui-label>Access Keys</ui-label>
-	<ui-note>List of all issued and valid access keys. 
-					An access key can be revoked in order to be invalidated. 
-					Access keys are immutable. The modification of an access key requires to issue a new access key.</ui-note>
+	<ui-note>List of all issued and valid access keys.</ui-note>
 	<table id="items" class="list">
 		<thead>
 		<tr>

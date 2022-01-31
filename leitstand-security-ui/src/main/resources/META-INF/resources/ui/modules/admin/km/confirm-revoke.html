@@ -17,8 +17,8 @@
 <ui-title>Confirm revoke access key {{key_name}}</ui-title>
 <ui-message>
 <ui-note>
-Revoking an access key <strong>cannot be undone!</strong> 
-Once being revoked, the access key owner is not allowed to access RBMS any longer.
+Revoking an access key bans all systems using this access key.
+Accidentally revoked access keys can be restored with the access key validator.
 </ui-note>
 </ui-message>
 <ui-approve name="revoke" danger scopesAllowed="adm adm.accesskeys">Confirm</ui-approve>

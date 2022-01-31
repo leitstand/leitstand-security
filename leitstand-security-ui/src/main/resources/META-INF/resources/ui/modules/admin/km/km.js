@@ -66,13 +66,13 @@ export class Accesskey extends Resource {
 	}
 	
 	validate(key){
-		return this.json("/api/v1/accesskeys/_validate")
+		return this.json("/api/v1/accesskeys/validate")
 				   .contentType("text/plain")
 				   .POST(key);
 	}
 	
 	restore(key){
-	    return this.json("/api/v1/accesskeys/_restore")
+	    return this.json("/api/v1/accesskeys/restore")
 	               .contentType("text/plain")
 	               .POST(key);
 	}

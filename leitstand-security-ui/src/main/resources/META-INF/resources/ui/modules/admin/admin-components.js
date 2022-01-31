@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-import {Select} from '/ui/js/ui-components.js';
+import {Select,UIElement,html} from '/ui/js/ui-components.js';
 import {Resource} from '/ui/js/client.js';
 
 
@@ -44,3 +44,22 @@ class ResourceScopes extends Select {
 }
 
 customElements.define('resource-scopes',ResourceScopes);
+
+class AccessKey extends UIElement {
+	
+	constructor(){
+		super();
+	}
+	
+	renderDom(){
+		const segments = this.innerText.split('.');
+		this.innerHTML=html 
+					`<code style="font-weight:bold; background-color:white; display:block; width: 60em; margin:auto; word-wrap:break-word; word-break:normal; white-space: pre-wap; border: 1px solid #eee">
+					 <span style="color:#7BB772">$${segments[0]}</span>.<span style="color:#CC4B74">$${segments[1]}</span>.<span style="color:#75B7CE">$${segments[2]}</span>
+					 </code>`
+		
+	}
+	
+	
+}
+customElements.define('access-key', AccessKey);

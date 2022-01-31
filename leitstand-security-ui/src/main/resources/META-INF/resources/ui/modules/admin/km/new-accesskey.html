@@ -41,15 +41,14 @@
 		<ui-button name="create-accesskey" primary>Create access key</ui-button>
 		<ui-button href="accesskeys.html">Cancel</ui-button>
 	</ui-actions>
-
 	<ui-group id="token" when="token">
 		<ui-label>Token</ui-label>
 		<ui-note>Please create a copy of the generated access key. 
 				 The access key token cannot be accessed again once this view has been closed.</ui-note>
-		<ui-code style="word-wrap:break-word; display:block; width:60em; margin: auto;">{{token}}</ui-code>
+		<access-key>{{token}}</access-key>
 		<ui-actions>
-			<ui-button href="accesskeys.html" class="primary">Close</ui-button>
+			<ui-copy primary value="{{token}}">Copy access key</ui-copy>
+			<ui-button href="accesskeys.html">Close</ui-button>
 		</ui-actions>
 	</ui-group>
-
 </ui-form>
