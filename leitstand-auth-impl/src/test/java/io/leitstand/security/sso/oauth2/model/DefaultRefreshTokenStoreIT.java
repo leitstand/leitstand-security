@@ -46,7 +46,9 @@ public class DefaultRefreshTokenStoreIT extends Oauth2IT{
 		EntityManager em = super.getEntityManager();
 		Repository repository = new Repository(em);
 		Environment env = new Environment(etc.getRoot());
-		store = new DefaultRefreshTokenStore(repository, new MasterSecret(env));
+		MasterSecret secret = new MasterSecret(env);
+		secret.init();
+		store = new DefaultRefreshTokenStore(repository, secret);
 		
 	}
 	

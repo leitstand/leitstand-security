@@ -49,8 +49,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import com.nimbusds.jwt.JWTClaimsSet;
-
 import io.leitstand.security.auth.http.UserContextProvider;
 import io.leitstand.security.auth.jwt.Claims;
 import io.leitstand.security.auth.jwt.JwtException;

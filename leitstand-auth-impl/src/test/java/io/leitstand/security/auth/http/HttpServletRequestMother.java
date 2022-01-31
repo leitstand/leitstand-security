@@ -27,7 +27,7 @@ public final class HttpServletRequestMother {
 
 	public static HttpServletRequest loginRequest() {
 		HttpServletRequest request = mock(HttpServletRequest.class);
-		when(request.getRequestURI()).thenReturn("/api/v1/login/_login");
+		when(request.getRequestURI()).thenReturn("/api/v1/login");
 		when(request.getMethod()).thenReturn("POST");
 		return request;
 	}
