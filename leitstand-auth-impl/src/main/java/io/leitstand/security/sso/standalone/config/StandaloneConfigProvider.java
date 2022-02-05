@@ -36,7 +36,7 @@ import io.leitstand.security.auth.jwt.DefaultRsaJwtService;
 import io.leitstand.security.sso.oidc.config.OidcConfig;
 
 /**
- * The <code>StandaloneLoginProvider</code> creates a {@link StandaloneLoginConfiguration} 
+ * The <code>StandaloneLoginProvider</code> creates a {@link StandaloneLoginConfig} 
  * if not OpenId/Connect authorization service is configured.
  * <p>
  * The standalone login configuration uses <em>RS256</em> signed access tokens.

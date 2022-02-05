@@ -1,4 +1,4 @@
-package io.leitstand.security.sso.sys.rs;
+package io.leitstand.security.sys.rs;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
@@ -11,8 +11,8 @@ import com.nimbusds.jose.jwk.JWKSet;
 
 import io.leitstand.commons.rs.Public;
 import io.leitstand.commons.rs.Resource;
-import io.leitstand.security.sso.sys.service.SsoSettings;
-import io.leitstand.security.sso.sys.service.SsoSettingsService;
+import io.leitstand.security.sys.service.SsoSettings;
+import io.leitstand.security.sys.service.SsoSettingsService;
 
 /**
  * REST resource for reading the Single-Sign On settings.

@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package io.leitstand.security.sso.sys.rs;
+package io.leitstand.security.sys.jsonb;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 

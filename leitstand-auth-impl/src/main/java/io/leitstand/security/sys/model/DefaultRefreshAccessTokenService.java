@@ -1,7 +1,7 @@
-package io.leitstand.security.sso.sys.model;
+package io.leitstand.security.sys.model;
 
 import static io.leitstand.commons.model.ObjectUtil.isDifferent;
-import static io.leitstand.security.sso.sys.service.ReasonCode.SYS0001E_INVALID_SYSTEM_CREDENTIALS;
+import static io.leitstand.security.sys.service.ReasonCode.SYS0001E_INVALID_SYSTEM_CREDENTIALS;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -9,7 +9,7 @@ import javax.inject.Inject;
 import io.leitstand.commons.AccessDeniedException;
 import io.leitstand.commons.etc.Environment;
 import io.leitstand.security.oauth2.Oauth2AccessToken;
-import io.leitstand.security.sso.sys.service.RefreshAccessTokenService;
+import io.leitstand.security.sys.service.RefreshAccessTokenService;
 
 @ApplicationScoped
 public class DefaultRefreshAccessTokenService implements RefreshAccessTokenService {

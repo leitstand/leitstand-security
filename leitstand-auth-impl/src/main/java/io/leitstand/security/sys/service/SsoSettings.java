@@ -1,4 +1,4 @@
-package io.leitstand.security.sso.sys.service;
+package io.leitstand.security.sys.service;
 
 import static io.leitstand.commons.model.BuilderUtil.assertNotInvalidated;
 

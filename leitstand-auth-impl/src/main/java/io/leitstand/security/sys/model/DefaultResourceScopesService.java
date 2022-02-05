@@ -1,11 +1,12 @@
-package io.leitstand.security.auth.rs;
+package io.leitstand.security.sys.model;
 
 import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
+import static java.util.Collections.unmodifiableSortedSet;
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.Stream.empty;
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
+import java.util.Collections;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -13,17 +14,20 @@ import java.util.TreeSet;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
 
 import io.leitstand.commons.rs.ApiResources;
 import io.leitstand.security.auth.Scopes;
+import io.leitstand.security.sys.service.ResourceScopesService;
+
+/**
+ * The default <code>ResourceScopesService</code> implementation.
+ * <p>
+ * The resource scopes are discovered from the <code>{@literal @Scope}</code> annotations
+ * on Leitstand API resources (annotated with <code>{@literal @Resource}</code>.
+ */
 
 @ApplicationScoped
-@Path("/_/scopes")
-@Produces(APPLICATION_JSON)
-public class ScopesResource {
+public class DefaultResourceScopesService implements ResourceScopesService{
 
 	@Inject
 	private ApiResources resources;
@@ -51,18 +55,22 @@ public class ScopesResource {
 	
 	@PostConstruct
 	protected void discoverScopes() {
-		this.scopes = new TreeSet<>();
+		SortedSet<String> scopes = new TreeSet<>();
 		
 		for(Class<?> resource : resources.getClasses()) {
 			scopes.addAll(declaredScopes(resource));
 		}
 		
+		this.scopes = unmodifiableSortedSet(scopes);
+		
 	}
-	
-	@GET
-	public SortedSet<String> getScopes(){
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public SortedSet<String> getResourceScopes() {
 		return scopes;
 	}
-	
 	
 }

@@ -83,7 +83,7 @@ public class OidcAuthenticationFlowResource {
 		// Store refresh token.
 		refreshTokens.storeRefreshToken(userInfo.getSub(),
 										accessToken.getRefreshToken(),
-										new Date(currentTimeMillis() + 1000*accessToken.getExpiresIn()));
+										new Date(currentTimeMillis() + 1000*accessToken.getRefreshExpiresIn()));
 		
 		LOG.fine(() -> format("%s: Created session for user %s",
 							  OID0003I_SESSION_CREATED.getReasonCode(),

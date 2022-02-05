@@ -1,4 +1,4 @@
-package io.leitstand.security.sso.sys.model;
+package io.leitstand.security.sys.model;
 
 import javax.enterprise.context.Dependent;
 

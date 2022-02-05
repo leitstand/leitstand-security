@@ -1,8 +1,8 @@
-package io.leitstand.security.sso.sys.model;
+package io.leitstand.security.sys.model;
 
 import static io.leitstand.commons.etc.Environment.getSystemProperty;
-import static io.leitstand.security.sso.sys.service.LoginConfiguration.newLoginConfiguration;
-import static io.leitstand.security.sso.sys.service.SsoSettings.newSsoSettings;
+import static io.leitstand.security.sys.service.LoginConfiguration.newLoginConfiguration;
+import static io.leitstand.security.sys.service.SsoSettings.newSsoSettings;
 
 import java.net.URI;
 import java.util.LinkedList;
@@ -18,10 +18,10 @@ import com.nimbusds.jose.jwk.JWKSet;
 import io.leitstand.security.accesskeys.model.AccessKeyConfig;
 import io.leitstand.security.sso.oidc.config.OidcConfig;
 import io.leitstand.security.sso.standalone.config.StandaloneLoginConfig;
-import io.leitstand.security.sso.sys.service.LoginConfiguration;
-import io.leitstand.security.sso.sys.service.LoginConfigurationService;
-import io.leitstand.security.sso.sys.service.SsoSettings;
-import io.leitstand.security.sso.sys.service.SsoSettingsService;
+import io.leitstand.security.sys.service.LoginConfiguration;
+import io.leitstand.security.sys.service.LoginConfigurationService;
+import io.leitstand.security.sys.service.SsoSettings;
+import io.leitstand.security.sys.service.SsoSettingsService;
 
 @ApplicationScoped
 public class DefaultSsoService implements SsoSettingsService, LoginConfigurationService{

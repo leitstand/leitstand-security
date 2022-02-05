@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package io.leitstand.security.sso.sys.service;
+package io.leitstand.security.sys.service;
 
 import static io.leitstand.commons.model.BuilderUtil.assertNotInvalidated;
 import static io.leitstand.commons.model.StringUtil.isNonEmptyString;

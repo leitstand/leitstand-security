@@ -26,9 +26,9 @@ public interface RefreshTokenStore {
 	 * Stores a user's refresh token.
 	 * @param sub the user subject
 	 * @param refreshToken64 the Base64-encoded refresh token 
-	 * @param dateExpiry the expiry date of the refresh token
+	 * @param dateExpiry the expiration date of the refresh token
 	 */
-	void storeRefreshToken(String sub, String refreshToken64, Date expiryDate);
+	void storeRefreshToken(String sub, String refreshToken64, Date dateExpiry);
 	
 	/**
 	 * Returns the user's refresh token or <code>null</code> if no refresh token for the use exists.

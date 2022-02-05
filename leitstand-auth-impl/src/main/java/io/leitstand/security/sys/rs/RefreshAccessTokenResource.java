@@ -1,4 +1,4 @@
-package io.leitstand.security.sso.sys.rs;
+package io.leitstand.security.sys.rs;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
@@ -11,7 +11,7 @@ import javax.ws.rs.Produces;
 import io.leitstand.commons.AccessDeniedException;
 import io.leitstand.commons.rs.Resource;
 import io.leitstand.security.oauth2.Oauth2AccessToken;
-import io.leitstand.security.sso.sys.service.RefreshAccessTokenService;
+import io.leitstand.security.sys.service.RefreshAccessTokenService;
 
 /**
  * REST resource to refresh an expired access token.

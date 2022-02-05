@@ -1,4 +1,4 @@
-package io.leitstand.security.auth.rs;
+package io.leitstand.security.sys.model;
 
 import static io.leitstand.commons.model.ObjectUtil.asSet;
 import static org.junit.Assert.assertTrue;
@@ -57,7 +57,7 @@ public class ScopesResourceTest {
 	private ApiResources resources;
 	
 	@InjectMocks
-	private ScopesResource scopes = new ScopesResource();
+	private DefaultResourceScopesService scopes = new DefaultResourceScopesService();
 	
 	@Before
 	public void initTestEnvironment() {
@@ -67,28 +67,28 @@ public class ScopesResourceTest {
 	
 	@Test
 	public void discover_class_scopes() {
-		assertTrue(scopes.getScopes().contains("unittest.resource.a.1"));
-		assertTrue(scopes.getScopes().contains("unittest.resource.a.2"));
-		assertTrue(scopes.getScopes().contains("unittest.resource.b"));
+		assertTrue(scopes.getResourceScopes().contains("unittest.resource.a.1"));
+		assertTrue(scopes.getResourceScopes().contains("unittest.resource.a.2"));
+		assertTrue(scopes.getResourceScopes().contains("unittest.resource.b"));
 	}
 	
 	@Test
 	public void discover_public_method_scopes() {
-		assertTrue(scopes.getScopes().contains("unittest.resource.a.public.method.1"));
-		assertTrue(scopes.getScopes().contains("unittest.resource.a.public.method.2"));
-		assertTrue(scopes.getScopes().contains("unittest.resource.b.public.method"));
+		assertTrue(scopes.getResourceScopes().contains("unittest.resource.a.public.method.1"));
+		assertTrue(scopes.getResourceScopes().contains("unittest.resource.a.public.method.2"));
+		assertTrue(scopes.getResourceScopes().contains("unittest.resource.b.public.method"));
 
 	}
 	
 	@Test
 	public void discover_protected_method_scope() {
-		assertTrue(scopes.getScopes().contains("unittest.resource.a.protected.method"));
+		assertTrue(scopes.getResourceScopes().contains("unittest.resource.a.protected.method"));
 
 	}
 
 	@Test
 	public void discover_default_method_scope() {
-		assertTrue(scopes.getScopes().contains("unittest.resource.a.default.method"));
+		assertTrue(scopes.getResourceScopes().contains("unittest.resource.a.default.method"));
 
 	}
 

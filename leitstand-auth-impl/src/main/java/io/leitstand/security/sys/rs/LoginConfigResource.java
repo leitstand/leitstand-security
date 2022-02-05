@@ -1,4 +1,4 @@
-package io.leitstand.security.sso.sys.rs;
+package io.leitstand.security.sys.rs;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
@@ -9,8 +9,8 @@ import javax.ws.rs.Produces;
 
 import io.leitstand.commons.rs.Public;
 import io.leitstand.commons.rs.Resource;
-import io.leitstand.security.sso.sys.service.LoginConfiguration;
-import io.leitstand.security.sso.sys.service.LoginConfigurationService;
+import io.leitstand.security.sys.service.LoginConfiguration;
+import io.leitstand.security.sys.service.LoginConfigurationService;
 
 /**
  * REST resource to read the login configuration.

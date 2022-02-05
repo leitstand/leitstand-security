@@ -72,7 +72,7 @@ public class DefaultRefreshTokenStore implements RefreshTokenStore{
 	@Override
 	public String getRefreshToken(String sub) {
 		RefreshTokenStoreEntry entry = repository.find(RefreshTokenStoreEntry.class, sub);
-		if(entry != null && ! entry.isExpired()) {
+		if(entry != null && !entry.isExpired()) {
 			String encryptedToken64 = entry.getRefreshToken();
 			byte[] encryptedToken = Base64.getDecoder().decode(encryptedToken64);
 			return fromUtf8Bytes(masterSecret.decrypt(encryptedToken));

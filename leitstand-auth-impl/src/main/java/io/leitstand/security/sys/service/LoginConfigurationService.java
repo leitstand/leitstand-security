@@ -1,4 +1,4 @@
-package io.leitstand.security.sso.sys.service;
+package io.leitstand.security.sys.service;
 
 /**
  * The <code>LoginConfigurationService</code> provides access to the current login configuration.

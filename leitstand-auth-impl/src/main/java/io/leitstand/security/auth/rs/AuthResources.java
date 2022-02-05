@@ -22,14 +22,14 @@ import java.util.Set;
 import javax.enterprise.context.Dependent;
 
 import io.leitstand.commons.rs.ApiResourceProvider;
+import io.leitstand.security.sys.rs.ScopesResource;
 
 @Dependent
 public class AuthResources implements ApiResourceProvider{
 
 	@Override
 	public Set<Class<?>> getResources() {
-		return asSet(LoginResource.class,
-				     ScopesResource.class);
+		return asSet(LoginResource.class);
 	}
 
 }

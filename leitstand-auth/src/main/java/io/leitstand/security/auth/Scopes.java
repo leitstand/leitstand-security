@@ -40,25 +40,25 @@ import java.lang.annotation.Target;
  * </ul>
  * The <code>ElementSettingsResource</code> uses these scopes as listed below.
  * <pre>
- * {@code
- * @Resource
- * @Scopes({"ivt","ivt.element"})
- * public class ElementSettingsResource{
- * 
- *  @GET
- *  @Path("/{element:"+UUID_PATTERN+"}/settings")
- *  @Scopes({"ivt.read"})
- *  public ElementSettings getElementSettings(@Valid @PathParam("element") ElementId element){
+ *	{@literal @Resource}
+ *	{@literal @Scopes}({"ivt","ivt.element"})
+ *	public class ElementSettingsResource{
  *    ...
- *  }
- *  @PUT
- *  @Path("/{element:"+UUID_PATTERN+"}/settings")
- *  public Response storeElementSettings(@Valid @PathParam("element") ElementId element, 
- *                                       @Valid ElementSettings settings){
- *  ...
- *  }
- *  ...
- *  }
+ *    {@literal @GET}
+ *    {@literal @Path}("/{element:"+UUID_PATTERN+"}/settings")
+ *    {@literal @Scopes}({"ivt.read"})
+ *    public ElementSettings getElementSettings({@literal @Valid @PathParam}("element") ElementId element){
+ *      ...
+ *    }
+ *    
+ *    {@literal @PUT}
+ *    {@literal @Path}("/{element:"+UUID_PATTERN+"}/settings")
+ *    public Response storeElementSettings({@literal @Valid @PathParam}("element") ElementId element, 
+ *                                         {@literal @Valid} ElementSettings settings){
+ *      ...
+ *    }
+ *      
+ *    ...
  * }
  * </pre>
  * The resource grants access to all its operations for users with with access to the <em>ivt</em> and <em>ivt.element</em> scopes.

@@ -20,7 +20,7 @@ import {Resource} from '/ui/js/client.js';
 class Scopes extends Resource {
 
 	load() {
-		return this.json("/api/v1/_/scopes")
+		return this.json("/system/auth/scopes")
 				   .GET();
 	}
 

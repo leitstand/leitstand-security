@@ -166,16 +166,16 @@ public class CookieManager implements AccessTokenManager{
 		try {
 			Oauth2AccessToken oauth2 = client.refreshAccessToken(refreshToken);
 			// Store new refresh token
-			refreshTokens.storeRefreshToken(sub, oauth2.getRefreshToken(), new Date(currentTimeMillis()+1000*oauth2.getExpiresIn()));
+			refreshTokens.storeRefreshToken(sub, oauth2.getRefreshToken(), new Date(currentTimeMillis()+1000*oauth2.getRefreshExpiresIn()));
 			idCookie.setPath("/");
 			idCookie.setValue(oauth2.getIdToken());
 			idCookie.setHttpOnly(true);
-			idCookie.setMaxAge(oauth2.getRefreshExpiresIn());
+			idCookie.setMaxAge(oauth2.getExpiresIn());
 			response.addCookie(idCookie);
 			jwsCookie.setPath("/");
 			jwsCookie.setValue(oauth2.getAccessToken());
 			jwsCookie.setHttpOnly(true);
-			jwsCookie.setMaxAge(oauth2.getRefreshExpiresIn());
+			jwsCookie.setMaxAge(oauth2.getExpiresIn());
 			response.addCookie(jwsCookie);
 			LOG.fine(() -> format("Refreshed access token for user %s.",sub));
 			return oidcConfig.decodeAccessToken(oauth2.getAccessToken());
