@@ -22,6 +22,7 @@ import java.util.Set;
 import javax.enterprise.context.Dependent;
 
 import io.leitstand.commons.rs.ApiResourceProvider;
+import io.leitstand.security.sso.standalone.oauth2.AccessTokenService;
 import io.leitstand.security.sso.standalone.oauth2.AuthorizationService;
 
 @Dependent
@@ -29,7 +30,9 @@ public class SsoResources implements ApiResourceProvider{
 
 	@Override
 	public Set<Class<?>> getResources() {
-		return asSet(AuthorizationService.class);
+		return asSet(AuthorizationService.class,
+					 AccessTokenService.class,
+					 UserInfoResource.class);
 	}
 
 }

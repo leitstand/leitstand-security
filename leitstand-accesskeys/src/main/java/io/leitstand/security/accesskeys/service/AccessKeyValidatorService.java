@@ -1,6 +1,6 @@
 package io.leitstand.security.accesskeys.service;
 
-import io.leitstand.security.auth.accesskeys.AccessKeyId;
+import io.leitstand.security.auth.jwt.Jwt;
 
 
 /**
@@ -10,10 +10,10 @@ public interface AccessKeyValidatorService {
 
 	/**
 	 * Tests whether an access key has been revoked.
-	 * @param accessKeyId the access key ID
+	 * @param jwt the access key
 	 * @return <code>true</code> if the access key is revoked, <code>false</code> if not.
 	 */
-	boolean isRevoked(AccessKeyId accessKeyId);
+	boolean isRevoked(Jwt jwt);
 	
 	/**
 	 * Decodes and validates an access key JSON web token.

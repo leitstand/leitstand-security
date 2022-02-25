@@ -17,17 +17,14 @@ package io.leitstand.security.sso.standalone.oauth2;
 
 import static io.leitstand.security.sso.standalone.oauth2.SecurityContextMother.authenticatedAs;
 import static io.leitstand.security.sso.standalone.oauth2.SecurityContextMother.unauthenticated;
-import static java.util.Arrays.asList;
 import static javax.ws.rs.core.Response.Status.TEMPORARY_REDIRECT;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,12 +33,8 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import io.leitstand.commons.messages.Messages;
-import io.leitstand.security.auth.UserName;
 import io.leitstand.security.auth.accesskeys.ApiAccessKeyEncoder;
-import io.leitstand.security.auth.jwt.Claims;
 import io.leitstand.security.auth.user.UserRegistry;
-import io.leitstand.security.sso.standalone.config.StandaloneLoginConfig;
-import io.leitstand.security.users.service.UserInfo;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AuthorizationServiceTest {
@@ -56,7 +49,7 @@ public class AuthorizationServiceTest {
 	private ApiAccessKeyEncoder encoder;
 	
 	@Mock
-	private StandaloneLoginConfig config;
+	private CodeService codes;
 	
 	@InjectMocks
 	private AuthorizationService service = new AuthorizationService();
@@ -91,7 +84,7 @@ public class AuthorizationServiceTest {
 	
 	@Test
 	public void create_redirect_if_response_type_is_code_and_caller_is_authenticated() throws IOException {
-		when(config.signAccessToken(any(Claims.class))).thenReturn("AUTHCODE");
+		when(codes.createCode(any(String.class), any(String.class))).thenReturn("AUTHCODE");
 		Response response = service.authorize(authenticatedAs("junit"), "junit", "code", "junit", "http://localhost:9080/junit",null);
 		assertEquals(TEMPORARY_REDIRECT.getStatusCode() , response.getStatus());
 		assertEquals("http://localhost:9080/junit?code=AUTHCODE",response.getHeaderString("Location"));
@@ -99,35 +92,9 @@ public class AuthorizationServiceTest {
 	
 	@Test
 	public void preserve_state_if_response_type_is_code_and_caller_is_authenticated() throws IOException{
-		when(config.signAccessToken(any(Claims.class))).thenReturn("AUTHCODE");
+		when(codes.createCode(any(String.class), any(String.class))).thenReturn("AUTHCODE");
 		Response response = service.authorize(authenticatedAs("junit"), "junit", "code", "client", "http://localhost:9080/junit","1234");
 		assertEquals(TEMPORARY_REDIRECT.getStatusCode() , response.getStatus());
 		assertEquals("http://localhost:9080/junit?code=AUTHCODE&state=1234",response.getHeaderString("Location"));
-	}
-	
-	@Test
-	public void reject_access_token_request_when_client_id_mismatches() {
-	    Claims claims = mock(Claims.class);
-	    when(claims.getAudience()).thenReturn(asList("foo"));
-		when(config.decodeAccessToken("AUTHCODE")).thenReturn(claims);
-		Response response = service.getAccessToken(authenticatedAs("junit"),null,"AUTHCODE");
-		assertEquals(Status.FORBIDDEN.getStatusCode(),response.getStatus());
-	}
-	
-	@Test
-	public void issue_access_token_request_when_client_id_matches() {
-		UserInfo user = mock(UserInfo.class);
-		when(user.getUserName()).thenReturn(UserName.valueOf("client"));
-		when(users.getUserInfo(UserName.valueOf("client"))).thenReturn(user);
-
-		Claims claims = mock(Claims.class);
-		
-		when(claims.getAudience()).thenReturn(asList("junit"));
-		when(claims.getSubject()).thenReturn("client");
-		
-		when(config.decodeAccessToken("AUTHCODE")).thenReturn(claims);
-
-		Response response = service.getAccessToken(authenticatedAs("junit"),null,"AUTHCODE");
-		assertEquals(Status.OK.getStatusCode(),response.getStatus());
 	}
 }

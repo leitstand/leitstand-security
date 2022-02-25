@@ -104,11 +104,13 @@ public class BearerTokenValidator implements AccessTokenManager {
 		if(auth != null && auth.isBearerToken()) {
 			try {
 				Jwt jwt = decoder.decodeToken(auth.getCredentials());
+				// Reject all expired access tokens.
 				if (jwt.isExpired()) {
 					return INVALID_RESULT;
 				}
 				
-				if (API_KEY_ID.equals(jwt.getKeyID()) && accesskeys.isRevoked(accessKeyId(jwt.getClaims().getJwtId()))) {
+				// Reject revoked access keys
+				if (API_KEY_ID.equals(jwt.getKeyID()) &&  accesskeys.isRevoked(jwt)) {
 					return INVALID_RESULT;
 				}
 				

@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package io.leitstand.security.sso.oidc.rs;
+package io.leitstand.security.sso.standalone.rs;
 
 import static io.leitstand.security.auth.UserName.userName;
 import static io.leitstand.security.sso.oidc.service.OidcUserInfo.newUserInfo;

@@ -37,6 +37,7 @@ import io.leitstand.commons.model.Service;
 import io.leitstand.security.accesskeys.service.AccessKeyValidatorService;
 import io.leitstand.security.auth.accesskeys.AccessKeyId;
 import io.leitstand.security.auth.jwt.Claims;
+import io.leitstand.security.auth.jwt.Jwt;
 import io.leitstand.security.auth.jwt.JwtException;
 
 /**
@@ -105,8 +106,22 @@ public class DefaultAccessKeyValidatorService implements AccessKeyValidatorServi
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean isRevoked(AccessKeyId keyId) {
+	public boolean isRevoked(Jwt jwt) {
 		
+		Claims claims = jwt.getClaims();
+		return isRevoked(claims);
+	}
+
+	public boolean isRevoked(Claims claims) {
+		
+		if ("true".equals(claims.getClaim("temporary"))) {
+			// Temporary access keys cannot be revoked. 
+			// They are short-living and get revoked by expiration automatically.
+			return claims.isExpired();
+		}
+		
+		// Check whether the long-living (i.e. non-temporary) access key still exists.
+		AccessKeyId keyId = accessKeyId(claims.getJwtId());
 		AccessKey key = keys.execute(findByAccessKeyId(keyId));
 		
 		// Non-temporary access keys must exist in the AUTH.ACCESSKEY table.
@@ -150,7 +165,7 @@ public class DefaultAccessKeyValidatorService implements AccessKeyValidatorServi
 			if (claims.isExpired()) {
 				return false;
 			}
-			return !isRevoked(accessKeyId(claims.getJwtId()));
+			return !isRevoked(claims);
 			
 		} catch (JwtException e) {
 			LOG.log(Level.FINE,e.getMessage(),e);

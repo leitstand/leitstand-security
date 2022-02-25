@@ -22,14 +22,14 @@ import java.util.Set;
 import javax.enterprise.context.Dependent;
 
 import io.leitstand.commons.rs.ApiResourceProvider;
+import io.leitstand.security.sso.standalone.rs.UserInfoResource;
 
 @Dependent
 public class OidcResources implements ApiResourceProvider {
 
 	@Override
 	public Set<Class<?>> getResources() {
-		return asSet(OidcAuthenticationFlowResource.class,
-					 UserInfoResource.class);
+		return asSet(OidcAuthenticationFlowResource.class);
 	}
 
 }
