@@ -25,8 +25,6 @@ import com.nimbusds.jose.jwk.JWKSet;
 
 import io.leitstand.commons.AccessDeniedException;
 import io.leitstand.commons.etc.Environment;
-import io.leitstand.security.accesskeys.service.AccessKeyValidatorService;
-import io.leitstand.security.auth.accesskeys.AccessKeyId;
 import io.leitstand.security.auth.jwt.Claims;
 import io.leitstand.security.auth.jwt.Claims.Builder;
 import io.leitstand.security.auth.jwt.DefaultRsaJwtService;
@@ -121,7 +119,7 @@ public class AccessKeyConfig {
     /**
      * Decodes the given API access key. 
      * Call {@link Claims#isExpired()} to test whether the access token is expired.
-     * Use {@link AccessKeyValidatorService#isRevoked(AccessKeyId)}
+     * Use {@link AccessKeyValidatorService#isRevoked(io.leitstand.security.auth.jwt.Jwt))}
      * to test whether the access key is revoked.
      * @param token the API access key.
      * @return the JWT claims of the given API access key.

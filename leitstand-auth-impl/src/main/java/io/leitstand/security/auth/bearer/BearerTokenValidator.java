@@ -3,7 +3,6 @@ package io.leitstand.security.auth.bearer;
 import static com.nimbusds.jose.JWSAlgorithm.RS256;
 import static io.leitstand.security.accesskeys.model.AccessKeyConfig.API_KEY_ID;
 import static io.leitstand.security.auth.UserName.userName;
-import static io.leitstand.security.auth.accesskeys.AccessKeyId.accessKeyId;
 import static io.leitstand.security.auth.http.Authorization.authorization;
 import static java.util.logging.Logger.getLogger;
 import static java.util.stream.Collectors.toList;
@@ -18,7 +17,6 @@ import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.security.enterprise.identitystore.CredentialValidationResult;
 import javax.servlet.http.HttpServletRequest;
