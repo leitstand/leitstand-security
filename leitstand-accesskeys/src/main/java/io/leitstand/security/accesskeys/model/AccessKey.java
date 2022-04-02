@@ -54,8 +54,6 @@ import io.leitstand.security.auth.accesskeys.AccessKeyId;
 			query="SELECT k FROM AccessKey k WHERE k.uuid=:uuid")
 @NamedQuery(name="AccessKey.findByAccessKeyName",
 			query="SELECT k FROM AccessKey k WHERE k.name=:name")
-@NamedQuery(name="AccessKey.findByNamePattern",
-			query="SELECT k FROM AccessKey k WHERE CONCAT('',k.name) REGEXP :pattern ORDER BY k.name")
 public class AccessKey extends AbstractEntity{
 
 	private static final long serialVersionUID = 1L;
@@ -72,11 +70,6 @@ public class AccessKey extends AbstractEntity{
 				   	   .getSingleResult();
 	}
 	
-	public static Query<List<AccessKey>> findByNamePattern(String pattern){
-		return em -> em.createNamedQuery("AccessKey.findByNamePattern",AccessKey.class)
-					   .setParameter("pattern",pattern)
-					   .getResultList();
-	}
 	
 	@Convert(converter=AccessKeyIdConverter.class)
 	private AccessKeyId uuid;

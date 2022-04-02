@@ -16,13 +16,13 @@
 package io.leitstand.security.accesskeys.model;
 
 import static io.leitstand.commons.UniqueKeyConstraintViolationException.key;
+import static io.leitstand.commons.db.DatabaseService.prepare;
 import static io.leitstand.commons.model.StringUtil.isEmptyString;
 import static io.leitstand.security.accesskeys.event.AccessKeyEvent.newAccessKeyEvent;
 import static io.leitstand.security.accesskeys.event.AccessKeyEvent.Type.CREATED;
 import static io.leitstand.security.accesskeys.event.AccessKeyEvent.Type.REVOKED;
 import static io.leitstand.security.accesskeys.model.AccessKey.findByAccessKeyId;
 import static io.leitstand.security.accesskeys.model.AccessKey.findByAccessKeyName;
-import static io.leitstand.security.accesskeys.model.AccessKey.findByNamePattern;
 import static io.leitstand.security.accesskeys.service.AccessKeyInfo.newAccessKeyMetaData;
 import static io.leitstand.security.accesskeys.service.AccessKeySettings.newAccessKeySettings;
 import static io.leitstand.security.accesskeys.service.ReasonCode.AKY0001E_ACCESS_KEY_NOT_FOUND;
@@ -38,10 +38,12 @@ import javax.inject.Inject;
 
 import io.leitstand.commons.EntityNotFoundException;
 import io.leitstand.commons.UniqueKeyConstraintViolationException;
+import io.leitstand.commons.db.DatabaseService;
 import io.leitstand.commons.model.Repository;
 import io.leitstand.commons.model.Service;
 import io.leitstand.security.accesskeys.event.AccessKeyEvent;
 import io.leitstand.security.accesskeys.service.AccessKeyInfo;
+import io.leitstand.security.accesskeys.service.AccessKeyName;
 import io.leitstand.security.accesskeys.service.AccessKeyService;
 import io.leitstand.security.accesskeys.service.AccessKeySettings;
 import io.leitstand.security.auth.accesskeys.AccessKeyId;
@@ -59,6 +61,10 @@ public class DefaultAccessKeyService implements AccessKeyService{
 	private Repository repository;
 	
 	@Inject
+	@AccessKeys
+	private DatabaseService db;
+	
+	@Inject
 	private ApiAccessKeyEncoder encoder;
 	
 	@Inject
@@ -69,9 +75,11 @@ public class DefaultAccessKeyService implements AccessKeyService{
 	}
 	
 	protected DefaultAccessKeyService(Repository repository,
+									  DatabaseService db,
 									  ApiAccessKeyEncoder encoder,
 									  Event<AccessKeyEvent> events) {
 			this.repository = repository;
+			this.db = db;
 			this.encoder = encoder;
 			this.events = events;
 	}
@@ -173,16 +181,17 @@ public class DefaultAccessKeyService implements AccessKeyService{
 			pattern = ".*";
 		}
 		
-		return repository
-			   .execute(findByNamePattern(pattern))
-			   .stream()
-			   .map(key -> newAccessKeyMetaData()
-					   	   .withAccessKeyId(key.getAccessKeyId())
-					   	   .withAccessKeyName(key.getAccessKeyName())
-					   	   .withDescription(key.getDescription())
-					   	   .withDateCreated(key.getDateCreated())
-					   	   .build())
-			   .collect(toList());
+		return db.executeQuery(prepare("SELECT uuid, name, description, tscreated "+ 
+									   "FROM auth.accesskey "+
+									   "WHERE name ~ ? "+
+									   "ORDER BY name", 
+									   filter), 
+							   rs -> newAccessKeyMetaData()
+							   		 .withAccessKeyId(AccessKeyId.accessKeyId(rs.getString(1)))
+							   		 .withAccessKeyName(AccessKeyName.accessKeyName(rs.getString(2)))
+							   		 .withDescription(rs.getString(3))
+							   		 .withDateCreated(rs.getTimestamp(4))
+							   		 .build());
 	}
 
 }

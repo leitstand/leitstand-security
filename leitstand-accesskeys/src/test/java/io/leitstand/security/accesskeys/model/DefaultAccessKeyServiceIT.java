@@ -29,6 +29,7 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.enterprise.event.Event;
 
@@ -41,10 +42,12 @@ import org.mockito.ArgumentCaptor;
 
 import io.leitstand.commons.EntityNotFoundException;
 import io.leitstand.commons.UniqueKeyConstraintViolationException;
+import io.leitstand.commons.db.DatabaseService;
 import io.leitstand.commons.etc.Environment;
 import io.leitstand.commons.model.ObjectUtil;
 import io.leitstand.commons.model.Repository;
 import io.leitstand.security.accesskeys.event.AccessKeyEvent;
+import io.leitstand.security.accesskeys.service.AccessKeyInfo;
 import io.leitstand.security.accesskeys.service.AccessKeySettings;
 import io.leitstand.security.auth.accesskeys.AccessKeyId;
 import io.leitstand.security.auth.accesskeys.ApiAccessKey;
@@ -71,6 +74,7 @@ public class DefaultAccessKeyServiceIT extends AccessKeysIT{
 		doNothing().when(event).fire(captor.capture());
 		encoder = new DefaultApiAccessKeyService(config);
 		service = new DefaultAccessKeyService(repository,
+											  getDatabase(),
 											  encoder,
 											  event);
 	}
@@ -243,11 +247,11 @@ public class DefaultAccessKeyServiceIT extends AccessKeysIT{
 	public void restore_revoked_access_key() {
 	 
 	    AccessKeySettings key = newAccessKeySettings()
-	                        .withAccessKeyId(randomAccessKeyId())
-	                        .withAccessKeyName(accessKeyName("restore_revoked"))
-	                        .withScopes("element","pod")
-	                        .withDescription("Unittest access key")
-	                        .build();
+	                        	.withAccessKeyId(randomAccessKeyId())
+	                        	.withAccessKeyName(accessKeyName("restore_revoked"))
+	                        	.withScopes("element","pod")
+	                        	.withDescription("Unittest access key")
+	                        	.build();
 	    
 	    TokenInspector inspector = new TokenInspector(); 
 	    
@@ -278,6 +282,23 @@ public class DefaultAccessKeyServiceIT extends AccessKeysIT{
            assertEquals(inspector.token,token);
         });
 
+	}
+	
+	@Test
+	public void filter_access_key_by_name() {
+		AccessKeySettings key = newAccessKeySettings().withAccessKeyId(randomAccessKeyId())
+								.withAccessKeyName(accessKeyName("test"))
+								.withDateCreated(new Date())
+								.build();
+		transaction(() -> {
+			service.createAccessKey(key);
+		});
+		
+		transaction(() -> {
+			List<AccessKeyInfo> keys = service.findAccessKeys("te.*");
+			assertEquals(accessKeyName("test"), keys.get(0).getAccessKeyName());
+		});
+		
 	}
 	
 }
