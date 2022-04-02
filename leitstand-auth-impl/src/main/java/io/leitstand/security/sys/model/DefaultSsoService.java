@@ -41,9 +41,7 @@ public class DefaultSsoService implements SsoSettingsService, LoginConfiguration
     public void createTrustedKeySet() {
     	
     	List<JWK> keys = new LinkedList<>();
-    	
-    	System.out.println(standaloneConfig);
-    	
+    	    	
     	if (accessKeyConfig != null) {
     		keys.addAll(accessKeyConfig.getKeySet().getKeys());
     	}
