@@ -16,7 +16,6 @@
 package io.leitstand.security.auth;
 
 import static io.leitstand.security.auth.UserName.userName;
-import static io.leitstand.security.users.service.UserId.randomUserId;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 

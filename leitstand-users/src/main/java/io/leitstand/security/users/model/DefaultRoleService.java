@@ -27,6 +27,7 @@ import static io.leitstand.security.users.service.ReasonCode.IDM0101E_CANNOT_UPD
 import static io.leitstand.security.users.service.ReasonCode.IDM0102E_CANNOT_REMOVE_SYSTEM_ROLE;
 import static io.leitstand.security.users.service.RoleSettings.newRoleSettings;
 import static java.lang.String.format;
+import static java.util.logging.Logger.getLogger;
 import static java.util.stream.Collectors.toList;
 
 import java.util.List;
@@ -47,20 +48,16 @@ import io.leitstand.security.users.service.RoleService;
 import io.leitstand.security.users.service.RoleSettings;
 
 /**
- * The stateless, transactional, default {@link RoleService} implementation.
+ * Default {@link RoleService} implementation.
  */
 @Service
 public class DefaultRoleService implements RoleService {
 	
-	private static final Logger LOG = Logger.getLogger(RoleService.class.getName());
-	
+	private static final Logger LOG = getLogger(RoleService.class.getName());
 	
 			
-	@Inject
-	@IdentityManagement
 	private Repository repository;
 	
-	@Inject
 	private Messages messages;
 	
 
@@ -68,7 +65,8 @@ public class DefaultRoleService implements RoleService {
 		// CDI
 	}
 	
-	DefaultRoleService(Repository repository, Messages messages){
+	@Inject
+	protected DefaultRoleService(@IdentityManagement Repository repository, Messages messages){
 		this.repository = repository;
 		this.messages = messages;
 	}

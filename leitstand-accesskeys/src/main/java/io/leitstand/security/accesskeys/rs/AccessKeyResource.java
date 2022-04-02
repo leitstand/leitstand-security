@@ -73,14 +73,22 @@ import io.leitstand.security.auth.accesskeys.ApiAccessKey;
 @Produces(APPLICATION_JSON)
 public class AccessKeyResource {
 
-	@Inject
 	private AccessKeyService service;
 	
-	@Inject
 	private DefaultApiAccessKeyService encoder;
 	
-	@Inject
 	private Messages messages;
+	
+	protected AccessKeyResource() {
+		// CDI
+	}
+	
+	@Inject
+	protected AccessKeyResource(AccessKeyService service, DefaultApiAccessKeyService encoder, Messages messages) {
+		this.service = service;
+		this.encoder = encoder;
+		this.messages = messages;
+	}
 	
 	/**
 	 * Lists all access key matching the given filter query.

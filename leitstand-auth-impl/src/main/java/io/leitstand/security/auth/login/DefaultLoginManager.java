@@ -42,8 +42,16 @@ public class DefaultLoginManager implements LoginManager{
 
 	private static final Logger LOG  = getLogger(DefaultLoginManager.class.getName());
 
-	@Inject
 	private IdentityStore is;
+	
+	protected DefaultLoginManager() {
+		// CDI
+	}
+	
+	@Inject
+	protected DefaultLoginManager(IdentityStore is) {
+		this.is = is;
+	}
 	
 	/**
 	 * Reads the JSON body of a login request to create a <code>UsernamePasswordCredential</code> instance.

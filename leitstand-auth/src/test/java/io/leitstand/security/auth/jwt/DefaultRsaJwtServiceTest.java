@@ -17,9 +17,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import io.leitstand.security.auth.jwt.Claims;
-import io.leitstand.security.auth.jwt.DefaultRsaJwtService;
-import io.leitstand.security.auth.jwt.JwtException;
 import io.leitstand.security.rsa.RsaKeys;
 
 public class DefaultRsaJwtServiceTest {

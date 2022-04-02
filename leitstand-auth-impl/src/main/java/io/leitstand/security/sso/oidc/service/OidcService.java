@@ -52,10 +52,18 @@ public class OidcService {
 	
 	private static final Logger LOG = getLogger(OidcService.class.getName());
 	
-	@Inject
 	private OidcConfig config;
 	
 	private Client client;
+	
+	protected OidcService() {
+		// CDI
+	}
+	
+	@Inject
+	protected OidcService(OidcConfig config) {
+		this.config = config;
+	}
 	
 	@PostConstruct
 	protected void initClientBuilder() {

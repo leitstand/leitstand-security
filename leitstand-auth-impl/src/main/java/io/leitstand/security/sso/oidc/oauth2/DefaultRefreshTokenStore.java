@@ -34,11 +34,8 @@ import io.leitstand.security.crypto.MasterSecret;
 @Service
 public class DefaultRefreshTokenStore implements RefreshTokenStore{
 
-	@Inject
-	@Oauth2
 	private Repository repository;
 	
-	@Inject
 	private MasterSecret masterSecret;
 	
 	protected DefaultRefreshTokenStore() {
@@ -50,7 +47,8 @@ public class DefaultRefreshTokenStore implements RefreshTokenStore{
 	 * @param repository the token repository
 	 * @param masterSecret the master secret to protect the refresh tokens.
 	 */
-	public DefaultRefreshTokenStore(Repository repository, MasterSecret masterSecret) {
+	@Inject
+	public DefaultRefreshTokenStore(@Oauth2 Repository repository, MasterSecret masterSecret) {
 		this.repository = repository;
 		this.masterSecret = masterSecret;
 	}

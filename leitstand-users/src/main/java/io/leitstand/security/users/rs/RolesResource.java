@@ -58,11 +58,19 @@ import io.leitstand.security.users.service.RoleSettings;
 @Produces(APPLICATION_JSON)
 public class RolesResource {
 
-	@Inject
 	private RoleService service;
 	
-	@Inject
 	private Messages messages;
+	
+	protected RolesResource() {
+		// CDI
+	}
+	
+	@Inject
+	protected RolesResource(RoleService service, Messages messages) {
+		this.service = service;
+		this.messages = messages;
+	}
 	
 	
 	/**

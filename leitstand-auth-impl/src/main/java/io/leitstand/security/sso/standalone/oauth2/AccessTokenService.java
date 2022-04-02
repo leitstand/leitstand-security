@@ -47,10 +47,8 @@ import io.leitstand.commons.messages.Messages;
 import io.leitstand.commons.rs.Resource;
 import io.leitstand.security.auth.accesskeys.ApiAccessKey;
 import io.leitstand.security.auth.accesskeys.ApiAccessKeyEncoder;
-import io.leitstand.security.auth.jwt.Claims;
 import io.leitstand.security.auth.user.UserRegistry;
 import io.leitstand.security.oauth2.Oauth2AccessToken;
-import io.leitstand.security.sso.standalone.config.StandaloneLoginConfig;
 import io.leitstand.security.users.service.UserInfo;
 
 /**
@@ -64,17 +62,25 @@ public class AccessTokenService {
 	
 	private static final String OAUTH2_CODE = "code";
 	
-	@Inject
 	private Messages messages;
 	
-	@Inject
 	private UserRegistry users; 
 	
-	@Inject
 	private CodeService codes;
 	
-	@Inject
 	private ApiAccessKeyEncoder encoder;
+	
+	protected AccessTokenService() {
+		// CDI
+	}
+	
+	@Inject
+	protected AccessTokenService(ApiAccessKeyEncoder encoder, CodeService codes, UserRegistry users, Messages messages) {
+		this.encoder = encoder;
+		this.codes = codes;
+		this.users = users;
+		this.messages = messages;
+	}
 	
 	
 	@POST

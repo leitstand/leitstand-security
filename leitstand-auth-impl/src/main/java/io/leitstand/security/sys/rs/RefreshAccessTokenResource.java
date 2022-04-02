@@ -22,8 +22,16 @@ import io.leitstand.security.sys.service.RefreshAccessTokenService;
 public class RefreshAccessTokenResource {
 
     
-    @Inject
     private RefreshAccessTokenService service;
+    
+    protected RefreshAccessTokenResource() {
+    	// CDI
+    }
+    
+    @Inject
+    protected RefreshAccessTokenResource(RefreshAccessTokenService service) {
+    	this.service = service;
+    }
     
     
     /**

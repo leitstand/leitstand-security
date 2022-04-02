@@ -25,7 +25,6 @@ import javax.enterprise.context.RequestScoped;
 
 import io.leitstand.security.auth.UserContext;
 import io.leitstand.security.auth.UserName;
-import io.leitstand.security.users.service.UserId;
 
 /**
  * The <code>UserContextProvider</code> is a request-scoped CDI bean that provides the <code>UserContext</code> of the authenticated user.

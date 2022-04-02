@@ -36,8 +36,16 @@ import io.leitstand.security.users.service.UserSettings;
 @Dependent
 public class DefaultUserRegistry implements UserRegistry{
 
-	@Inject
 	private UserService users;
+	
+	protected DefaultUserRegistry() {
+		// CDI
+	}
+	
+	@Inject
+	protected DefaultUserRegistry(UserService users) {
+		this.users = users;
+	}
 	
 	@Override
 	public UserInfo getUserInfo(UserName userName) {

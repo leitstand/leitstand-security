@@ -52,7 +52,6 @@ import io.leitstand.security.auth.jwt.Claims;
 @ApplicationScoped
 public class DefaultApiAccessKeyService implements ApiAccessKeyDecoder, ApiAccessKeyEncoder {
 
-	@Inject
 	private AccessKeyConfig config;
 	
 	
@@ -64,6 +63,7 @@ public class DefaultApiAccessKeyService implements ApiAccessKeyDecoder, ApiAcces
 	 * Creates a new <code>DefaulApiAcessKeyEncodingService</code>.
 	 * @param config the API access key configuration
 	 */
+	@Inject
 	public DefaultApiAccessKeyService(AccessKeyConfig config) {
 		this.config = config;
 	}

@@ -42,7 +42,6 @@ import org.mockito.ArgumentCaptor;
 
 import io.leitstand.commons.EntityNotFoundException;
 import io.leitstand.commons.UniqueKeyConstraintViolationException;
-import io.leitstand.commons.db.DatabaseService;
 import io.leitstand.commons.etc.Environment;
 import io.leitstand.commons.model.ObjectUtil;
 import io.leitstand.commons.model.Repository;

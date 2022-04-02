@@ -15,20 +15,16 @@
  */
 package io.leitstand.security.sso.standalone.auth;
 
-import static com.nimbusds.jose.JWSAlgorithm.RS256;
 import static io.leitstand.commons.etc.Environment.getSystemProperty;
 import static io.leitstand.commons.jsonb.IsoDateAdapter.isoDateFormat;
-import static io.leitstand.commons.model.ObjectUtil.asSet;
 import static io.leitstand.security.auth.UserName.userName;
 import static io.leitstand.security.auth.jwt.Claims.newClaims;
-import static io.leitstand.security.sso.standalone.config.StandaloneLoginConfig.STANDALONE_LOGIN_KEY_ID;
 import static java.lang.String.format;
 import static java.lang.System.currentTimeMillis;
 import static java.util.Collections.emptySet;
 import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.FINER;
 import static java.util.logging.Logger.getLogger;
-import static java.util.stream.Collectors.joining;
 import static javax.security.enterprise.identitystore.CredentialValidationResult.INVALID_RESULT;
 import static javax.security.enterprise.identitystore.CredentialValidationResult.NOT_VALIDATED_RESULT;
 
@@ -43,9 +39,6 @@ import javax.security.enterprise.identitystore.CredentialValidationResult;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import com.nimbusds.jose.JWSHeader;
-import com.nimbusds.jwt.JWTClaimsSet;
 
 import io.leitstand.security.auth.UserName;
 import io.leitstand.security.auth.http.AccessTokenManager;
@@ -76,14 +69,22 @@ public class CookieManager implements AccessTokenManager{
 		return null;
 	}
 	
-	@Inject
 	private UserRegistry userRegistry;
 	
-	@Inject
 	private UserContextProvider userContext;
 	
-	@Inject
 	private StandaloneLoginConfig config;
+	
+	protected CookieManager() {
+		// CDI
+	}
+	
+	@Inject
+	protected CookieManager(UserRegistry userRegistry, StandaloneLoginConfig config, UserContextProvider userContext) {
+		this.userRegistry = userRegistry;
+		this.config = config;
+		this.userContext = userContext;
+	}
 	
 	@Override
 	public boolean issueAccessToken(HttpServletRequest request,

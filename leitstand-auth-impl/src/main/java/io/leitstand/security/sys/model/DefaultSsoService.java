@@ -26,16 +26,24 @@ import io.leitstand.security.sys.service.SsoSettingsService;
 @ApplicationScoped
 public class DefaultSsoService implements SsoSettingsService, LoginConfigurationService{
 
-    @Inject
     private AccessKeyConfig accessKeyConfig;
     
-    @Inject
     private StandaloneLoginConfig standaloneConfig;
     
-    @Inject
     private OidcConfig oidcConfig;
     
     private JWKSet trustedKeys;
+    
+    protected DefaultSsoService() {
+    	// CDI
+    }
+    
+    @Inject
+    protected DefaultSsoService(AccessKeyConfig accessKeyConfig, OidcConfig oidcConfig, StandaloneLoginConfig standaloneConfig) {
+    	this.accessKeyConfig = accessKeyConfig;
+    	this.oidcConfig = oidcConfig;
+    	this.standaloneConfig = standaloneConfig;
+    }
     
     @PostConstruct
     public void createTrustedKeySet() {

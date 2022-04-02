@@ -45,22 +45,34 @@ public class BearerTokenValidator implements AccessTokenManager {
 	
 	private static final Logger LOG = getLogger(BearerTokenValidator.class.getName());
 
-    @Inject
     private OidcConfig oidcConfig;
     
-    @Inject
     private StandaloneLoginConfig standaloneConfig;
     
-    @Inject
     private AccessKeyConfig accessKeyConfig;
     
-    @Inject
     private UserContextProvider userContext;
     
-    @Inject
     private AccessKeyValidatorService accesskeys;
     
     private JwtDecoder decoder;
+    
+    protected BearerTokenValidator() {
+    	// CDI
+    }
+    
+    @Inject
+    protected BearerTokenValidator(AccessKeyValidatorService accesskeys,
+    							   UserContextProvider userContext,
+    							   AccessKeyConfig accessKeyConfig,
+    							   StandaloneLoginConfig standaloneConfig,
+    							   OidcConfig oidcConfig) {
+    	this.accesskeys = accesskeys;
+    	this.userContext = userContext;
+    	this.accessKeyConfig = accessKeyConfig;
+    	this.standaloneConfig = standaloneConfig;
+    	this.oidcConfig = oidcConfig;
+    }
     
     @PostConstruct
     protected void createJwtDecoder() {

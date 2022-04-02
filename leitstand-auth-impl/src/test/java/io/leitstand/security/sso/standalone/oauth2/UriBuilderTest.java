@@ -20,8 +20,6 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import io.leitstand.security.sso.standalone.oauth2.UriBuilder;
-
 public class UriBuilderTest {
 
 	

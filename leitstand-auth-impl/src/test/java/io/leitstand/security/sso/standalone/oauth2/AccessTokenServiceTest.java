@@ -17,15 +17,9 @@ package io.leitstand.security.sso.standalone.oauth2;
 
 import static io.leitstand.security.auth.UserName.userName;
 import static io.leitstand.security.sso.standalone.oauth2.SecurityContextMother.authenticatedAs;
-import static io.leitstand.security.sso.standalone.oauth2.SecurityContextMother.unauthenticated;
-import static java.util.Arrays.asList;
-import static javax.ws.rs.core.Response.Status.TEMPORARY_REDIRECT;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
-import java.io.IOException;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -37,11 +31,8 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import io.leitstand.commons.messages.Messages;
-import io.leitstand.security.auth.UserName;
 import io.leitstand.security.auth.accesskeys.ApiAccessKeyEncoder;
-import io.leitstand.security.auth.jwt.Claims;
 import io.leitstand.security.auth.user.UserRegistry;
-import io.leitstand.security.sso.standalone.config.StandaloneLoginConfig;
 import io.leitstand.security.users.service.UserInfo;
 
 @RunWith(MockitoJUnitRunner.class)

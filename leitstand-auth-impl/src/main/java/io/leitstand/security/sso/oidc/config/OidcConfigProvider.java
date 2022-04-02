@@ -166,14 +166,21 @@ public class OidcConfigProvider implements StartupListener {
 		}
 	}
 	
-	@Inject
 	private Environment env;
 	
-	@Inject
 	private MasterSecret masterSecret;
 	
-	
 	private OidcConfig config;
+	
+	protected OidcConfigProvider() {
+		// CID
+	}
+	
+	@Inject
+	private OidcConfigProvider(Environment env, MasterSecret masterSecret) {
+		this.env = env;
+		this.masterSecret = masterSecret;
+	}
 	
 	/**
 	 * Discovers the OpenID/Connect configuration.

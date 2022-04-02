@@ -72,11 +72,19 @@ public class LeitstandHttpAuthMechanism implements HttpAuthenticationMechanism{
 		return request.getRequestURI().startsWith("/api/v1");
 	}
 	
-	@Inject
 	private Instance<AccessTokenManager> accessTokenManagers;
 	
-	@Inject
 	private LoginManager loginManager;
+	
+	protected LeitstandHttpAuthMechanism() {
+		// CDI
+	}
+	
+	@Inject
+	protected LeitstandHttpAuthMechanism(LoginManager loginManager, Instance<AccessTokenManager> accessTokenManagers) {
+		this.loginManager = loginManager;
+		this.accessTokenManagers = accessTokenManagers;
+	}
 	
 	/**
 	 * {@inheritDoc}

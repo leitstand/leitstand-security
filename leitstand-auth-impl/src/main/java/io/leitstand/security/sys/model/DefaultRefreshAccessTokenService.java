@@ -14,12 +14,19 @@ import io.leitstand.security.sys.service.RefreshAccessTokenService;
 @ApplicationScoped
 public class DefaultRefreshAccessTokenService implements RefreshAccessTokenService {
 
-    @Inject
     private OidcAccessTokenRefresh oidcRefresh;
     
-    @Inject
     private StandaloneAccessTokenRefresh standaloneRefresh;
 
+    protected DefaultRefreshAccessTokenService() {
+    	// CDI
+    }
+    
+    @Inject
+    protected DefaultRefreshAccessTokenService(OidcAccessTokenRefresh oidcRefresh, StandaloneAccessTokenRefresh standaloneRefresh) {
+    	this.oidcRefresh = oidcRefresh;
+    	this.standaloneRefresh = standaloneRefresh;
+    }
     
     @Override
     public Oauth2AccessToken refreshAccessToken(String systemId, String systemSecret, String accessToken) {

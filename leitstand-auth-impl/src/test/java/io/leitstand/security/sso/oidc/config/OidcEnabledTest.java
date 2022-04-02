@@ -30,9 +30,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import com.nimbusds.jose.proc.SecurityContext;
-import com.nimbusds.jwt.proc.JWTProcessor;
-
 import io.leitstand.security.auth.UserName;
 import io.leitstand.security.auth.jwt.JwtDecoder;
 

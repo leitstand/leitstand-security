@@ -22,7 +22,6 @@ import java.util.Set;
 import javax.enterprise.context.Dependent;
 
 import io.leitstand.commons.rs.ApiResourceProvider;
-import io.leitstand.security.sys.rs.ScopesResource;
 
 @Dependent
 public class AuthResources implements ApiResourceProvider{

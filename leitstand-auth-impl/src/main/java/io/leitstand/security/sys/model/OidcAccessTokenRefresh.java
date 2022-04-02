@@ -16,14 +16,22 @@ import io.leitstand.security.sso.oidc.service.OidcService;
 @Dependent
 public class OidcAccessTokenRefresh {
 
-    @Inject
     private OidcService client;
     
-    @Inject
     private RefreshTokenStore refreshTokens;
     
-    @Inject
     private OidcConfig oidcConfig;
+    
+    protected OidcAccessTokenRefresh() {
+    	// CDI
+    }
+    
+    @Inject
+    protected OidcAccessTokenRefresh(OidcService client, OidcConfig oidcConfig, RefreshTokenStore refreshTokens) {
+    	this.client = client;
+    	this.oidcConfig = oidcConfig;
+    	this.refreshTokens = refreshTokens;
+    }
     
     public Oauth2AccessToken refreshAccessToken(String accessToken) {
 

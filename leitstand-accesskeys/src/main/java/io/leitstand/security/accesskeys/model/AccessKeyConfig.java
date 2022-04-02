@@ -55,7 +55,6 @@ public class AccessKeyConfig {
     private static final String API_KEY_PEM_FILE = "api.pem";
     private static final String API_ACCESSKEY_SECRET = "API_SECRET";
         
-    @Inject
     private Environment env;
     private JwtService jwtService;
     private JWKSet keySet;
@@ -63,12 +62,17 @@ public class AccessKeyConfig {
     @Deprecated
     private Supplier<MessageAuthenticationCode> apiMac;
     
-    @Inject
     @Deprecated
     private LegacyMasterSecret legacy;
     
     protected AccessKeyConfig() {
         // CDI
+    }
+    
+    @Inject
+    protected AccessKeyConfig(Environment env, LegacyMasterSecret legacy) {
+    	this.env = env;
+    	this.legacy = legacy;
     }
 
     /**

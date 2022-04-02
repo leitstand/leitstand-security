@@ -47,8 +47,16 @@ public class LoginResource {
 	
 	private static final Logger LOG = getLogger(LoginResource.class.getName());
 
-	@Inject
 	private UserRegistry users;
+	
+	protected LoginResource() {
+		// CDI
+	}
+	
+	@Inject
+	protected LoginResource(UserRegistry users) {
+		this.users = users;
+	}
 	
 	@POST
 	@Path("/login")

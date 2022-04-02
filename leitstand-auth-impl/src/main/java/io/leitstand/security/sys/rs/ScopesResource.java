@@ -23,8 +23,16 @@ import io.leitstand.security.sys.service.ResourceScopesService;
 @Produces(APPLICATION_JSON)
 public class ScopesResource {
 
-	@Inject
 	private ResourceScopesService scopes;
+	
+	protected ScopesResource() {
+		// CDI
+	}
+	
+	@Inject
+	protected ScopesResource(ResourceScopesService scopes) {
+		this.scopes = scopes;
+	}
 	
 	/**
 	 * Returns all existing resource scopes in alphabetical order. 

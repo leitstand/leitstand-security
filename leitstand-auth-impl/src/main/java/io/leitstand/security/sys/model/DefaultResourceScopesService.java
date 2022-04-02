@@ -6,7 +6,6 @@ import static java.util.Collections.unmodifiableSortedSet;
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.Stream.empty;
 
-import java.util.Collections;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -29,9 +28,17 @@ import io.leitstand.security.sys.service.ResourceScopesService;
 @ApplicationScoped
 public class DefaultResourceScopesService implements ResourceScopesService{
 
-	@Inject
 	private ApiResources resources;
 	private SortedSet<String> scopes;
+	
+	protected DefaultResourceScopesService() {
+		// CDI
+	}
+	
+	@Inject
+	protected DefaultResourceScopesService(ApiResources resources) {
+		this.resources = resources;
+	}
 
 	static Set<String> declaredScopes(Class<?> resource){
 		Set<String> scopes = new TreeSet<>();

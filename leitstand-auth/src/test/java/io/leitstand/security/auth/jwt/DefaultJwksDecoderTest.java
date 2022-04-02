@@ -19,12 +19,6 @@ import org.junit.rules.ExpectedException;
 
 import com.nimbusds.jose.jwk.RSAKey;
 
-import io.leitstand.security.auth.jwt.Claims;
-import io.leitstand.security.auth.jwt.DefaultJwksDecoder;
-import io.leitstand.security.auth.jwt.DefaultRsaJwtService;
-import io.leitstand.security.auth.jwt.JwtEncoder;
-import io.leitstand.security.auth.jwt.JwtException;
-
 public class DefaultJwksDecoderTest {
     
     private static final String KEY_0 = "k0";

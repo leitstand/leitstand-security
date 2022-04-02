@@ -29,7 +29,6 @@ import static io.leitstand.security.accesskeys.service.ReasonCode.AKY0001E_ACCES
 import static io.leitstand.security.accesskeys.service.ReasonCode.AKY0005E_DUPLICATE_KEY_NAME;
 import static io.leitstand.security.auth.UserName.userName;
 import static io.leitstand.security.auth.accesskeys.ApiAccessKey.newApiAccessKey;
-import static java.util.stream.Collectors.toList;
 
 import java.util.List;
 
@@ -56,26 +55,21 @@ import io.leitstand.security.auth.accesskeys.ApiAccessKeyEncoder;
 @Service
 public class DefaultAccessKeyService implements AccessKeyService{
 
-	@Inject
-	@AccessKeys 
 	private Repository repository;
 	
-	@Inject
-	@AccessKeys
 	private DatabaseService db;
 	
-	@Inject
 	private ApiAccessKeyEncoder encoder;
 	
-	@Inject
 	private Event<AccessKeyEvent> events;
 	
 	protected DefaultAccessKeyService() {
 		// CDI constructor
 	}
 	
-	protected DefaultAccessKeyService(Repository repository,
-									  DatabaseService db,
+	@Inject
+	protected DefaultAccessKeyService(@AccessKeys Repository repository,
+									  @AccessKeys DatabaseService db,
 									  ApiAccessKeyEncoder encoder,
 									  Event<AccessKeyEvent> events) {
 			this.repository = repository;

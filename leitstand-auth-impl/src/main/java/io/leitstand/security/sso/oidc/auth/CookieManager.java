@@ -90,17 +90,31 @@ public class CookieManager implements AccessTokenManager{
 	}
 	
 	
-	@Inject
 	private OidcService client;
 	
-	@Inject
 	private RefreshTokenStore refreshTokens;
 	
-	@Inject
 	private OidcConfig oidcConfig;
 	
-	@Inject
 	private UserContextProvider userContext;
+	
+	
+	protected CookieManager() {
+		// CDI
+	}
+	
+	@Inject
+	protected CookieManager(OidcService client, 
+							RefreshTokenStore refreshTokens, 
+							OidcConfig oidcConfig, 
+							UserContextProvider userContext) {
+		this.client = client;
+		this.refreshTokens = refreshTokens;
+		this.oidcConfig = oidcConfig;
+		this.userContext = userContext;
+		
+	}
+	
 	
 	/**
 	 * Scans the HTTP request for a leitstand access token cookie and validate the discovered access token. Creates a sealed user context if

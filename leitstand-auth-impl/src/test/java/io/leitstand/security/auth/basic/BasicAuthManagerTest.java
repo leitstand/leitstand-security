@@ -19,7 +19,6 @@ import static io.leitstand.commons.model.ObjectUtil.asSet;
 import static io.leitstand.commons.model.StringUtil.toUtf8Bytes;
 import static io.leitstand.security.auth.UserName.userName;
 import static io.leitstand.security.auth.http.Authorization.HTTP_AUTHORIZATION_HEADER;
-import static io.leitstand.security.users.service.UserId.userId;
 import static io.leitstand.security.users.service.UserInfo.newUserInfo;
 import static java.util.Base64.getEncoder;
 import static java.util.Collections.emptySet;

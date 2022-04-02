@@ -40,8 +40,16 @@ import io.leitstand.security.users.service.UserInfo;
 @Service
 public class DefaultIdentityStore implements IdentityStore {
 
-	@Inject
 	private UserRegistry users;
+	
+	protected DefaultIdentityStore() {
+		// CDI
+	}
+	
+	@Inject
+	protected DefaultIdentityStore(UserRegistry users) {
+		this.users = users;
+	}
 	
 	/**
 	 * Uses the caller unique ID to read the user settings from the default user repository and

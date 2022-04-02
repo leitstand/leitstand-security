@@ -38,8 +38,16 @@ import io.leitstand.security.users.service.UserSettings;
 @Produces(APPLICATION_JSON)
 public class UserInfoResource {
 
-	@Inject
 	private UserService users;
+	
+	protected UserInfoResource() {
+		// CDI
+	}
+	
+	@Inject
+	protected UserInfoResource(UserService users) {
+		this.users = users;
+	}
 	
 	@GET
 	public OidcUserInfo getUserInfo(@Context SecurityContext context) {

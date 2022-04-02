@@ -16,15 +16,12 @@
 package io.leitstand.security.sso.standalone.oauth2;
 
 import static io.leitstand.commons.model.StringUtil.isNonEmptyString;
-import static io.leitstand.security.auth.jwt.Claims.newClaims;
 import static io.leitstand.security.sso.standalone.ReasonCode.OAH0001E_UNSUPPORTED_RESPONSE_TYPE;
 import static java.lang.String.format;
-import static java.lang.System.currentTimeMillis;
 import static java.util.logging.Logger.getLogger;
 import static javax.ws.rs.core.Response.temporaryRedirect;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -37,8 +34,6 @@ import javax.ws.rs.core.SecurityContext;
 
 import io.leitstand.commons.rs.Public;
 import io.leitstand.commons.rs.Resource;
-import io.leitstand.security.auth.jwt.Claims;
-import io.leitstand.security.sso.standalone.config.StandaloneLoginConfig;
 
 /**
  * The OAuth authorization server implementation.
@@ -59,8 +54,16 @@ public class AuthorizationService {
 	private static final String OAUTH2_ERROR_UNAUTHENTICATED = "unauthenticated";
 	private static final String OAUTH2_ERROR_UNSUPPORTED_RESPONSE_TYPE = "unsupported_response_type";
 	
-	@Inject
 	private CodeService codes;
+	
+	protected AuthorizationService() {
+		// CDI
+	}
+	
+	@Inject
+	protected AuthorizationService(CodeService codes) {
+		this.codes = codes;
+	}
 	
 	/**
 	 * Creates an authorization code to authorize the authenticated user to access the specified resource and eventually redirects the user to the resource.

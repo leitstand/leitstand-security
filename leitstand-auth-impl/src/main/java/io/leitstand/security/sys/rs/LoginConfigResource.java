@@ -22,8 +22,16 @@ import io.leitstand.security.sys.service.LoginConfigurationService;
 @Produces(APPLICATION_JSON)
 public class LoginConfigResource {
 
-	@Inject
 	private LoginConfigurationService service;
+	
+	protected LoginConfigResource() {
+		// CDI
+	}
+	
+	@Inject
+	protected LoginConfigResource(LoginConfigurationService service) {
+		this.service = service;
+	}
 	
 	/**
 	 * Returns the active login configuration.

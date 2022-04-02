@@ -39,7 +39,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import io.leitstand.commons.EntityNotFoundException;
 import io.leitstand.security.auth.UserName;
-import io.leitstand.security.auth.login.DefaultUserRegistry;
 import io.leitstand.security.users.service.UserInfo;
 import io.leitstand.security.users.service.UserService;
 import io.leitstand.security.users.service.UserSettings;

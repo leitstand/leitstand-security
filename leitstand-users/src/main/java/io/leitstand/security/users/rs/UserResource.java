@@ -53,11 +53,19 @@ import io.leitstand.security.users.service.UserSettings;
 @Produces(APPLICATION_JSON)
 public class UserResource {
 	
-	@Inject
 	private UserService service;
 	
-	@Inject
 	private Messages messages;
+	
+	protected UserResource() {
+		// CDI
+	}
+	
+	@Inject
+	protected UserResource(UserService service, Messages messages) {
+		this.service = service;
+		this.messages = messages;
+	}
 	
 	
 	/**

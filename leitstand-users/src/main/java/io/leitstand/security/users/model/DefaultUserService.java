@@ -56,7 +56,6 @@ import io.leitstand.commons.db.DatabaseService;
 import io.leitstand.commons.messages.Messages;
 import io.leitstand.commons.model.Repository;
 import io.leitstand.commons.model.Service;
-import io.leitstand.commons.model.StringUtil;
 import io.leitstand.security.auth.UserContext;
 import io.leitstand.security.auth.UserName;
 import io.leitstand.security.users.service.RoleName;
@@ -67,7 +66,7 @@ import io.leitstand.security.users.service.UserSettings;
 import io.leitstand.security.users.service.UserSubmission;
 
 /**
- * Stateless, transactional, default {@link UserService} implementation.
+ * Default {@link UserService} implementation.
  */
 @Service
 public class DefaultUserService implements UserService {
@@ -76,31 +75,24 @@ public class DefaultUserService implements UserService {
 
 	private static final Logger LOG = getLogger(DefaultUserService.class.getName());
 	
-	@Inject
-	@IdentityManagement
 	private Repository repository;
 	
-	@Inject
-	@IdentityManagement
 	private DatabaseService db;
 	
-	@Inject
 	private Messages messages;
 	
-	@Inject 
 	private PasswordService hashing;
 	
-	@Inject
 	private UserContext context;
 	
 	
-	public DefaultUserService() {
+	protected DefaultUserService() {
 		// CDI constructor
 	}
 	
-	// Unit tests
-	protected DefaultUserService(Repository repository,
-								 DatabaseService db,
+	@Inject
+	protected DefaultUserService(@IdentityManagement Repository repository,
+								 @IdentityManagement DatabaseService db,
 								 PasswordService hashing,
 								 Messages messages,
 								 UserContext context) {

@@ -72,18 +72,26 @@ public class DefaultAccessKeyValidatorService implements AccessKeyValidatorServi
 		}
 	}
 	
-	@Inject
-	@AccessKeys
 	private DatabaseService db;
 
-	@Inject
-	@AccessKeys
 	private Repository keys;
 	
-	@Inject
 	private AccessKeyConfig config;
 	
 	private ConcurrentMap<AccessKeyId,AccessKeyState> states;
+	
+	protected DefaultAccessKeyValidatorService() {
+		// CDI
+	}
+	
+	@Inject
+	protected DefaultAccessKeyValidatorService(@AccessKeys Repository repository,
+											   @AccessKeys DatabaseService db,
+											   AccessKeyConfig config) {
+		this.db = db;
+		this.keys = repository;
+		this.config = config;
+	}
 	
 	@PostConstruct
 	protected void initStateCheckCache() {

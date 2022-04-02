@@ -26,8 +26,16 @@ import io.leitstand.security.sys.service.SsoSettingsService;
 public class SsoSettingsResource {
 
     
-    @Inject
     private SsoSettingsService service;
+    
+    protected SsoSettingsResource() {
+    	// CDI
+    }
+    
+    @Inject
+    protected SsoSettingsResource(SsoSettingsService service) {
+    	this.service = service;
+    }
     
     /**
      * Returns the Single-Sign On settings enabling other Leitstand services to 

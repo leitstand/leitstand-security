@@ -47,17 +47,25 @@ import io.leitstand.security.users.service.UserInfo;
 @Dependent
 public class BasicAuthManager implements AccessTokenManager{
 
-    @Inject
     private BasicAuthConfig config;
     
-	@Inject
 	private IdentityStore is;
 	
-	@Inject
 	private UserContextProvider userContext;
 
-	@Inject
 	private UserRegistry users;
+	
+	protected BasicAuthManager() {
+		// CDI
+	}
+	
+	@Inject
+	protected BasicAuthManager(IdentityStore is, UserRegistry users, UserContextProvider userContext, BasicAuthConfig config) {
+		this.is = is;
+		this.users = users;
+		this.userContext = userContext;
+		this.config = config;
+	}
 
 	/**
 	 * Validates the Authorization HTTP header when the HTTP basic authorization scheme is used.

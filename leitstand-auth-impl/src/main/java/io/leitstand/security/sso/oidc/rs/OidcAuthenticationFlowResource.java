@@ -57,14 +57,22 @@ public class OidcAuthenticationFlowResource {
 	
 	private static final Logger LOG = getLogger(OidcAuthenticationFlowResource.class.getName());
 
-	@Inject
 	private OidcService oidc;
 	
-	@Inject
 	private OidcUserService users;
 	
-	@Inject
 	private RefreshTokenStore refreshTokens;
+	
+	protected OidcAuthenticationFlowResource() {
+		// CDI
+	}
+	
+	@Inject
+	protected OidcAuthenticationFlowResource(OidcService oidc, OidcUserService users, RefreshTokenStore refreshTokens) {
+		this.oidc = oidc;
+		this.users = users;
+		this.refreshTokens = refreshTokens;
+	}
 	
 	@POST
 	@Path("/authenticate")

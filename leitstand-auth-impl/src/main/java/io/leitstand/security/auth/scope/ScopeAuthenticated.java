@@ -43,9 +43,16 @@ import io.leitstand.security.auth.UserContext;
 @Dependent
 public class ScopeAuthenticated {
 	
+	private UserContext user;
+	
+	protected ScopeAuthenticated() {
+		// CDI
+	}
 	
 	@Inject
-	private UserContext user;
+	protected ScopeAuthenticated(UserContext user) {
+		this.user = user;
+	}
 	
 	@AroundInvoke
 	public Object authenticate(InvocationContext context) throws Exception{

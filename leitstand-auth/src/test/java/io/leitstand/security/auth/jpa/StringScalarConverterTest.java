@@ -16,10 +16,8 @@
 package io.leitstand.security.auth.jpa;
 
 import static java.util.Arrays.asList;
-import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Collection;

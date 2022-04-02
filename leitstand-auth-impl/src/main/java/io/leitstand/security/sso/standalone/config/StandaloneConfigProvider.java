@@ -62,15 +62,22 @@ public class StandaloneConfigProvider implements StartupListener {
 	private static final String STANDALONE_JWS_TTL = "JWS_TTL";
 	private static final String STANDALONE_JWS_REFRESH = "JWS_REFRESH";
 		
-	@Inject
 	private Environment env;
 	
-	@Inject
 	private OidcConfig oidc;
 	
-	@Produces
     private StandaloneLoginConfig config;
 
+	
+	protected StandaloneConfigProvider() {
+		// CDI
+	}
+	
+	@Inject
+	protected StandaloneConfigProvider(Environment env, OidcConfig oidc) {
+		this.env = env;
+		this.oidc = oidc;
+	}
 	
     /**
      * Reads the standalone login configuration if no OpenID/Connect authorization service is configured.
@@ -109,5 +116,9 @@ public class StandaloneConfigProvider implements StartupListener {
 	    return keyPair;
     }
     
+	@Produces
+    protected StandaloneLoginConfig getConfig() {
+		return config;
+	}
     
 }
