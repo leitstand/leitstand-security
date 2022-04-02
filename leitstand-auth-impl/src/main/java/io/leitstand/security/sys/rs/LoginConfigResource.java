@@ -24,8 +24,8 @@ public class LoginConfigResource {
 
 	private LoginConfigurationService service;
 	
-	protected LoginConfigResource() {
-		// CDI
+	public LoginConfigResource() {
+		// CDI and JAX-RS
 	}
 	
 	@Inject

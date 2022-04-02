@@ -70,8 +70,8 @@ public class AccessTokenService {
 	
 	private ApiAccessKeyEncoder encoder;
 	
-	protected AccessTokenService() {
-		// CDI
+	public AccessTokenService() {
+		// CDI and JAX-RS
 	}
 	
 	@Inject

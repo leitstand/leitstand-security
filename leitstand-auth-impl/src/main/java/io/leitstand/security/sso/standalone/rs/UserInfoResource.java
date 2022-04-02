@@ -40,8 +40,8 @@ public class UserInfoResource {
 
 	private UserService users;
 	
-	protected UserInfoResource() {
-		// CDI
+	public UserInfoResource() {
+		// CDI and JAX-RS
 	}
 	
 	@Inject

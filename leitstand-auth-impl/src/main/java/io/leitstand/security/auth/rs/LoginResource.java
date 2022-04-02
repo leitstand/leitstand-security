@@ -49,8 +49,8 @@ public class LoginResource {
 
 	private UserRegistry users;
 	
-	protected LoginResource() {
-		// CDI
+	public LoginResource() {
+		// CDI and JAX-RS
 	}
 	
 	@Inject

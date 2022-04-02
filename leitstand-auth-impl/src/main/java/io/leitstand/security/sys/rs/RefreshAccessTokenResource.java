@@ -24,8 +24,8 @@ public class RefreshAccessTokenResource {
     
     private RefreshAccessTokenService service;
     
-    protected RefreshAccessTokenResource() {
-    	// CDI
+    public RefreshAccessTokenResource() {
+		// CDI and JAX-RS
     }
     
     @Inject

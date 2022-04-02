@@ -62,8 +62,8 @@ public class RolesResource {
 	
 	private Messages messages;
 	
-	protected RolesResource() {
-		// CDI
+	public RolesResource() {
+		// CDI and JAX-RS
 	}
 	
 	@Inject

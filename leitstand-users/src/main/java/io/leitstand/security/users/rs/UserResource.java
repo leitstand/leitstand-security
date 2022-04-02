@@ -57,8 +57,8 @@ public class UserResource {
 	
 	private Messages messages;
 	
-	protected UserResource() {
-		// CDI
+	public UserResource() {
+		// CDI and JAX-RS
 	}
 	
 	@Inject

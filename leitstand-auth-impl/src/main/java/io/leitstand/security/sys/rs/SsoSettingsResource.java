@@ -28,8 +28,8 @@ public class SsoSettingsResource {
     
     private SsoSettingsService service;
     
-    protected SsoSettingsResource() {
-    	// CDI
+    public SsoSettingsResource() {
+		// CDI and JAX-RS
     }
     
     @Inject

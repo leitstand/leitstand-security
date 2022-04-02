@@ -57,8 +57,8 @@ public class UsersResource {
 	
 	private UserService service;
 	
-	protected UsersResource() {
-		// CDI
+	public UsersResource() {
+		// CDI and JAX-RS
 	}
 	
 	@Inject

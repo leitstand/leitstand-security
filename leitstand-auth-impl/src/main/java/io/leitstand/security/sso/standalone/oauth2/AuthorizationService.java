@@ -56,8 +56,8 @@ public class AuthorizationService {
 	
 	private CodeService codes;
 	
-	protected AuthorizationService() {
-		// CDI
+	public AuthorizationService() {
+		// CDI and JAX-RS
 	}
 	
 	@Inject

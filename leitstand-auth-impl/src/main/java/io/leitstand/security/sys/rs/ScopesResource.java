@@ -25,8 +25,8 @@ public class ScopesResource {
 
 	private ResourceScopesService scopes;
 	
-	protected ScopesResource() {
-		// CDI
+	public ScopesResource() {
+		// CDI and JAX-RS
 	}
 	
 	@Inject

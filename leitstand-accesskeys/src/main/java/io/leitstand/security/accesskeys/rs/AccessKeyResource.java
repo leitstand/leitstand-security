@@ -79,8 +79,8 @@ public class AccessKeyResource {
 	
 	private Messages messages;
 	
-	protected AccessKeyResource() {
-		// CDI
+	public AccessKeyResource() {
+		// CDI and RESTEASY
 	}
 	
 	@Inject

@@ -63,12 +63,12 @@ public class OidcAuthenticationFlowResource {
 	
 	private RefreshTokenStore refreshTokens;
 	
-	protected OidcAuthenticationFlowResource() {
-		// CDI
+	public OidcAuthenticationFlowResource() {
+		// CDI and RESTEASY
 	}
 	
 	@Inject
-	protected OidcAuthenticationFlowResource(OidcService oidc, OidcUserService users, RefreshTokenStore refreshTokens) {
+	public OidcAuthenticationFlowResource(OidcService oidc, OidcUserService users, RefreshTokenStore refreshTokens) {
 		this.oidc = oidc;
 		this.users = users;
 		this.refreshTokens = refreshTokens;
