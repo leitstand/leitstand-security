@@ -24,6 +24,8 @@ import static java.util.logging.Logger.getLogger;
 
 import java.util.logging.Logger;
 
+import javax.inject.Inject;
+
 import io.leitstand.commons.messages.Messages;
 import io.leitstand.commons.model.Repository;
 import io.leitstand.commons.model.Service;
@@ -45,6 +47,7 @@ public class OidcUserService {
 		// CDI
 	}
 	
+	@Inject
 	protected OidcUserService(@IdentityManagement Repository repository, Messages messages) {
 		this.repository = repository;
 		this.messages = messages;

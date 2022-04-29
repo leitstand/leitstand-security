@@ -52,7 +52,7 @@ import io.leitstand.security.sso.oidc.user.OidcUserService;
 @Produces(APPLICATION_JSON)
 public class OidcAuthenticationFlowResource {
 	
-	private static final String ID_COOKIE  = getSystemProperty("LEITSTAND_ID_TOKEN","LEITSTAND_ID");
+	private static final String ID_COOKIE  = getSystemProperty("LEITSTAND_ID_TOKEN_COOKIE_NAME","LEITSTAND_ID");
 	private static final String JWS_COOKIE = getSystemProperty("LEITSTAND_ACCESS_TOKEN_COOKIE_NAME","LEITSTAND_ACCESS");
 	
 	private static final Logger LOG = getLogger(OidcAuthenticationFlowResource.class.getName());
@@ -100,10 +100,10 @@ public class OidcAuthenticationFlowResource {
 		return ok(userInfo)
 			   .cookie(cookie(ID_COOKIE,
 					   		  accessToken.getIdToken(),
-					   		  accessToken.getRefreshExpiresIn()))
+					   		  accessToken.getRefreshExpiresIn())) // Let cookie expire after the access token!
 			   .cookie(cookie(JWS_COOKIE,
 					   		  accessToken.getAccessToken(),
-					   		  accessToken.getRefreshExpiresIn()))
+					   		  accessToken.getRefreshExpiresIn())) // Let cookie expire after the access token!
 			   .build();
 		
 	}
