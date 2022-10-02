@@ -111,17 +111,18 @@ public class DefaultUserService implements UserService {
 	public List<UserReference> findUsers(String filter) {
 		
 		if(isEmptyString(filter)) {
-			return db.executeQuery(prepare("SELECT uuid, name, email, givenname, familyname FROM auth.userdata ORDER BY familyname,givenname,name"), 
+			return db.executeQuery(prepare("SELECT uuid, name, email, givenname, familyname, salt64 FROM auth.userdata ORDER BY familyname,givenname,name"), 
 						    	   rs -> newUserReference()
 						    	   		 .withUserId(userId(rs.getString(1)))
 						    	   		 .withUserName(userName(rs.getString(2)))
 						    	   		 .withEmailAddress(emailAddress(rs.getString(3)))
 						    	   		 .withGivenName(rs.getString(4))
 						    	   		 .withFamilyName(rs.getString(5))
+						    	   		 .withOidcOnly(rs.getString(6) == null)
 						    	   		 .build());
 		}
 
-		return db.executeQuery(prepare("SELECT uuid, name, email, givenname, familyname FROM auth.userdata WHERE (familyname ~ ? OR name ~ ? ) ORDER BY familyname,givenname,name",
+		return db.executeQuery(prepare("SELECT uuid, name, email, givenname, familyname, salt64 FROM auth.userdata WHERE (familyname ~ ? OR name ~ ? ) ORDER BY familyname,givenname,name",
 									   filter,
 									   filter), 
 					    	   rs -> newUserReference()
@@ -130,6 +131,7 @@ public class DefaultUserService implements UserService {
 					    	   		 .withEmailAddress(emailAddress(rs.getString(3)))
 					    	   		 .withGivenName(rs.getString(4))
 					    	   		 .withFamilyName(rs.getString(5))
+					    	   		 .withOidcOnly(rs.getString(6) == null)
 					    	   		 .build());
 	}
 
@@ -204,6 +206,7 @@ public class DefaultUserService implements UserService {
 			   .withRoles(user.getRoles(Role::getRoleName))
 			   .withScopes(user.getScopes())
 			   .withAccessTokenTtl(user.getTokenTtl(),user.getTokenTtlUnit())
+			   .withOidcOnly(user.getPasswordHash() == null)
 			   .build();
 	}
 

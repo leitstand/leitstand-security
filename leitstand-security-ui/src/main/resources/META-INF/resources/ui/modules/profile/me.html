@@ -14,12 +14,20 @@
  the License.
 -->
 <ui-view-header>
-	<ui-title>User Profile Settings</ui-title>
+	<ui-title>User Profile</ui-title>
 	<ui-subtitle>Manage your user profile</ui-subtitle>
 </ui-view-header>
+<h1>User {{profile.user_name}}</h1>
+<!-- {{^profile.oidc_only}} -->
+<ui-note>Manage your user profile.</ui-note>
+<!-- {{/profile.oidc_only}} -->
+<!-- {{#profile.oidc_only}} -->
+<ui-note class="danger">This profile is readonly because authentication and authorization is delegated to an OpenID/Connect authorization service.</ui-note>
+<!-- {{/profile.oidc_only}} -->
+
 <ui-form>
 	<ui-group>
-		<ui-label>General Settings</ui-label>
+		<ui-label>User Profile</ui-label>
 		<ui-input name="user_name" bind="profile.user_name" disabled readonly>
 			<ui-label>User Name</ui-label>
 			<ui-note>User account name</ui-note>
@@ -46,7 +54,7 @@
 				</thead>
 				<tbody>
 					<!-- {{#assigned_roles}} -->
-					<tr><td class="text">{{name}}</td><td class="text">{{description}}</td>	
+					<tr><td class="text">{{role_name}}</td><td class="text">{{description}}</td>	
 					<!-- {{/assigned_roles}} -->
 				</tbody>
 			</table>
@@ -54,7 +62,12 @@
 		<!--  {{/assigned_roles.length}} -->
 			
 		<ui-actions>
+			<!-- {{#profile.oidc_only}} -->
+			<ui-button name="save-settings" disabled primary>Save settings</ui-button>
+			<!-- {{/profile.oidc_only}} -->
+			<!-- {{^profile.oidc_only}} -->
 			<ui-button name="save-settings" primary>Save settings</ui-button>
+			<!-- {{/profile.oidc_only}} -->
 		</ui-actions>	
 	</ui-group>
 	<ui-group>
@@ -72,7 +85,13 @@
 			<ui-note>Confirm the new password by entering it again in order to detect typos.</ui-note>
 		</ui-password>
 		<ui-actions>
+			<!-- {{#profile.oidc_only}} -->
+			<ui-button name="passwd" disabled>Change password</ui-button>
+			<!-- {{/profile.oidc_only}} -->
+			<!-- {{^profile.oidc_only}} -->
 			<ui-button name="passwd">Change password</ui-button>
+			<!-- {{/profile.oidc_only}} -->
+		
 		</ui-actions>
 	</ui-group>
 </ui-form>

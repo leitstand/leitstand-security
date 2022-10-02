@@ -68,6 +68,12 @@ public class UserReference extends ValueObject{
 			return (B) this;
 		}
 		
+		public B withOidcOnly(boolean oidcOnly) {
+			assertNotInvalidated(getClass(), instance);
+			((UserReference)instance).oidcOnly = oidcOnly;
+			return (B) this;
+		}
+		
 		public T build() {
 			try {
 				assertNotInvalidated(getClass(), instance);

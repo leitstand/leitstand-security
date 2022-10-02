@@ -136,7 +136,7 @@ public class UserResource {
 	 * @return messages to explain the outcome of the operation
 	 */
 	@POST
-	@Path("/{user:"+UUID_PATTERN+"}/_passwd")
+	@Path("/{user:"+UUID_PATTERN+"}/passwd")
 	@Scopes({ADM, ADM_USER})
 	public Messages storePassword(@Valid @PathParam("user") UserId userId, 
 							      @Valid ChangePasswordRequest passwd) {
@@ -155,7 +155,7 @@ public class UserResource {
 	 * @return messages to explain the outcome of the operation
 	 */
 	@POST
-	@Path("/{user}/_passwd")
+	@Path("/{user}/passwd")
 	@Scopes({ADM, ADM_USER})
 	public Messages storePassword(@Valid @PathParam("user") UserName userName, 
 							      @Valid ChangePasswordRequest passwd) {

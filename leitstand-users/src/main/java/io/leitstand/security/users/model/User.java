@@ -246,7 +246,10 @@ public class User extends AbstractEntity {
 	 * @return the password hash value.
 	 */
 	public byte[] getPasswordHash() {
-		return decodeBase64String(pass64);
+		if (pass64 != null) {
+			return decodeBase64String(pass64);
+		}
+		return null;
 	}
 	
 	/**
@@ -254,7 +257,10 @@ public class User extends AbstractEntity {
 	 * @return the salt value to compute the password hash.
 	 */
 	public byte[] getSalt() {
-		return decodeBase64String(salt64);
+		if (salt64 != null) {
+			return decodeBase64String(salt64);
+		}
+		return null;
 	}
 	
 	/**
