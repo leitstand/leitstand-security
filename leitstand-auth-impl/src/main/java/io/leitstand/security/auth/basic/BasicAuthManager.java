@@ -72,7 +72,7 @@ public class BasicAuthManager implements AccessTokenManager{
 	 * @param request the HTTP request
 	 * @param response the HTTP response
 	 * @return	<code>NOT_VALIDATED_RESULT</code> when not HTTP basic authorization credentials are found, <code>INVALID_RESULT</code> when the HTTP basic authentication is disabled or the credentials are invalid.
-	 * and a <code>VALID</code> result when the basic crendtials are valid and HTTP basic authorization is enabled.
+	 * and a <code>VALID</code> result when the basic credentials are valid and HTTP basic authorization is enabled.
 	 */
 	@Override
 	public CredentialValidationResult validateAccessToken(HttpServletRequest request, 
