@@ -7,7 +7,7 @@ extensions:
     menu: main
     after: webhooks
   items:
-  - item: Users
+  - item: users
     label: Users
     title: Manage existing users.
     view: users.html
@@ -16,7 +16,7 @@ extensions:
     - adm.read
     - adm.user
     - adm.user.read
-  - item: Roles
+  - item: roles
     label: Roles
     title: View existing roles
     view: roles.html
