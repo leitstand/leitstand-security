@@ -71,7 +71,7 @@ export class UserProfile extends Resource{
 	 * @param {PasswordChangeRequest} passwd the change password request
 	 */
 	passwd(ref,passwd){
-		return this.json("/api/v1/users/{{&user_id}}/passwd",ref)
+		return this.json("/api/v1/users/{{&user_id}}/passwd",ref,passwd)
 					.POST(passwd);
 	}
 

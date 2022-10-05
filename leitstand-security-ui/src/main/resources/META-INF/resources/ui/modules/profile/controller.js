@@ -27,14 +27,11 @@ function myController(){
 			const allRoles = await roles.load();
 			// Filter assigned roles
 			const assignedRoles = allRoles.filter(role => profile.roles.includes(role.role_name));
+			profile.readonly = function(){
+				return this.profile.oidc_only ? "disabled readonly" : "";
+			}
 			return {"profile":profile,
 					"assigned_roles":assignedRoles};
-		},
-		postRender: function(){
-			const profile = this.getViewModel("profile");
-			if (profile.oidc_only){
-				this.elements("ui-input").forEach((input) => input.setAttribute("readonly"));
-			}	
 		},
 		buttons:{
 			"save-settings":function(){
@@ -44,7 +41,7 @@ function myController(){
 			},
 			"passwd":function(){
 				profile.passwd(this.location.params,
-							   {"uuid":this.getViewModel("user_id"),
+							   {"user_id":this.getViewModel("profile.user_id"),
 								"password":this.input("password").value(),
 							    "new_password":this.input("new_password").value(),
 							    "confirmed_password":this.input("confirmed_password").value()});

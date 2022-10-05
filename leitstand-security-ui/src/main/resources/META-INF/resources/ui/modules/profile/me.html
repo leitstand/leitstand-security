@@ -32,16 +32,16 @@
 			<ui-label>User Name</ui-label>
 			<ui-note>User account name</ui-note>
 		</ui-input>
-		<ui-input name="given_name" bind="profile.given_name">
+		<ui-input name="given_name" bind="profile.given_name" {{profile.readonly}}>
 			<ui-label>Given Name</ui-label>
 			
 			<ui-note>Your given name</ui-note>
 		</ui-input>
-		<ui-input name="family_name" bind="profile.family_name">
+		<ui-input name="family_name" bind="profile.family_name" {{profile.readonly}}>
 			<ui-label>Family Name</ui-label>
 			<ui-note>Your family name</ui-note>
 		</ui-input>
-		<ui-input name="email" bind="profile.email">
+		<ui-input name="email" bind="profile.email" {{profile.readonly}}>
 			<ui-label>Email</ui-label>
 			<ui-note>Your email address.</ui-note>
 		</ui-input>
@@ -62,35 +62,25 @@
 		<!--  {{/assigned_roles.length}} -->
 			
 		<ui-actions>
-			<!-- {{#profile.oidc_only}} -->
-			<ui-button name="save-settings" disabled primary>Save settings</ui-button>
-			<!-- {{/profile.oidc_only}} -->
-			<!-- {{^profile.oidc_only}} -->
-			<ui-button name="save-settings" primary>Save settings</ui-button>
-			<!-- {{/profile.oidc_only}} -->
+			<ui-button name="save-settings" {{profile.readonly}} primary>Save settings</ui-button>
 		</ui-actions>	
 	</ui-group>
 	<ui-group>
 		<ui-label>Password</ui-label>
-		<ui-password name="password">
+		<ui-password name="password" {{profile.readonly}}>
 			<ui-label>Current Password</ui-label>
 			<ui-note>Enter your current password to authenticate the password change request.</ui-note>
 		</ui-password>
-		<ui-password name="new_password">
+		<ui-password name="new_password" {{profile.readonly}}>
 			<ui-label>New Password</ui-label>
 			<ui-note>Enter your new password</ui-note>
 		</ui-password>
-		<ui-password name="confirmed_password">
+		<ui-password name="confirmed_password" {{profile.readonly}}>
 			<ui-label>Confirm Password</ui-label>
 			<ui-note>Confirm the new password by entering it again in order to detect typos.</ui-note>
 		</ui-password>
 		<ui-actions>
-			<!-- {{#profile.oidc_only}} -->
-			<ui-button name="passwd" disabled>Change password</ui-button>
-			<!-- {{/profile.oidc_only}} -->
-			<!-- {{^profile.oidc_only}} -->
-			<ui-button name="passwd">Change password</ui-button>
-			<!-- {{/profile.oidc_only}} -->
+			<ui-button name="passwd" {{profile.readonly}}>Change password</ui-button>
 		
 		</ui-actions>
 	</ui-group>
