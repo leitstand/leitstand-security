@@ -175,7 +175,7 @@ public class UserResource {
 	 * @return messages to explain the outcome of the operation
 	 */
 	@POST
-	@Path("/{user:"+UUID_PATTERN+"}/_reset")
+	@Path("/{user:"+UUID_PATTERN+"}/reset")
 	@Scopes({ADM, ADM_USER})
 	public Messages reset(@PathParam("user") UserId userId, 
 						  @Valid ResetPasswordRequest passwd) {
@@ -194,7 +194,7 @@ public class UserResource {
 	 * @return messages to explain the outcome of the operation
 	 */
 	@POST
-	@Path("/{user}/_reset")
+	@Path("/{user}/reset")
 	@Scopes({ADM, ADM_USER})
 	public Messages reset(@Valid @PathParam("user") UserName userName, 
 						  @Valid ResetPasswordRequest passwd) {

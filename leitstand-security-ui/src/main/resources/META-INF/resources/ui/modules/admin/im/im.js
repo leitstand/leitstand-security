@@ -91,7 +91,7 @@ export class User extends Resource {
 	}
 	
 	resetPassword(params,settings){
-		return this.json("/api/v1/users/{{&user}}/_reset",
+		return this.json("/api/v1/users/{{&user}}/reset",
 				  		 this._cfg,
 				  		 params)
 				   .POST(settings);
