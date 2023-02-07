@@ -4,20 +4,20 @@ plugins {
 }
 
 dependencies {
-    implementation project(':leitstand-auth')
-    implementation project(':leitstand-sso')
     implementation project(':leitstand-crypto')
-    implementation project(':leitstand-accesskeys-validation')
+    implementation project(':leitstand-users')
+    implementation project(':leitstand-auth')
     implementation 'io.leitstand:leitstand-commons:' + findProperty("versions.leitstand-commons")
+    implementation 'com.nimbusds:nimbus-jose-jwt:9.15.2'
     compileOnly 'javax:javaee-api:8.0'
 
 
     testImplementation 'junit:junit:4.12'
     testImplementation 'io.leitstand:leitstand-test:' + findProperty("versions.leitstand-commons")
-    testImplementation 'org.mockito:mockito-all:1.8.4'
+    testImplementation 'org.mockito:mockito-all:1.10.9'
     testImplementation 'com.h2database:h2:1.4.200'
     testCompileOnly 'javax:javaee-api:8.0'
-    testRuntimeOnly 'org.eclipse.persistence:eclipselink:2.7.1'
+    testRuntimeOnly 'org.eclipse.persistence:eclipselink:2.7.10'
     testRuntimeOnly 'javax.xml.bind:jaxb-api:2.3.0'
     testRuntimeOnly 'org.hibernate:hibernate-validator:4.2.0.Final'
     testRuntimeOnly 'org.glassfish.jersey.core:jersey-client:2.6'

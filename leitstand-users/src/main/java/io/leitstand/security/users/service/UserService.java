@@ -19,7 +19,6 @@ import java.util.List;
 
 import javax.security.enterprise.credential.Password;
 
-import io.leitstand.security.auth.UserId;
 import io.leitstand.security.auth.UserName;
 
 /**

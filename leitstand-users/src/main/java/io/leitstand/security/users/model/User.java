@@ -17,8 +17,8 @@ package io.leitstand.security.users.model;
 
 import static io.leitstand.commons.model.ByteArrayUtil.decodeBase64String;
 import static io.leitstand.commons.model.ByteArrayUtil.encodeBase64String;
-import static io.leitstand.security.auth.UserId.randomUserId;
-import static io.leitstand.security.auth.UserId.userId;
+import static io.leitstand.security.users.service.UserId.randomUserId;
+import static io.leitstand.security.users.service.UserId.userId;
 import static java.util.Collections.unmodifiableSet;
 import static java.util.stream.Collectors.toSet;
 import static javax.persistence.EnumType.STRING;
@@ -47,12 +47,12 @@ import javax.persistence.Table;
 
 import io.leitstand.commons.model.AbstractEntity;
 import io.leitstand.commons.model.Query;
-import io.leitstand.security.auth.UserId;
 import io.leitstand.security.auth.UserName;
 import io.leitstand.security.auth.jpa.UserNameConverter;
 import io.leitstand.security.users.jpa.EmailAddressConverter;
 import io.leitstand.security.users.service.EmailAddress;
 import io.leitstand.security.users.service.RoleName;
+import io.leitstand.security.users.service.UserId;
 
 /**
  * A user account.
@@ -246,7 +246,10 @@ public class User extends AbstractEntity {
 	 * @return the password hash value.
 	 */
 	public byte[] getPasswordHash() {
-		return decodeBase64String(pass64);
+		if (pass64 != null) {
+			return decodeBase64String(pass64);
+		}
+		return null;
 	}
 	
 	/**
@@ -254,7 +257,10 @@ public class User extends AbstractEntity {
 	 * @return the salt value to compute the password hash.
 	 */
 	public byte[] getSalt() {
-		return decodeBase64String(salt64);
+		if (salt64 != null) {
+			return decodeBase64String(salt64);
+		}
+		return null;
 	}
 	
 	/**

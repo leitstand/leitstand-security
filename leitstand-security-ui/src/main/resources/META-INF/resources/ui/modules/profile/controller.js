@@ -23,10 +23,13 @@ function myController(){
 		resource:profile,
 		viewModel: async function(profile){
 			// Load all existing roles
-			let roles = new Roles();
-			let allRoles = await roles.load();
+			const roles = new Roles();
+			const allRoles = await roles.load();
 			// Filter assigned roles
-			let assignedRoles = allRoles.filter(role => profile.roles.includes(role.name));
+			const assignedRoles = allRoles.filter(role => profile.roles.includes(role.role_name));
+			profile.readonly = function(){
+				return this.profile.oidc_only ? "disabled readonly" : "";
+			}
 			return {"profile":profile,
 					"assigned_roles":assignedRoles};
 		},
@@ -38,7 +41,7 @@ function myController(){
 			},
 			"passwd":function(){
 				profile.passwd(this.location.params,
-							   {"uuid":this.getViewModel("uuid"),
+							   {"user_id":this.getViewModel("profile.user_id"),
 								"password":this.input("password").value(),
 							    "new_password":this.input("new_password").value(),
 							    "confirmed_password":this.input("confirmed_password").value()});

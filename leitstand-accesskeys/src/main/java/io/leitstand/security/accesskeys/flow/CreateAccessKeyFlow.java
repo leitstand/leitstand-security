@@ -20,22 +20,34 @@ import static io.leitstand.security.accesskeys.service.ReasonCode.AKY0005E_DUPLI
 import static io.leitstand.security.accesskeys.service.ReasonCode.AKY0006E_DATABASE_ERROR;
 
 import io.leitstand.commons.messages.Messages;
-import io.leitstand.security.accesskeys.service.AccessKeyData;
 import io.leitstand.security.accesskeys.service.AccessKeyService;
+import io.leitstand.security.accesskeys.service.AccessKeySettings;
 
+/**
+ * The <code>CreateAccessKeyFlow</code> adds a new access key or reports an error, if the new access key cannot be created.
+ */
 public class CreateAccessKeyFlow {
 
 	private AccessKeyService service;
 	private Messages messages;
 	
+	/**
+	 * Creates a new <code>CreateAccessKeyFlow</code>
+	 * @param service the access key service
+	 * @param messages the container for reporting status and error messages
+	 */
 	public CreateAccessKeyFlow(AccessKeyService service,
 							   Messages messages) {
 		this.service = service;
 		this.messages = messages;
 	}
 	
-	
-	public String tryCreateAccessKey(AccessKeyData accessKey) {
+	/**
+	 * Creates a new access key from the given access key settings.
+	 * @param accessKey the access key settings
+	 * @return the encoded access key or <code>null</code> if the access key cannot be created.
+	 */
+	public String tryCreateAccessKey(AccessKeySettings accessKey) {
 		try {
 			return service.createAccessKey(accessKey);
 		} catch(Exception e) {

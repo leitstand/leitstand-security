@@ -25,8 +25,11 @@ import javax.validation.constraints.NotNull;
 
 import io.leitstand.commons.model.CompositeValue;
 import io.leitstand.security.accesskeys.service.AccessKeyName;
-import io.leitstand.security.auth.accesskey.AccessKeyId;
+import io.leitstand.security.auth.accesskeys.AccessKeyId;
 
+/**
+ * AccessKeyEvent reports when an access key got created or has been revoked.
+ */
 public class AccessKeyEvent extends CompositeValue{
 	
 	public enum Type {
@@ -34,6 +37,10 @@ public class AccessKeyEvent extends CompositeValue{
 		REVOKED
 	}
 
+	/**
+	 * Returns a builder for an immutable <code>AccessKeyEvent</code>.
+	 * @return an <code>AccessKeyEvent</code> builder.
+	 */
 	public static Builder newAccessKeyEvent() {
 		return new Builder();
 	}
@@ -42,18 +49,34 @@ public class AccessKeyEvent extends CompositeValue{
 		
 		private AccessKeyEvent event = new AccessKeyEvent();
 		
+		/**
+		 * Sets the access key ID.
+		 * @param accessKeyId the access key ID
+		 * @return a reference to this builder to continue with object creation
+		 */
 		public Builder withAccessKeyId(AccessKeyId accessKeyId) {
 			assertNotInvalidated(getClass(), event);
 			event.accessKeyId = accessKeyId;
 			return this;
 		}
 		
+		
+		/**
+		 * Sets the access key name.
+		 * @param accessKeyName the access key name
+		 * @return a reference to this builder to continue object creation
+		 */
 		public Builder withAccessKeyName(AccessKeyName accessKeyName) {
 			assertNotInvalidated(getClass(), event);
 			event.accessKeyName = accessKeyName;
 			return this;
 		}
 		
+		/**
+		 * Sets the event type representing whether the key has been created or revoked.
+		 * @param type the access key type
+		 * @return a reference to this builder to continue object creation
+		 */
 		public Builder withAccessKeyStatus(Type type) {
 			assertNotInvalidated(getClass(), event);
 			event.type = type;
@@ -61,6 +84,11 @@ public class AccessKeyEvent extends CompositeValue{
 		}
 		
 		
+		/**
+		 * Creates an immutable <code>AccessKeyEvent</code> and invalidates this builder.
+		 * Subsequent calls of the <code>build()</code> method raise an exception.
+		 * @return the immutable <code>AccessKeyEvent</code>.
+		 */
 		public AccessKeyEvent build() {
 			try {
 				assertNotInvalidated(getClass(), event);
@@ -87,18 +115,34 @@ public class AccessKeyEvent extends CompositeValue{
 	@NotNull
 	private AccessKeyEvent.Type type;
 	
+	/**
+	 * Returns the access key ID.
+	 * @return the access key ID.
+	 */
 	public AccessKeyId getAccessKeyId() {
 		return accessKeyId;
 	}
 	
+	/**
+	 * Returns the access key name.
+	 * @return the access key name.
+	 */
 	public AccessKeyName getAccessKeyName() {
 		return accessKeyName;
 	}
 	
+	/**
+	 * Returns whether the access key has been revoked.
+	 * @return <code>true</code> if the access key is revoked, <code>false</code> if not.
+	 */
 	public boolean isRevoked() {
 		return type == REVOKED;
 	}
 	
+	/**
+	 * Returns whether the access key has been created.
+	 * @return <code>true</code> if this event refers to a new access key, <code>false</code> if not.
+	 */
 	public boolean isCreated() {
 		return type == CREATED;
 	}

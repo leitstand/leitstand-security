@@ -23,9 +23,56 @@ import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+/**
+ * The <code>Scopes</code> annotation declares the scopes a Leitstand REST resource or service belongs to.
+ * Scopes are also the basis for authorization as permissions are granted on a per-scope basis.
+ * <p>
+ * Scopes can be declared on type and method level. 
+ * The scopes declared on a method-level extend the scopes declared on type-level without replacing them.
+ * Thus scopes defined on method-level grant <em>additional</em> scopes access to the respective operation.
+ * <p>
+ * Lets look into an example to understand this important concept in detail.
+ * The inventory defines the following scopes among others:
+ * <ul>
+ * 	<li><em>ivt</em>scope grants unrestricted access to all inventory resources.</li>
+ *  <li><em>ivt.read</em> scope grants readonly access to all inventory resources.</li>
+ *  <li><em>ivt.element</em> scope grants unrestricted access to all inventory element resources.</li>
+ * </ul>
+ * The <code>ElementSettingsResource</code> uses these scopes as listed below.
+ * <pre>
+ *	{@literal @Resource}
+ *	{@literal @Scopes}({"ivt","ivt.element"})
+ *	public class ElementSettingsResource{
+ *    ...
+ *    {@literal @GET}
+ *    {@literal @Path}("/{element:"+UUID_PATTERN+"}/settings")
+ *    {@literal @Scopes}({"ivt.read"})
+ *    public ElementSettings getElementSettings({@literal @Valid @PathParam}("element") ElementId element){
+ *      ...
+ *    }
+ *    
+ *    {@literal @PUT}
+ *    {@literal @Path}("/{element:"+UUID_PATTERN+"}/settings")
+ *    public Response storeElementSettings({@literal @Valid @PathParam}("element") ElementId element, 
+ *                                         {@literal @Valid} ElementSettings settings){
+ *      ...
+ *    }
+ *      
+ *    ...
+ * }
+ * </pre>
+ * The resource grants access to all its operations for users with with access to the <em>ivt</em> and <em>ivt.element</em> scopes.
+ * The GET operation declares the <em>ivt.read</em> scope additionally which allows users with access to the <em>ivt.read</em> scope to read the element settings.
+ * The PUT operation, however, does not declare an additional scope, which is why only users with access to the <em>ivt</em> and <em>ivt.element</em> scopes are allowed to store element settings.
+ * 
+ */
 @Retention(RUNTIME)
 @Target({TYPE,METHOD})
 @Inherited
 public @interface Scopes {
+	/**
+	 * Returns the scopes that are allowed to access this resource or service.
+	 * @return the scopes that are allowed to access this resource or service.
+	 */
 	String[] value();
 }

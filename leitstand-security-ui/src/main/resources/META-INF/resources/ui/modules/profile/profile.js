@@ -61,7 +61,7 @@ export class UserProfile extends Resource{
 	 * @param {UserProfileSettings} settings the user profile settings.
 	 */
 	saveSettings(ref,settings){
-		return this.json("/api/v1/users/{{&uuid}}",ref)
+		return this.json("/api/v1/users/{{&user_id}}",ref,settings)
 				   .PUT(settings);
 	}
 		
@@ -71,7 +71,7 @@ export class UserProfile extends Resource{
 	 * @param {PasswordChangeRequest} passwd the change password request
 	 */
 	passwd(ref,passwd){
-		return this.json("/api/v1/users/{{&uuid}}/_passwd",ref)
+		return this.json("/api/v1/users/{{&user_id}}/passwd",ref,passwd)
 					.POST(passwd);
 	}
 

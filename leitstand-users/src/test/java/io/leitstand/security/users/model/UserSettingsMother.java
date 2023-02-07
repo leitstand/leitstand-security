@@ -15,9 +15,9 @@
  */
 package io.leitstand.security.users.model;
 
-import static io.leitstand.security.auth.UserId.randomUserId;
 import static io.leitstand.security.auth.UserName.userName;
 import static io.leitstand.security.users.service.RoleName.roleName;
+import static io.leitstand.security.users.service.UserId.randomUserId;
 import static io.leitstand.security.users.service.UserSettings.newUserSettings;
 
 import java.security.Principal;

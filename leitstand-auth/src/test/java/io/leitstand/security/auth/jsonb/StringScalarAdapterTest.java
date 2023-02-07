@@ -33,8 +33,8 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import io.leitstand.commons.model.Scalar;
-import io.leitstand.security.auth.UserId;
 import io.leitstand.security.auth.UserName;
+import io.leitstand.security.auth.accesskeys.AccessKeyId;
 
 @RunWith(Parameterized.class)
 public class StringScalarAdapterTest {
@@ -42,8 +42,8 @@ public class StringScalarAdapterTest {
 	public static Collection<Object[]> adapters(){
 		String uuid = randomUUID().toString();
 		Object[][] adapters = new Object[][]{
-			{new UserIdAdapter(),	uuid, 		 new UserId(uuid)},
-			{new UserNameAdapter(),	"unit-user", new UserName("unit-user")}
+			{new UserNameAdapter(),		"unit-user", new UserName("unit-user")},
+			{new AccessKeyIdAdapter(),	uuid, 		 new AccessKeyId(uuid)},
 		};
 		return asList(adapters);
 	}

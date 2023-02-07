@@ -14,6 +14,6 @@
  * the License.
  */
 /**
- * Basic value objects for user authentication.
+ * Basic objects for user authentication and authorization.
  */
 package io.leitstand.security.auth;

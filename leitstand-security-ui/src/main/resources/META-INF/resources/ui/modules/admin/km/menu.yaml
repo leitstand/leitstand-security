@@ -5,8 +5,7 @@ extensions:
 - extend:
     module: admin
     menu: main
-    after: webhooks
-    before: users
+    after: roles
   items:
   - item: accesskeys
     label: Access Keys

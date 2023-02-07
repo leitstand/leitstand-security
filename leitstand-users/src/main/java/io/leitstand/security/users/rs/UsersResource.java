@@ -53,11 +53,19 @@ import io.leitstand.security.users.service.UserSubmission;
 @Produces(APPLICATION_JSON)
 public class UsersResource {
 
-	@Inject
 	private Messages messages;
 	
-	@Inject
 	private UserService service;
+	
+	public UsersResource() {
+		// CDI and JAX-RS
+	}
+	
+	@Inject
+	protected UsersResource(UserService service, Messages messages) {
+		this.service = service;
+		this.messages = messages;
+	}
 	
 	/**
 	 * Returns all users matching the given filter expression.

@@ -1,9 +1,7 @@
 // Infrastructure libraries
 include 'leitstand-accesskeys'
-include 'leitstand-accesskeys-validation'
 include 'leitstand-auth'
+include 'leitstand-auth-impl'
 include 'leitstand-crypto'
-include 'leitstand-sso'
-include 'leitstand-login'
 include 'leitstand-users'
 include 'leitstand-security-ui'

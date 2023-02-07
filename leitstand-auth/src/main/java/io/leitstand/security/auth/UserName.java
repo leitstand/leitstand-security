@@ -48,7 +48,7 @@ public class UserName extends Scalar<String> {
 	 * Alias for the {@link #valueOf(String)} method.
 	 * <p>
 	 * Creates a <code>UserName</code> from the specified string.
-	 * @param userName the user name.
+	 * @param name the user name.
 	 * @return the created <code>UserName</code> instance or 
 	 * <code>null</code> if the specified string is <code>null</code> or empty.
 	 */
@@ -58,7 +58,7 @@ public class UserName extends Scalar<String> {
 	
 	/**
 	 * Creates a <code>UserName</code> from the specified string.
-	 * @param UserName the user id.
+	 * @param name the user name.
 	 * @return the created <code>UserName</code> instance or 
 	 * <code>null</code> if the specified string is <code>null</code> or empty.
 	 */
@@ -67,6 +67,11 @@ public class UserName extends Scalar<String> {
 	}
 	
 
+	/**
+	 * Creates a <code>UserName</code> from the specified principal.
+	 * @param principal the principal
+	 * @return the created <code>UserName</code> or <code>null</code> if the given principal is <code>null</code>.
+	 */
 	public static UserName valueOf(Principal principal) {
 		return principal != null ? valueOf(principal.getName()) : null; 
 	}

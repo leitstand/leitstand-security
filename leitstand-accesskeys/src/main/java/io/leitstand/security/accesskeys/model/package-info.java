@@ -14,6 +14,6 @@
  * the License.
  */
 /**
- * Access key management model
+ * Contains the API access-key management implementation.
  */
 package io.leitstand.security.accesskeys.model;

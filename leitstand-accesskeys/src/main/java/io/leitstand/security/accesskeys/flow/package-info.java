@@ -14,6 +14,6 @@
  * the License.
  */
 /**
- * Supplies key management flows.
+ * Contains access key management flows.
  */
 package io.leitstand.security.accesskeys.flow;

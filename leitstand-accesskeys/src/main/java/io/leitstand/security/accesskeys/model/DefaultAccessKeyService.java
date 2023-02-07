@@ -16,20 +16,19 @@
 package io.leitstand.security.accesskeys.model;
 
 import static io.leitstand.commons.UniqueKeyConstraintViolationException.key;
+import static io.leitstand.commons.db.DatabaseService.prepare;
 import static io.leitstand.commons.model.StringUtil.isEmptyString;
 import static io.leitstand.security.accesskeys.event.AccessKeyEvent.newAccessKeyEvent;
 import static io.leitstand.security.accesskeys.event.AccessKeyEvent.Type.CREATED;
 import static io.leitstand.security.accesskeys.event.AccessKeyEvent.Type.REVOKED;
 import static io.leitstand.security.accesskeys.model.AccessKey.findByAccessKeyId;
 import static io.leitstand.security.accesskeys.model.AccessKey.findByAccessKeyName;
-import static io.leitstand.security.accesskeys.model.AccessKey.findByNamePattern;
-import static io.leitstand.security.accesskeys.service.AccessKeyData.newAccessKey;
-import static io.leitstand.security.accesskeys.service.AccessKeyMetaData.newAccessKeyMetaData;
+import static io.leitstand.security.accesskeys.service.AccessKeyInfo.newAccessKeyMetaData;
+import static io.leitstand.security.accesskeys.service.AccessKeySettings.newAccessKeySettings;
 import static io.leitstand.security.accesskeys.service.ReasonCode.AKY0001E_ACCESS_KEY_NOT_FOUND;
 import static io.leitstand.security.accesskeys.service.ReasonCode.AKY0005E_DUPLICATE_KEY_NAME;
 import static io.leitstand.security.auth.UserName.userName;
-import static io.leitstand.security.auth.accesskey.ApiAccessKey.newApiAccessKey;
-import static java.util.stream.Collectors.toList;
+import static io.leitstand.security.auth.accesskeys.ApiAccessKey.newApiAccessKey;
 
 import java.util.List;
 
@@ -38,47 +37,55 @@ import javax.inject.Inject;
 
 import io.leitstand.commons.EntityNotFoundException;
 import io.leitstand.commons.UniqueKeyConstraintViolationException;
+import io.leitstand.commons.db.DatabaseService;
 import io.leitstand.commons.model.Repository;
 import io.leitstand.commons.model.Service;
 import io.leitstand.security.accesskeys.event.AccessKeyEvent;
-import io.leitstand.security.accesskeys.service.AccessKeyData;
-import io.leitstand.security.accesskeys.service.AccessKeyMetaData;
+import io.leitstand.security.accesskeys.service.AccessKeyInfo;
+import io.leitstand.security.accesskeys.service.AccessKeyName;
 import io.leitstand.security.accesskeys.service.AccessKeyService;
-import io.leitstand.security.auth.accesskey.AccessKeyId;
-import io.leitstand.security.auth.accesskey.ApiAccessKey;
-import io.leitstand.security.auth.accesskey.ApiAccessKeyEncoder;
-import io.leitstand.security.auth.accesskeys.AccessKeys;
+import io.leitstand.security.accesskeys.service.AccessKeySettings;
+import io.leitstand.security.auth.accesskeys.AccessKeyId;
+import io.leitstand.security.auth.accesskeys.ApiAccessKey;
+import io.leitstand.security.auth.accesskeys.ApiAccessKeyEncoder;
 
+/**
+ * The <code>DefaultAccessKeyService</code> allows managing the metadata of issued permanent API access keys.
+ */
 @Service
 public class DefaultAccessKeyService implements AccessKeyService{
 
-	@Inject
-	@AccessKeys 
 	private Repository repository;
 	
-	@Inject
+	private DatabaseService db;
+	
 	private ApiAccessKeyEncoder encoder;
 	
-	@Inject
 	private Event<AccessKeyEvent> events;
 	
-	public DefaultAccessKeyService() {
+	protected DefaultAccessKeyService() {
 		// CDI constructor
 	}
 	
-	protected DefaultAccessKeyService(Repository repository,
+	@Inject
+	protected DefaultAccessKeyService(@AccessKeys Repository repository,
+									  @AccessKeys DatabaseService db,
 									  ApiAccessKeyEncoder encoder,
 									  Event<AccessKeyEvent> events) {
 			this.repository = repository;
+			this.db = db;
 			this.encoder = encoder;
 			this.events = events;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public AccessKeyData getAccessKey(AccessKeyId accessKeyId) {
+	public AccessKeySettings getAccessKey(AccessKeyId accessKeyId) {
 		AccessKey key = loadAccessKey(accessKeyId);
 		
-		return newAccessKey()
+		return newAccessKeySettings()
 			   .withAccessKeyId(key.getAccessKeyId())
 			   .withAccessKeyName(key.getAccessKeyName())
 			   .withDescription(key.getDescription())
@@ -97,8 +104,11 @@ public class DefaultAccessKeyService implements AccessKeyService{
 		return key;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public String createAccessKey(AccessKeyData accessKey) {
+	public String createAccessKey(AccessKeySettings accessKey) {
 		AccessKeyId accessKeyId = accessKey.getAccessKeyId();
 		AccessKey key = repository.execute(findByAccessKeyName(accessKey.getAccessKeyName()));
 		if(key != null) {
@@ -130,12 +140,18 @@ public class DefaultAccessKeyService implements AccessKeyService{
 		
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void updateAccessKey(AccessKeyId accessKeyId, String description) {
 		AccessKey key = loadAccessKey(accessKeyId);
 		key.setDescription(description);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void removeAccessKey(AccessKeyId accessKeyId) {
 		AccessKey key = repository.execute(findByAccessKeyId(accessKeyId));
@@ -149,23 +165,27 @@ public class DefaultAccessKeyService implements AccessKeyService{
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public List<AccessKeyMetaData> findAccessKeys(String filter) {
+	public List<AccessKeyInfo> findAccessKeys(String filter) {
 		String pattern = filter;
 		if(isEmptyString(pattern)) {
 			pattern = ".*";
 		}
 		
-		return repository
-			   .execute(findByNamePattern(pattern))
-			   .stream()
-			   .map(key -> newAccessKeyMetaData()
-					   	   .withAccessKeyId(key.getAccessKeyId())
-					   	   .withAccessKeyName(key.getAccessKeyName())
-					   	   .withDescription(key.getDescription())
-					   	   .withDateCreated(key.getDateCreated())
-					   	   .build())
-			   .collect(toList());
+		return db.executeQuery(prepare("SELECT uuid, name, description, tscreated "+ 
+									   "FROM auth.accesskey "+
+									   "WHERE name ~ ? "+
+									   "ORDER BY name", 
+									   filter), 
+							   rs -> newAccessKeyMetaData()
+							   		 .withAccessKeyId(AccessKeyId.accessKeyId(rs.getString(1)))
+							   		 .withAccessKeyName(AccessKeyName.accessKeyName(rs.getString(2)))
+							   		 .withDescription(rs.getString(3))
+							   		 .withDateCreated(rs.getTimestamp(4))
+							   		 .build());
 	}
 
 }

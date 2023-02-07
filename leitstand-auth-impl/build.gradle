@@ -1,0 +1,39 @@
+plugins {
+    id 'java-library'
+    id 'eclipse-wtp'
+}
+
+dependencies {
+    implementation project(':leitstand-auth')
+    implementation project(':leitstand-crypto')
+    implementation project(':leitstand-accesskeys')
+    implementation project(':leitstand-users')
+    implementation 'io.leitstand:leitstand-commons:' + findProperty("versions.leitstand-commons")
+    compileOnly 'javax:javaee-api:8.0'
+    implementation 'com.nimbusds:nimbus-jose-jwt:9.15.2'
+
+    testImplementation 'junit:junit:4.12'
+    testImplementation 'io.leitstand:leitstand-test:' + findProperty("versions.leitstand-commons")
+    testImplementation 'org.mockito:mockito-all:1.10.9'
+    testImplementation 'javax:javaee-api:8.0'
+    testRuntimeOnly 'org.glassfish.jersey.core:jersey-client:2.6'
+    testRuntimeOnly 'org.hibernate:hibernate-validator:4.2.0.Final'
+    testRuntimeOnly 'org.eclipse.persistence:eclipselink:2.7.10'
+    testRuntimeOnly 'javax.xml.bind:jaxb-api:2.3.0'
+
+}
+
+java {
+    withSourcesJar()
+    withJavadocJar()
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            artifactId = 'leitstand-auth-impl'
+            version = project.getVersion()
+            from components.java
+        }
+    }
+}

@@ -4,6 +4,7 @@ import static io.leitstand.ui.model.Contribution.loadContribution;
 import static io.leitstand.ui.model.ReasonCode.UIM0002E_CANNOT_PROCESS_MODULE_EXTENSION;
 import static java.lang.String.format;
 import static java.lang.Thread.currentThread;
+import static java.util.logging.Logger.getLogger;
 
 import java.io.IOException;
 import java.util.logging.Logger;
@@ -21,7 +22,7 @@ import io.leitstand.ui.model.ModuleDescriptorException;
 @Dependent
 public class AccessKeyManagementComponent {
 
-	private static final Logger LOG = Logger.getLogger(AccessKeyManagementComponent.class.getName());
+	private static final Logger LOG = getLogger(AccessKeyManagementComponent.class.getName());
 	
 	@Produces
 	public Contribution getWebhookAdminComponent() {

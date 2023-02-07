@@ -17,13 +17,14 @@ package io.leitstand.security.users.jsonb;
 
 import javax.json.bind.adapter.JsonbAdapter;
 
+import io.leitstand.commons.model.Scalar;
 import io.leitstand.security.users.service.RoleId;
 
 public class RoleIdAdapter implements JsonbAdapter<RoleId,String> {
 
 	@Override
 	public String adaptToJson(RoleId roleId) throws Exception {
-		return RoleId.toString(roleId);
+		return Scalar.toString(roleId);
 	}
 
 	@Override

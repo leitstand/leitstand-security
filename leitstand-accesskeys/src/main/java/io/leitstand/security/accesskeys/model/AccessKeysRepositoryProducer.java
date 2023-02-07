@@ -23,10 +23,9 @@ import javax.persistence.PersistenceUnit;
 import javax.transaction.TransactionScoped;
 
 import io.leitstand.commons.model.Repository;
-import io.leitstand.security.auth.accesskeys.AccessKeys;
 
 /**
- * The producer for the repository of the built-in identity management module.
+ * <code>Repository</code> CDI producer for the access-key management module.
  */
 @Dependent
 public class AccessKeysRepositoryProducer {
@@ -35,8 +34,8 @@ public class AccessKeysRepositoryProducer {
 	private EntityManagerFactory emf;
 	
 	/**
-	 * Creates the repository for the built-in identity management module.
-	 * @return the identity management repository.
+	 * Creates the repository for the access-key management module.
+	 * @return the access-key management repository
 	 */
 	@Produces
 	@TransactionScoped
@@ -45,6 +44,10 @@ public class AccessKeysRepositoryProducer {
 		return new Repository(emf.createEntityManager());
 	}
 	
+	/**
+	 * Closes the access-key management repository when the server gets stopped in order to free all allocated database resources like database connections for example.
+	 * @param repository the repostory to be closed
+	 */
 	public void closeRepository(@Disposes @AccessKeys Repository repository) {
 		repository.close();
 	}

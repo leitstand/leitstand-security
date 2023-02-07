@@ -17,7 +17,7 @@ package io.leitstand.security.users.model;
 
 import static io.leitstand.commons.db.DatabaseService.prepare;
 import static io.leitstand.commons.messages.MessageFactory.createMessage;
-import static io.leitstand.security.auth.UserId.userId;
+import static io.leitstand.commons.model.StringUtil.isEmptyString;
 import static io.leitstand.security.auth.UserName.userName;
 import static io.leitstand.security.users.model.PasswordService.ITERATIONS;
 import static io.leitstand.security.users.model.Role.findRoleByName;
@@ -33,10 +33,12 @@ import static io.leitstand.security.users.service.ReasonCode.IDM0006E_ROLE_NOT_F
 import static io.leitstand.security.users.service.ReasonCode.IDM0007E_ADMIN_PRIVILEGES_REQUIRED;
 import static io.leitstand.security.users.service.ReasonCode.IDM0008E_PASSWORD_MISMATCH;
 import static io.leitstand.security.users.service.ReasonCode.IDM0009I_USER_REMOVED;
+import static io.leitstand.security.users.service.UserId.userId;
 import static io.leitstand.security.users.service.UserReference.newUserReference;
 import static io.leitstand.security.users.service.UserSettings.newUserSettings;
 import static java.lang.String.format;
 import static java.util.logging.Level.FINER;
+import static java.util.logging.Logger.getLogger;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -55,49 +57,42 @@ import io.leitstand.commons.messages.Messages;
 import io.leitstand.commons.model.Repository;
 import io.leitstand.commons.model.Service;
 import io.leitstand.security.auth.UserContext;
-import io.leitstand.security.auth.UserId;
 import io.leitstand.security.auth.UserName;
 import io.leitstand.security.users.service.RoleName;
+import io.leitstand.security.users.service.UserId;
 import io.leitstand.security.users.service.UserReference;
 import io.leitstand.security.users.service.UserService;
 import io.leitstand.security.users.service.UserSettings;
 import io.leitstand.security.users.service.UserSubmission;
 
 /**
- * Stateless, transactional, default {@link UserService} implementation.
+ * Default {@link UserService} implementation.
  */
 @Service
 public class DefaultUserService implements UserService {
 
 	private static final String ADM_SCOPE = "adm";
 
-	private static final Logger LOG = Logger.getLogger(DefaultUserService.class.getName());
+	private static final Logger LOG = getLogger(DefaultUserService.class.getName());
 	
-	@Inject
-	@IdentityManagement
 	private Repository repository;
 	
-	@Inject
-	@IdentityManagement
 	private DatabaseService db;
 	
-	@Inject
 	private Messages messages;
 	
-	@Inject 
 	private PasswordService hashing;
 	
-	@Inject
 	private UserContext context;
 	
 	
-	public DefaultUserService() {
+	protected DefaultUserService() {
 		// CDI constructor
 	}
 	
-	// Unit tests
-	protected DefaultUserService(Repository repository,
-								 DatabaseService db,
+	@Inject
+	protected DefaultUserService(@IdentityManagement Repository repository,
+								 @IdentityManagement DatabaseService db,
 								 PasswordService hashing,
 								 Messages messages,
 								 UserContext context) {
@@ -115,18 +110,19 @@ public class DefaultUserService implements UserService {
 	@Override
 	public List<UserReference> findUsers(String filter) {
 		
-		if(filter == null || filter.isEmpty()) {
-			return db.executeQuery(prepare("SELECT uuid, name, email, givenname, familyname FROM auth.userdata ORDER BY familyname,givenname,name"), 
+		if(isEmptyString(filter)) {
+			return db.executeQuery(prepare("SELECT uuid, name, email, givenname, familyname, salt64 FROM auth.userdata ORDER BY familyname,givenname,name"), 
 						    	   rs -> newUserReference()
 						    	   		 .withUserId(userId(rs.getString(1)))
 						    	   		 .withUserName(userName(rs.getString(2)))
 						    	   		 .withEmailAddress(emailAddress(rs.getString(3)))
 						    	   		 .withGivenName(rs.getString(4))
 						    	   		 .withFamilyName(rs.getString(5))
+						    	   		 .withOidcOnly(rs.getString(6) == null)
 						    	   		 .build());
 		}
 
-		return db.executeQuery(prepare("SELECT uuid, name, email, givenname, familyname FROM auth.userdata WHERE (familyname ~ ? OR name ~ ? ) ORDER BY familyname,givenname,name",
+		return db.executeQuery(prepare("SELECT uuid, name, email, givenname, familyname, salt64 FROM auth.userdata WHERE (familyname ~ ? OR name ~ ? ) ORDER BY familyname,givenname,name",
 									   filter,
 									   filter), 
 					    	   rs -> newUserReference()
@@ -135,6 +131,7 @@ public class DefaultUserService implements UserService {
 					    	   		 .withEmailAddress(emailAddress(rs.getString(3)))
 					    	   		 .withGivenName(rs.getString(4))
 					    	   		 .withFamilyName(rs.getString(5))
+					    	   		 .withOidcOnly(rs.getString(6) == null)
 					    	   		 .build());
 	}
 
@@ -144,7 +141,7 @@ public class DefaultUserService implements UserService {
 	@Override
 	public void storeUserSettings(UserSettings settings) {
 		User user = findUser(settings.getUserId());
-		if(context.scopesIncludeOneOf(ADM_SCOPE) || context.getUserId().equals(user.getUserId())) {
+		if(context.scopesIncludeOneOf(ADM_SCOPE) || context.getUserName().equals(user.getUserName())) {
 			user.setUserName(settings.getUserName());
 			user.setGivenName(settings.getGivenName());
 			user.setFamilyName(settings.getFamilyName());
@@ -209,6 +206,7 @@ public class DefaultUserService implements UserService {
 			   .withRoles(user.getRoles(Role::getRoleName))
 			   .withScopes(user.getScopes())
 			   .withAccessTokenTtl(user.getTokenTtl(),user.getTokenTtlUnit())
+			   .withOidcOnly(user.getPasswordHash() == null)
 			   .build();
 	}
 

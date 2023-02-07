@@ -54,6 +54,23 @@ public final class SecureHashes {
 		return new SecureHashFunction(createMessageDigest("SHA-512"));
 	}
 
+	   /**
+     * Creates a function to compute SHA3-256 hashes.
+     * @return a function to compute SHA3-256 hashes.
+     */
+    public static SecureHashFunction sha3_256(){
+        return new SecureHashFunction(createMessageDigest("SHA3-256"));
+    }
+
+    /**
+     * Creates a function to compute SHA3-512 hashes.
+     * @return a function to compute SHA3-512 hashes.
+     */
+    public static SecureHashFunction sha3_512(){
+        return new SecureHashFunction(createMessageDigest("3-512"));
+    }
+
+	
 	private static MessageDigest createMessageDigest(String algorithm) {
 		try{
 			return MessageDigest.getInstance(algorithm);

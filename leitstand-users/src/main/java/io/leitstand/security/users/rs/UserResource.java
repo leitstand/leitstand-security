@@ -39,8 +39,8 @@ import io.leitstand.commons.ConflictException;
 import io.leitstand.commons.messages.Messages;
 import io.leitstand.commons.rs.Resource;
 import io.leitstand.security.auth.Scopes;
-import io.leitstand.security.auth.UserId;
 import io.leitstand.security.auth.UserName;
+import io.leitstand.security.users.service.UserId;
 import io.leitstand.security.users.service.UserService;
 import io.leitstand.security.users.service.UserSettings;
 
@@ -53,11 +53,19 @@ import io.leitstand.security.users.service.UserSettings;
 @Produces(APPLICATION_JSON)
 public class UserResource {
 	
-	@Inject
 	private UserService service;
 	
-	@Inject
 	private Messages messages;
+	
+	public UserResource() {
+		// CDI and JAX-RS
+	}
+	
+	@Inject
+	protected UserResource(UserService service, Messages messages) {
+		this.service = service;
+		this.messages = messages;
+	}
 	
 	
 	/**
@@ -128,7 +136,7 @@ public class UserResource {
 	 * @return messages to explain the outcome of the operation
 	 */
 	@POST
-	@Path("/{user:"+UUID_PATTERN+"}/_passwd")
+	@Path("/{user:"+UUID_PATTERN+"}/passwd")
 	@Scopes({ADM, ADM_USER})
 	public Messages storePassword(@Valid @PathParam("user") UserId userId, 
 							      @Valid ChangePasswordRequest passwd) {
@@ -147,7 +155,7 @@ public class UserResource {
 	 * @return messages to explain the outcome of the operation
 	 */
 	@POST
-	@Path("/{user}/_passwd")
+	@Path("/{user}/passwd")
 	@Scopes({ADM, ADM_USER})
 	public Messages storePassword(@Valid @PathParam("user") UserName userName, 
 							      @Valid ChangePasswordRequest passwd) {
@@ -167,7 +175,7 @@ public class UserResource {
 	 * @return messages to explain the outcome of the operation
 	 */
 	@POST
-	@Path("/{user:"+UUID_PATTERN+"}/_reset")
+	@Path("/{user:"+UUID_PATTERN+"}/reset")
 	@Scopes({ADM, ADM_USER})
 	public Messages reset(@PathParam("user") UserId userId, 
 						  @Valid ResetPasswordRequest passwd) {
@@ -186,7 +194,7 @@ public class UserResource {
 	 * @return messages to explain the outcome of the operation
 	 */
 	@POST
-	@Path("/{user}/_reset")
+	@Path("/{user}/reset")
 	@Scopes({ADM, ADM_USER})
 	public Messages reset(@Valid @PathParam("user") UserName userName, 
 						  @Valid ResetPasswordRequest passwd) {

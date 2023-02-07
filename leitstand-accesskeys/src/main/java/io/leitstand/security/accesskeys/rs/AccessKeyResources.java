@@ -23,9 +23,16 @@ import javax.enterprise.context.Dependent;
 
 import io.leitstand.commons.rs.ApiResourceProvider;
 
+/**
+ * Provider of all access-key management REST resources.
+ */
 @Dependent
 public class AccessKeyResources implements ApiResourceProvider {
 
+	/**
+	 * Returns the access-key management REST resources.
+	 * @return the access-key management REST resources.
+	 */
 	@Override
 	public Set<Class<?>> getResources() {
 		return asSet(AccessKeyResource.class);

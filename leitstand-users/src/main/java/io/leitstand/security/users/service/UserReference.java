@@ -16,13 +16,12 @@
 package io.leitstand.security.users.service;
 
 import static io.leitstand.commons.model.BuilderUtil.assertNotInvalidated;
-import static io.leitstand.security.auth.UserId.randomUserId;
+import static io.leitstand.security.users.service.UserId.randomUserId;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 import io.leitstand.commons.model.ValueObject;
-import io.leitstand.security.auth.UserId;
 import io.leitstand.security.auth.UserName;
 
 public class UserReference extends ValueObject{
@@ -66,6 +65,12 @@ public class UserReference extends ValueObject{
 		public B withEmailAddress(EmailAddress email) {
 			assertNotInvalidated(getClass(), instance);
 			((UserReference)instance).email = email;
+			return (B) this;
+		}
+		
+		public B withOidcOnly(boolean oidcOnly) {
+			assertNotInvalidated(getClass(), instance);
+			((UserReference)instance).oidcOnly = oidcOnly;
 			return (B) this;
 		}
 		

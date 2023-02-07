@@ -16,7 +16,6 @@
 package io.leitstand.security.users.model;
 
 import static io.leitstand.commons.model.ObjectUtil.asSet;
-import static io.leitstand.security.auth.UserId.randomUserId;
 import static io.leitstand.security.auth.UserName.userName;
 import static io.leitstand.security.users.model.Role.findRoleByName;
 import static io.leitstand.security.users.service.EmailAddress.emailAddress;
@@ -24,6 +23,7 @@ import static io.leitstand.security.users.service.ReasonCode.IDM0004E_USER_NOT_F
 import static io.leitstand.security.users.service.ReasonCode.IDM0008E_PASSWORD_MISMATCH;
 import static io.leitstand.security.users.service.RoleId.randomRoleId;
 import static io.leitstand.security.users.service.RoleName.roleName;
+import static io.leitstand.security.users.service.UserId.randomUserId;
 import static io.leitstand.security.users.service.UserSettings.newUserSettings;
 import static io.leitstand.security.users.service.UserSubmission.newUserSubmission;
 import static java.lang.Boolean.TRUE;
@@ -47,8 +47,8 @@ import io.leitstand.commons.messages.Message;
 import io.leitstand.commons.messages.Messages;
 import io.leitstand.commons.model.Repository;
 import io.leitstand.security.auth.UserContext;
-import io.leitstand.security.auth.UserId;
 import io.leitstand.security.auth.UserName;
+import io.leitstand.security.users.service.UserId;
 import io.leitstand.security.users.service.UserSettings;
 import io.leitstand.security.users.service.UserSubmission;
 import io.leitstand.testing.ut.LeitstandCoreMatchers;
@@ -205,7 +205,6 @@ public class DefaultUserServiceIT extends UsersIT {
 	public void user_can_update_own_settings() {
 		UserId userId = randomUserId();
 		when(context.getUserName()).thenReturn(userName("user"));
-		when(context.getUserId()).thenReturn(userId);
 		UserSubmission user = newUserSubmission()
 							  .withUserId(userId)
 							  .withUserName(userName("user"))

@@ -19,8 +19,8 @@ import static io.leitstand.security.accesskeys.rs.Scopes.ADM;
 import static io.leitstand.security.accesskeys.rs.Scopes.ADM_ACCESSKEY;
 import static io.leitstand.security.accesskeys.rs.Scopes.ADM_ACCESSKEY_READ;
 import static io.leitstand.security.accesskeys.rs.Scopes.ADM_READ;
-import static io.leitstand.security.accesskeys.service.AccessKeyData.newAccessKey;
 import static io.leitstand.security.accesskeys.service.AccessKeyName.accessKeyName;
+import static io.leitstand.security.accesskeys.service.AccessKeySettings.newAccessKeySettings;
 import static java.lang.String.format;
 import static java.net.URI.create;
 import static javax.servlet.http.HttpServletResponse.SC_CONFLICT;
@@ -55,14 +55,17 @@ import io.leitstand.commons.messages.Messages;
 import io.leitstand.commons.rs.Resource;
 import io.leitstand.security.accesskeys.flow.CreateAccessKeyFlow;
 import io.leitstand.security.accesskeys.flow.RenewAccessKeyFlow;
-import io.leitstand.security.accesskeys.service.AccessKeyData;
-import io.leitstand.security.accesskeys.service.AccessKeyMetaData;
+import io.leitstand.security.accesskeys.model.DefaultApiAccessKeyService;
+import io.leitstand.security.accesskeys.service.AccessKeyInfo;
 import io.leitstand.security.accesskeys.service.AccessKeyService;
+import io.leitstand.security.accesskeys.service.AccessKeySettings;
 import io.leitstand.security.auth.Scopes;
-import io.leitstand.security.auth.accesskey.AccessKeyId;
-import io.leitstand.security.auth.accesskey.ApiAccessKey;
-import io.leitstand.security.auth.accesskeys.AccessKeyEncodingService;
+import io.leitstand.security.auth.accesskeys.AccessKeyId;
+import io.leitstand.security.auth.accesskeys.ApiAccessKey;
 
+/**
+ * REST resource for API access key management.
+ */
 @Resource
 @Path("/accesskeys")
 @Scopes({ADM,ADM_ACCESSKEY})
@@ -70,30 +73,54 @@ import io.leitstand.security.auth.accesskeys.AccessKeyEncodingService;
 @Produces(APPLICATION_JSON)
 public class AccessKeyResource {
 
-	@Inject
 	private AccessKeyService service;
 	
-	@Inject
-	private AccessKeyEncodingService encoder;
+	private DefaultApiAccessKeyService encoder;
 	
-	@Inject
 	private Messages messages;
 	
+	public AccessKeyResource() {
+		// CDI and RESTEASY
+	}
+	
+	@Inject
+	protected AccessKeyResource(AccessKeyService service, DefaultApiAccessKeyService encoder, Messages messages) {
+		this.service = service;
+		this.encoder = encoder;
+		this.messages = messages;
+	}
+	
+	/**
+	 * Lists all access key matching the given filter query.
+	 * @param filter access key name pattern
+	 * @return list of all matching access keys.
+	 */
 	@GET
 	@Scopes({ADM,ADM_READ,ADM_ACCESSKEY,ADM_ACCESSKEY_READ})
-	public List<AccessKeyMetaData> findAccessKey(@QueryParam("filter") @DefaultValue(".*") String filter){
+	public List<AccessKeyInfo> findAccessKey(@QueryParam("filter") @DefaultValue(".*") String filter){
 		return service.findAccessKeys(filter);
 	}
 	
+	/**
+	 * Returns the access key with the given ID.
+	 * @param accessKeyId the access key ID
+	 * @return the access key with the given ID
+	 */
 	@GET
 	@Path("/{key_id}")
 	@Scopes({ADM,ADM_READ,ADM_ACCESSKEY,ADM_ACCESSKEY_READ})
-	public AccessKeyData getAccessKey(@PathParam("key_id") @Valid AccessKeyId accessKeyId){
+	public AccessKeySettings getAccessKey(@PathParam("key_id") @Valid AccessKeyId accessKeyId){
 		return service.getAccessKey(accessKeyId);
 	}
 	
+	/**
+	 * Renews an existing access key by revoking the access key and creating a new access key with a new UUID.
+	 * This invalidates the issued access key token.
+	 * @param accessKeyId the access key ID
+	 * @return the new access key JSON web token
+	 */
 	@POST
-	@Path("/{key_id}/_renew")
+	@Path("/{key_id}/renew")
 	public Response renewAccessKey(@PathParam("key_id") @Valid AccessKeyId accessKeyId){
 		RenewAccessKeyFlow renewFlow = new RenewAccessKeyFlow(service);
 		renewFlow.renew(accessKeyId);
@@ -103,6 +130,12 @@ public class AccessKeyResource {
 			   .build();
 	}
 	
+	/**
+	 * Updates the access key ID description.
+	 * @param accessKeyId the access key ID
+	 * @param description the access key description
+	 * @return messages describing the outcome of the operation
+	 */
 	@PUT
 	@Path("/{key_id}/description")
 	@Consumes(TEXT_PLAIN)
@@ -113,21 +146,31 @@ public class AccessKeyResource {
 		return messages;
 	}
 	
+	/**
+	 * Creates a new access key.
+	 * @param accessKeySettings the access key settings
+	 * @return the 201 Created HTTP response
+	 */
 	@POST
-	public Response createNewAccessKey(@Valid AccessKeyData accessKeyData) {
+	public Response createNewAccessKey(@Valid AccessKeySettings accessKeySettings) {
 		CreateAccessKeyFlow flow = new CreateAccessKeyFlow(service, messages);
-		String accessKey = flow.tryCreateAccessKey(accessKeyData);
+		String accessKey = flow.tryCreateAccessKey(accessKeySettings);
 		if(isEmptyString(accessKey)) {
 			return status(SC_CONFLICT)
 				   .entity(messages)
 				   .build();
 		}
 		return created(create(format("/accesskeys/%s",
-									 accessKeyData.getAccessKeyId())))
+									 accessKeySettings.getAccessKeyId())))
 			   .entity("\""+accessKey+"\"")
 			   .build();
 	}
 	
+	/**
+	 * Removes an API access key.
+	 * @param accessKeyId the access key ID
+	 * @return a 204 No Content or a 200 OK response, depending on whether status messages exist.
+	 */
 	@DELETE
 	@Path("/{key_id}")
 	public Response removeAccessKey(@PathParam("key_id") @Valid AccessKeyId accessKeyId) {
@@ -138,10 +181,16 @@ public class AccessKeyResource {
 		return ok(json(messages)).build();
 	}
 	
+	/**
+	 * Validates a given access key.
+	 * @param accessToken the access key JSON web token. 
+	 * @return the settings of the access key associated with the given JSON web token
+	 * @throws UnprocessableEntityException if the access token cannot be processed
+	 */
 	@POST
-	@Path("/_validate")	
+	@Path("/validate")	
 	@Consumes(TEXT_PLAIN)
-	public AccessKeyData validate(String accessToken) {
+	public AccessKeySettings validate(String accessToken) {
 	    try {
     		ApiAccessKey key = encoder.decode(accessToken);
     		return service.getAccessKey(key.getId());
@@ -154,13 +203,19 @@ public class AccessKeyResource {
 	    }
 	}
 	
+	/**
+	 * Restores a revoked access key.
+	 * @param accessToken the access key JSON Web Token (JWT).
+	 * @return the settings of the restored access key.
+	 * @throws UnprocessableEntityException when the access key cannot be restored.
+	 */
 	@POST
-	@Path("/_restore")
+	@Path("/restore")
 	@Consumes(TEXT_PLAIN)
-	public AccessKeyData restore(String accessToken) {
+	public AccessKeySettings restore(String accessToken) {
 	    try{
     	    ApiAccessKey key = encoder.decode(accessToken);
-    	    service.createAccessKey(newAccessKey()
+    	    service.createAccessKey(newAccessKeySettings()
     	                            .withAccessKeyId(key.getId())
     	                            .withAccessKeyName(accessKeyName(key.getUserName()))
     	                            .withScopes(key.getScopes())

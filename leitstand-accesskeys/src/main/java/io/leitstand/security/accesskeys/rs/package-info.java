@@ -14,6 +14,6 @@
  * the License.
  */
 /**
- * REST API endpoints for access key management
+ * Contains the REST API endpoints for API access-key management.
  */
 package io.leitstand.security.accesskeys.rs;

@@ -15,87 +15,80 @@
  */
 package io.leitstand.security.accesskeys.model;
 
-import static io.leitstand.security.accesskeys.service.AccessKeyData.newAccessKey;
 import static io.leitstand.security.accesskeys.service.AccessKeyName.accessKeyName;
+import static io.leitstand.security.accesskeys.service.AccessKeySettings.newAccessKeySettings;
 import static io.leitstand.security.accesskeys.service.ReasonCode.AKY0001E_ACCESS_KEY_NOT_FOUND;
 import static io.leitstand.security.accesskeys.service.ReasonCode.AKY0005E_DUPLICATE_KEY_NAME;
-import static io.leitstand.security.auth.accesskey.AccessKeyId.randomAccessKeyId;
-import static io.leitstand.security.mac.MessageAuthenticationCodes.hmacSha256;
-import static java.util.Base64.getUrlEncoder;
+import static io.leitstand.security.auth.accesskeys.AccessKeyId.randomAccessKeyId;
+import static io.leitstand.testing.ut.LeitstandCoreMatchers.reason;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.enterprise.event.Event;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import io.leitstand.commons.EntityNotFoundException;
 import io.leitstand.commons.UniqueKeyConstraintViolationException;
+import io.leitstand.commons.etc.Environment;
 import io.leitstand.commons.model.ObjectUtil;
 import io.leitstand.commons.model.Repository;
 import io.leitstand.security.accesskeys.event.AccessKeyEvent;
-import io.leitstand.security.accesskeys.service.AccessKeyData;
-import io.leitstand.security.accesskeys.service.ReasonCode;
-import io.leitstand.security.auth.accesskey.AccessKeyId;
-import io.leitstand.security.auth.accesskey.ApiAccessKey;
-import io.leitstand.security.auth.accesskeys.AccessKeyEncodingService;
-import io.leitstand.security.auth.standalone.StandaloneLoginConfig;
-import io.leitstand.security.crypto.Secret;
+import io.leitstand.security.accesskeys.service.AccessKeyInfo;
+import io.leitstand.security.accesskeys.service.AccessKeySettings;
+import io.leitstand.security.auth.accesskeys.AccessKeyId;
+import io.leitstand.security.auth.accesskeys.ApiAccessKey;
 
 public class DefaultAccessKeyServiceIT extends AccessKeysIT{
 
+    @Rule
+    public TemporaryFolder leitstandHome = new TemporaryFolder();
+    
+    @Rule
+    public ExpectedException exception = ExpectedException.none();
+    
 	private Repository repository;
 	private DefaultAccessKeyService service;
 	private ArgumentCaptor<AccessKeyEvent> captor;
-	private AccessKeyEncodingService encoder;
+	private DefaultApiAccessKeyService encoder;
 	
 	@Before
 	public void initResources() {
 		repository = new Repository(getEntityManager());
-		StandaloneLoginConfig config = mock(StandaloneLoginConfig.class);
-		when(config.apiKeyHmac(Mockito.anyString())).thenAnswer(new Answer() {
-
-			@Override
-			public Object answer(InvocationOnMock invocation) throws Throwable {
-				String token = (String) invocation.getArguments()[0];
-				return getUrlEncoder().encodeToString(hmacSha256(new Secret("changeit".getBytes())).sign(token));
-			}
-		});
 		Event event = mock(Event.class);
+		AccessKeyConfig config = new AccessKeyConfig(new Environment(leitstandHome.getRoot()));
 		captor = ArgumentCaptor.forClass(AccessKeyEvent.class);
 		doNothing().when(event).fire(captor.capture());
-		encoder = new AccessKeyEncodingService(config);
+		encoder = new DefaultApiAccessKeyService(config);
 		service = new DefaultAccessKeyService(repository,
+											  getDatabase(),
 											  encoder,
 											  event);
 	}
 	
 	@Test
 	public void fire_EntityNotFoundException_if_access_key_does_not_exist() {
-		try {
-			service.getAccessKey(randomAccessKeyId());
-			fail("Exception expected!");
-		} catch(EntityNotFoundException e){
-			assertEquals(ReasonCode.AKY0001E_ACCESS_KEY_NOT_FOUND,e.getReason());
-		}
+		exception.expect(EntityNotFoundException.class);
+		exception.expect(reason(AKY0001E_ACCESS_KEY_NOT_FOUND));
+		service.getAccessKey(randomAccessKeyId());
 	}
 	
 	@Test
 	public void can_create_new_access_key_without_scopes() {
 		
-		AccessKeyData key = newAccessKey()
+		AccessKeySettings key = newAccessKeySettings()
 							.withAccessKeyId(randomAccessKeyId())
 							.withAccessKeyName(accessKeyName("general"))
 							.withDateCreated(new Date())
@@ -120,7 +113,7 @@ public class DefaultAccessKeyServiceIT extends AccessKeysIT{
 	@Test
 	public void can_create_new_access_key_with_scopes() {
 		
-		AccessKeyData key = newAccessKey()
+		AccessKeySettings key = newAccessKeySettings()
 							.withAccessKeyId(randomAccessKeyId())
 							.withAccessKeyName(accessKeyName("method_path"))
 							.withDateCreated(new Date())
@@ -146,7 +139,7 @@ public class DefaultAccessKeyServiceIT extends AccessKeysIT{
 	@Test
 	public void cannot_create_keys_with_same_name() {
 		
-		AccessKeyData key = newAccessKey()
+		AccessKeySettings key = newAccessKeySettings()
 							.withAccessKeyId(randomAccessKeyId())
 							.withAccessKeyName(accessKeyName("unique_test"))
 							.withDateCreated(new Date())
@@ -159,12 +152,9 @@ public class DefaultAccessKeyServiceIT extends AccessKeysIT{
 		});
 		
 		transaction(() -> {
-			try {
-				service.createAccessKey(key);
-				fail("Exception expected");
-			} catch (UniqueKeyConstraintViolationException e) {
-				assertEquals(AKY0005E_DUPLICATE_KEY_NAME,e.getReason());
-			}
+			exception.expect(UniqueKeyConstraintViolationException.class);
+			exception.expect(reason(AKY0005E_DUPLICATE_KEY_NAME));
+			service.createAccessKey(key);
 		});
 	}
 	
@@ -172,7 +162,7 @@ public class DefaultAccessKeyServiceIT extends AccessKeysIT{
 	@Test
 	public void can_remove_access_key() {
 		
-		AccessKeyData key = newAccessKey()
+		AccessKeySettings key = newAccessKeySettings()
 							.withAccessKeyId(randomAccessKeyId())
 							.withAccessKeyName(accessKeyName("revoke"))
 							.withScopes("element","pod")
@@ -184,7 +174,7 @@ public class DefaultAccessKeyServiceIT extends AccessKeysIT{
 		});
 				
 		transaction(() -> {
-			AccessKeyData created = service.getAccessKey(key.getAccessKeyId());
+			AccessKeySettings created = service.getAccessKey(key.getAccessKeyId());
 			assertEquals(key.getAccessKeyId(),created.getAccessKeyId());
 			assertEquals(key.getAccessKeyName(),created.getAccessKeyName());
 			assertEquals(key.getDescription(),created.getDescription());
@@ -202,6 +192,7 @@ public class DefaultAccessKeyServiceIT extends AccessKeysIT{
 				service.getAccessKey(key.getAccessKeyId());
 				fail("Exception expected!");
 			} catch(EntityNotFoundException e) {
+				// Catch exception to not skip the test run.
 				assertEquals(AKY0001E_ACCESS_KEY_NOT_FOUND,e.getReason());
 			}
 		});
@@ -215,7 +206,7 @@ public class DefaultAccessKeyServiceIT extends AccessKeysIT{
 	
 	@Test
 	public void can_update_access_key_description() {
-		AccessKeyData key = newAccessKey()
+		AccessKeySettings key = newAccessKeySettings()
 							.withAccessKeyId(randomAccessKeyId())
 							.withAccessKeyName(accessKeyName("description_test"))
 							.withDescription("Unittest access key")
@@ -226,13 +217,13 @@ public class DefaultAccessKeyServiceIT extends AccessKeysIT{
 		});
 		
 		transaction(() -> {
-			AccessKeyData read = service.getAccessKey(key.getAccessKeyId());
+			AccessKeySettings read = service.getAccessKey(key.getAccessKeyId());
 			assertEquals("Unittest access key",read.getDescription());
 			service.updateAccessKey(key.getAccessKeyId(), "new description");
 		});
 		
 		transaction(() -> {
-			AccessKeyData read = service.getAccessKey(key.getAccessKeyId());
+			AccessKeySettings read = service.getAccessKey(key.getAccessKeyId());
 			assertEquals("new description",read.getDescription());
 		});
 
@@ -244,6 +235,7 @@ public class DefaultAccessKeyServiceIT extends AccessKeysIT{
 		transaction(() -> {
 			service.removeAccessKey(keyId);
 		});
+		assertTrue(captor.getAllValues().isEmpty());
 	}
 	
 	static class TokenInspector {
@@ -253,12 +245,12 @@ public class DefaultAccessKeyServiceIT extends AccessKeysIT{
 	@Test
 	public void restore_revoked_access_key() {
 	 
-	    AccessKeyData key = newAccessKey()
-	                        .withAccessKeyId(randomAccessKeyId())
-	                        .withAccessKeyName(accessKeyName("restore_revoked"))
-	                        .withScopes("element","pod")
-	                        .withDescription("Unittest access key")
-	                        .build();
+	    AccessKeySettings key = newAccessKeySettings()
+	                        	.withAccessKeyId(randomAccessKeyId())
+	                        	.withAccessKeyName(accessKeyName("restore_revoked"))
+	                        	.withScopes("element","pod")
+	                        	.withDescription("Unittest access key")
+	                        	.build();
 	    
 	    TokenInspector inspector = new TokenInspector(); 
 	    
@@ -277,7 +269,7 @@ public class DefaultAccessKeyServiceIT extends AccessKeysIT{
         transaction(() -> {
             
             ApiAccessKey decoded = encoder.decode(inspector.token);
-            AccessKeyData restored = newAccessKey()
+            AccessKeySettings restored = newAccessKeySettings()
                                      .withAccessKeyId(decoded.getId())
                                      .withAccessKeyName(accessKeyName(decoded.getUserName()))
                                      .withDateCreated(decoded.getDateCreated())
@@ -287,9 +279,25 @@ public class DefaultAccessKeyServiceIT extends AccessKeysIT{
             
            String token = service.createAccessKey(restored);
            assertEquals(inspector.token,token);
-        
         });
 
+	}
+	
+	@Test
+	public void filter_access_key_by_name() {
+		AccessKeySettings key = newAccessKeySettings().withAccessKeyId(randomAccessKeyId())
+								.withAccessKeyName(accessKeyName("test"))
+								.withDateCreated(new Date())
+								.build();
+		transaction(() -> {
+			service.createAccessKey(key);
+		});
+		
+		transaction(() -> {
+			List<AccessKeyInfo> keys = service.findAccessKeys("te.*");
+			assertEquals(accessKeyName("test"), keys.get(0).getAccessKeyName());
+		});
+		
 	}
 	
 }

@@ -18,7 +18,6 @@ package io.leitstand.security.accesskeys.model;
 import static java.util.Collections.unmodifiableSet;
 
 import java.util.Date;
-import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -36,16 +35,24 @@ import io.leitstand.commons.model.Query;
 import io.leitstand.security.accesskeys.jpa.AccessKeyIdConverter;
 import io.leitstand.security.accesskeys.jpa.AccessKeyNameConverter;
 import io.leitstand.security.accesskeys.service.AccessKeyName;
-import io.leitstand.security.auth.accesskey.AccessKeyId;
+import io.leitstand.security.accesskeys.service.AccessKeyService;
+import io.leitstand.security.auth.accesskeys.AccessKeyId;
 
+/**
+ * API access key entity.
+ * <p>
+ * The database contains the API access key meta data for documentation purposes.
+ * The access key itself is not stored in the database but computed from the meta data.
+ * Changes to the data in the database therefore have no effect on the issued access key.
+ * An access key must be revoked and a new access key must be issued to modify the access key settings.
+ * @see AccessKeyService
+ */
 @Entity
 @Table(schema="auth", name="accesskey")
 @NamedQuery(name="AccessKey.findByAccessKeyId",
 			query="SELECT k FROM AccessKey k WHERE k.uuid=:uuid")
 @NamedQuery(name="AccessKey.findByAccessKeyName",
 			query="SELECT k FROM AccessKey k WHERE k.name=:name")
-@NamedQuery(name="AccessKey.findByNamePattern",
-			query="SELECT k FROM AccessKey k WHERE CONCAT('',k.name) REGEXP :pattern ORDER BY k.name")
 public class AccessKey extends AbstractEntity{
 
 	private static final long serialVersionUID = 1L;
@@ -62,11 +69,6 @@ public class AccessKey extends AbstractEntity{
 				   	   .getSingleResult();
 	}
 	
-	public static Query<List<AccessKey>> findByNamePattern(String pattern){
-		return em -> em.createNamedQuery("AccessKey.findByNamePattern",AccessKey.class)
-					   .setParameter("pattern",pattern)
-					   .getResultList();
-	}
 	
 	@Convert(converter=AccessKeyIdConverter.class)
 	private AccessKeyId uuid;

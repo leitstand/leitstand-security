@@ -17,18 +17,32 @@ package io.leitstand.security.auth.jsonb;
 
 import javax.json.bind.adapter.JsonbAdapter;
 
+import io.leitstand.commons.model.Scalar;
 import io.leitstand.security.auth.UserName;
 
+/**
+ * <code>UserName</code> JSON-B adapter.
+ */
 public class UserNameAdapter implements JsonbAdapter<UserName,String> {
 
+	/**
+	 * Creates a <code>UserName</code> from the given string.
+	 * @param name the user name
+	 * @return the typed user name or <code>null</code> if the given string is <code>null</code> or empty.
+	 */
 	@Override
-	public UserName adaptFromJson(String v) throws Exception {
-		return UserName.valueOf(v);
+	public UserName adaptFromJson(String name) throws Exception {
+		return UserName.valueOf(name);
 	}
 
+	/**
+	 * Converts a <code>UserName</code> to a string.
+	 * @param name the user name
+	 * @return the string representation of the user name or <code>null</code> if the given string is <code>null</code> or empty.
+	 */
 	@Override
-	public String adaptToJson(UserName v) throws Exception {
-		return UserName.toString(v);
+	public String adaptToJson(UserName name) throws Exception {
+		return Scalar.toString(name);
 	}
 
 }
